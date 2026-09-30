@@ -1,70 +1,49 @@
 package com.company.warehousemanagement.entity;
 
-import io.jmix.core.entity.annotation.JmixGeneratedValue;
 import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-
-import java.util.UUID;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @JmixEntity
-@Table(name = "PRODUCT", indexes = {
-        @Index(name = "IDX_PRODUCT_CATEGORY", columnList = "CODE", unique = true),
-        @Index(name = "IDX_PRODUCT_BASE_UNIT", columnList = "BASE_UNIT_ID"),
-        @Index(name = "IDX_PRODUCT_2", columnList = "CODE")
+@Table(name = "PRODUCT", uniqueConstraints = {
+        @UniqueConstraint(name = "IDX_PRODUCT_UNQ_CODE", columnNames = "CODE")
+}, indexes = {
+        @Index(name = "IDX_PRODUCT_NAME", columnList = "NAME")
 })
 @Entity
-public class Product {
-    @JmixGeneratedValue
-    @Column(name = "ID", nullable = false)
-    @Id
-    private UUID id;
+public class Product extends AuditedEntity {
 
     @Column(name = "CODE", nullable = false, length = 50)
-    @NotNull
     private String code;
 
     @InstanceName
     @Column(name = "NAME", nullable = false)
-    @NotNull
     private String name;
 
     @JoinColumn(name = "CATEGORY_ID", nullable = false)
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private ProductCategory category;
 
     @JoinColumn(name = "BASE_UNIT_ID", nullable = false)
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private Unit baseUnit;
 
-    @Column(name = "ACTIVE")
-    private Boolean active;
+    @Column(name = "ACTIVE", nullable = false)
+    private Boolean active = true;
 
-    public Boolean getActive() {
-        return active;
+    public String getCode() {
+        return code;
     }
 
-    public void setActive(Boolean active) {
-        this.active = active;
-    }
-
-    public Unit getBaseUnit() {
-        return baseUnit;
-    }
-
-    public void setBaseUnit(Unit baseUnit) {
-        this.baseUnit = baseUnit;
-    }
-
-    public ProductCategory getCategory() {
-        return category;
-    }
-
-    public void setCategory(ProductCategory category) {
-        this.category = category;
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public String getName() {
@@ -75,20 +54,27 @@ public class Product {
         this.name = name;
     }
 
-    public String getCode() {
-        return code;
+    public ProductCategory getCategory() {
+        return category;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setCategory(ProductCategory category) {
+        this.category = category;
     }
 
-    public UUID getId() {
-        return id;
+    public Unit getBaseUnit() {
+        return baseUnit;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
+    public void setBaseUnit(Unit baseUnit) {
+        this.baseUnit = baseUnit;
     }
 
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
 }

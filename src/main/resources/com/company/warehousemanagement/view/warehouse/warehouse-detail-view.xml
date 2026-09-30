@@ -4,7 +4,7 @@
       focusComponent="form">
     <data>
         <instance id="warehouseDc"
-                  class="com.company.warehousemanagement.entity.Warehouse">
+                  class=>
             <fetchPlan extends="_base"/>
             <loader id="warehouseDl"/>
         </instance>

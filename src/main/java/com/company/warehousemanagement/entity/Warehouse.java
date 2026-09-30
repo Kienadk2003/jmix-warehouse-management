@@ -1,54 +1,38 @@
 package com.company.warehousemanagement.entity;
 
-import io.jmix.core.entity.annotation.JmixGeneratedValue;
 import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-
-import java.util.UUID;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @JmixEntity
-@Table(name = "WAREHOUSE", indexes = {
-        @Index(name = "IDX_WAREHOUSE_UNQ", columnList = "CODE, ID", unique = true)
+@Table(name = "WAREHOUSE", uniqueConstraints = {
+        @UniqueConstraint(name = "IDX_WAREHOUSE_UNQ_CODE", columnNames = "CODE")
 })
 @Entity
-public class Warehouse {
-    @JmixGeneratedValue
-    @Column(name = "ID", nullable = false)
-    @Id
-    private UUID id;
+public class Warehouse extends AuditedEntity {
 
     @Column(name = "CODE", nullable = false, length = 50)
-    @NotNull
     private String code;
 
     @InstanceName
     @Column(name = "NAME", nullable = false)
-    @NotNull
     private String name;
 
-    @Column(name = "ADDRESS", nullable = false)
-    @NotNull
+    @Column(name = "ADDRESS", length = 500)
     private String address;
 
-    @Column(name = "ACTIVE")
-    private Boolean active = false;
+    @Column(name = "ACTIVE", nullable = false)
+    private Boolean active = true;
 
-    public void setActive(Boolean active) {
-        this.active = active;
+    public String getCode() {
+        return code;
     }
 
-    public Boolean getActive() {
-        return active;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public String getName() {
@@ -59,20 +43,20 @@ public class Warehouse {
         this.name = name;
     }
 
-    public String getCode() {
-        return code;
+    public String getAddress() {
+        return address;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
-    public UUID getId() {
-        return id;
+    public Boolean getActive() {
+        return active;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
+    public void setActive(Boolean active) {
+        this.active = active;
     }
-
 }
+

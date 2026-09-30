@@ -5,7 +5,7 @@
 
     <data>
         <instance id="partnerDc"
-                  class="com.company.warehousemanagement.entity.Partner">
+                  class=>
             <fetchPlan extends="_base"/>
             <loader id="partnerDl"/>
         </instance>

@@ -1,72 +1,41 @@
 package com.company.warehousemanagement.entity;
 
-import io.jmix.core.entity.annotation.JmixGeneratedValue;
 import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-
-import java.util.UUID;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @JmixEntity
-@Table(name = "PARTNER", indexes = {
-        @Index(name = "IDX_PARTNER_UNQ", columnList = "CODE", unique = true)
+@Table(name = "PARTNER", uniqueConstraints = {
+        @UniqueConstraint(name = "IDX_PARTNER_UNQ_CODE", columnNames = "CODE")
+}, indexes = {
+        @Index(name = "IDX_PARTNER_NAME", columnList = "NAME")
 })
 @Entity
-public class Partner {
-    @JmixGeneratedValue
-    @Column(name = "ID", nullable = false)
-    @Id
-    private UUID id;
+public class Partner extends BaseUuidEntity {
 
     @Column(name = "CODE", nullable = false, length = 50)
-    @NotNull
     private String code;
-
-    @Column(name = "CUSTOMER")
-    private Boolean customer;
-
-    @Column(name = "ATIVE")
-    private Boolean ative;
 
     @InstanceName
     @Column(name = "NAME", nullable = false)
-    @NotNull
     private String name;
 
-    @Column(name = "SUPPLIER")
-    private Boolean supplier;
+    @Column(name = "PARTNER_TYPE", nullable = false, length = 20)
+    private String partnerType;
 
-    public Boolean getAtive() {
-        return ative;
+    @Column(name = "ACTIVE", nullable = false)
+    private Boolean active = true;
+
+    public PartnerType getPartnerType() {
+        return partnerType == null ? null : PartnerType.fromId(partnerType);
     }
 
-    public void setAtive(Boolean ative) {
-        this.ative = ative;
-    }
-
-    public Boolean getCustomer() {
-        return customer;
-    }
-
-    public void setCustomer(Boolean customer) {
-        this.customer = customer;
-    }
-
-    public Boolean getSupplier() {
-        return supplier;
-    }
-
-    public void setSupplier(Boolean supplier) {
-        this.supplier = supplier;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public void setPartnerType(PartnerType partnerType) {
+        this.partnerType = partnerType == null ? null : partnerType.getId();
     }
 
     public String getCode() {
@@ -77,12 +46,20 @@ public class Partner {
         this.code = code;
     }
 
-    public UUID getId() {
-        return id;
+    public String getName() {
+        return name;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
+    public void setName(String name) {
+        this.name = name;
     }
 
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
 }
+

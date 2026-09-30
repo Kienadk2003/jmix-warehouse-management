@@ -5,7 +5,7 @@
       focusComponent="partnersDataGrid">
     <data>
         <collection id="partnersDc"
-                    class="com.company.warehousemanagement.entity.Partner">
+                    class=>
             <fetchPlan extends="_base"/>
             <loader id="partnersDl" readOnly="true">
                 <query>

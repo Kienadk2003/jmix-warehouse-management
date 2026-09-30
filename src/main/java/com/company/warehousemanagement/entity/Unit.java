@@ -1,54 +1,38 @@
 package com.company.warehousemanagement.entity;
 
-import io.jmix.core.entity.annotation.JmixGeneratedValue;
 import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-
-import java.util.UUID;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @JmixEntity
-@Table(name = "UNIT", indexes = {
-        @Index(name = "IDX_UNIT_UNQ", columnList = "CODE", unique = true)
+@Table(name = "UNIT", uniqueConstraints = {
+        @UniqueConstraint(name = "IDX_UNIT_UNQ_CODE", columnNames = "CODE")
 })
 @Entity
-public class Unit {
-    @JmixGeneratedValue
-    @Column(name = "ID", nullable = false)
-    @Id
-    private UUID id;
+public class Unit extends BaseUuidEntity {
 
     @Column(name = "CODE", nullable = false, length = 50)
-    @NotNull
     private String code;
 
     @InstanceName
     @Column(name = "NAME", nullable = false)
-    @NotNull
     private String name;
 
     @Column(name = "DECIMAL_SCALE", nullable = false)
-    @NotNull
-    private Integer decimalScale;
+    private Integer decimalScale = 0;
 
-    @Column(name = "ACTIVE")
-    private Boolean active;
+    @Column(name = "ACTIVE", nullable = false)
+    private Boolean active = true;
 
-    public Boolean getActive() {
-        return active;
+    public String getCode() {
+        return code;
     }
 
-    public void setActive(Boolean active) {
-        this.active = active;
-    }
-
-    public Integer getDecimalScale() {
-        return decimalScale;
-    }
-
-    public void setDecimalScale(Integer decimalScale) {
-        this.decimalScale = decimalScale;
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public String getName() {
@@ -59,20 +43,20 @@ public class Unit {
         this.name = name;
     }
 
-    public String getCode() {
-        return code;
+    public Integer getDecimalScale() {
+        return decimalScale;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setDecimalScale(Integer decimalScale) {
+        this.decimalScale = decimalScale;
     }
 
-    public UUID getId() {
-        return id;
+    public Boolean getActive() {
+        return active;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
+    public void setActive(Boolean active) {
+        this.active = active;
     }
-
 }
+

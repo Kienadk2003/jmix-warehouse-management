@@ -4,7 +4,7 @@
       focusComponent="form">
     <data>
         <instance id="productDc"
-                  class="com.company.warehousemanagement.entity.Product">
+                  class=>
             <fetchPlan extends="_base">
                 <property name="category" fetchPlan="_base"/>
                 <property name="baseUnit" fetchPlan="_base"/>
