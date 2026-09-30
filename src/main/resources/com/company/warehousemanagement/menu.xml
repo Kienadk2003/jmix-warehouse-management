@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<menu-config xmlns="http://jmix.io/schema/flowui/menu">
+
+    <menu id="application" title="msg://com.company.warehousemanagement/menu.application.title" opened="true">
+        <item view="User.list" title="msg://com.company.warehousemanagement.view.user/UserListView.title"/>
+        <item view="ProductCategory.list"
+              title="msg://com.company.warehousemanagement.view.productcategory/productCategoryListView.title"/>
+        <item view="Unit.list" title="msg://com.company.warehousemanagement.view.unit/unitListView.title"/>
+        <item view="Product.list" title="msg://com.company.warehousemanagement.view.product/productListView.title"/>
+        <item view="Partner.list" title="msg://com.company.warehousemanagement.view.partner/partnerListView.title"/>
+        <item view="Warehouse.list"
+              title="msg://com.company.warehousemanagement.view.warehouse/warehouseListView.title"/>
+    </menu>
+
+</menu-config>

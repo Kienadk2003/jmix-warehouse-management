@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS"
+        logicalFilePath="com/company/warehousemanagement/liquibase/changelog/2026/09/30-142023-e8194377.xml">
+    <changeSet id="1" author="warehouse-management">
+        <createTable tableName="PARTNER">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_PARTNER"/>
+            </column>
+            <column name="CODE" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CUSTOMER" type="BOOLEAN"/>
+            <column name="ATIVE" type="BOOLEAN"/>
+            <column name="NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SUPPLIER" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="2" author="warehouse-management">
+        <createTable tableName="PRODUCT">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_PRODUCT"/>
+            </column>
+            <column name="CODE" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CATEGORY_ID" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="BASE_UNIT_ID" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ACTIVE" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="3" author="warehouse-management">
+        <createTable tableName="PRODUCT_CATEGORY">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_PRODUCT_CATEGORY"/>
+            </column>
+            <column name="CODE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DESCRIPTION" type="VARCHAR(255)"/>
+            <column name="ACTIVE" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="4" author="warehouse-management">
+        <createTable tableName="UNIT">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_UNIT"/>
+            </column>
+            <column name="CODE" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DECIMAL_SCALE" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ACTIVE" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="5" author="warehouse-management">
+        <createTable tableName="WAREHOUSE">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_WAREHOUSE"/>
+            </column>
+            <column name="CODE" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ADDRESS" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ACTIVE" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="6" author="warehouse-management">
+        <createIndex indexName="IDX_PARTNER_UNQ" tableName="PARTNER" unique="true">
+            <column name="CODE"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="7" author="warehouse-management">
+        <createIndex indexName="IDX_PRODUCT_2" tableName="PRODUCT">
+            <column name="CODE"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="8" author="warehouse-management">
+        <createIndex indexName="IDX_PRODUCT_BASE_UNIT" tableName="PRODUCT">
+            <column name="BASE_UNIT_ID"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseColumnNames="BASE_UNIT_ID" baseTableName="PRODUCT"
+                                 constraintName="FK_PRODUCT_ON_BASE_UNIT" referencedColumnNames="ID"
+                                 referencedTableName="UNIT"/>
+    </changeSet>
+    <changeSet id="9" author="warehouse-management">
+        <createIndex indexName="IDX_PRODUCT_CATEGORY" tableName="PRODUCT" unique="true">
+            <column name="CODE"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="10" author="warehouse-management">
+        <createIndex indexName="IDX_PRODUCT_CATEGORY_UNQ" tableName="PRODUCT_CATEGORY" unique="true">
+            <column name="CODE"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="11" author="warehouse-management">
+        <createIndex indexName="IDX_UNIT_UNQ" tableName="UNIT" unique="true">
+            <column name="CODE"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="12" author="warehouse-management">
+        <createIndex indexName="IDX_WAREHOUSE_UNQ" tableName="WAREHOUSE" unique="true">
+            <column name="CODE"/>
+            <column name="ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="13" author="warehouse-management">
+        <addForeignKeyConstraint baseColumnNames="CATEGORY_ID" baseTableName="PRODUCT"
+                                 constraintName="FK_PRODUCT_ON_CATEGORY" referencedColumnNames="ID"
+                                 referencedTableName="PRODUCT_CATEGORY"/>
+    </changeSet>
+</databaseChangeLog>
