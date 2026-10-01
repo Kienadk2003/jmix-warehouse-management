@@ -48,6 +48,10 @@ public class Inventory extends BaseUuidEntity {
         return version;
     }
 
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
     public Warehouse getWarehouse() {
         return warehouse;
     }

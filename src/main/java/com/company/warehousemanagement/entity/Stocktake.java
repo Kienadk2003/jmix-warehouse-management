@@ -1,17 +1,13 @@
 package com.company.warehousemanagement.entity;
 
+import io.jmix.core.metamodel.annotation.Composition;
 import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Index;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @JmixEntity
 @Table(name = "STOCKTAKE", uniqueConstraints = {
@@ -33,7 +29,7 @@ public class Stocktake extends AuditedEntity {
     @Column(name = "STATUS", nullable = false, length = 20)
     private String status;
 
-    @Column(name = "SNAPSHOT_AT", nullable = false)
+    @Column(name = "SNAPSHOT_AT")
     private OffsetDateTime snapshotAt;
 
     @Column(name = "APPROVED_AT")
@@ -77,6 +73,21 @@ public class Stocktake extends AuditedEntity {
 
     public void setApprovedAt(OffsetDateTime approvedAt) {
         this.approvedAt = approvedAt;
+    }
+    @Composition
+    @OneToMany(
+            mappedBy = "stocktake",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<StocktakeItem> items = new ArrayList<>();
+
+    public List<StocktakeItem> getItems() {
+        return items;
+    }
+
+    public void setItems(List<StocktakeItem> items) {
+        this.items = items;
     }
 }
 

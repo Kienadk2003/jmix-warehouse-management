@@ -5,7 +5,7 @@
       focusComponent="partnersDataGrid">
     <data>
         <collection id="partnersDc"
-                    class=>
+                    class="com.company.warehousemanagement.entity.Partner">
             <fetchPlan extends="_base"/>
             <loader id="partnersDl" readOnly="true">
                 <query>
@@ -54,10 +54,9 @@
             </actions>
             <columns resizable="true">
                 <column property="code"/>
-                <column property="customer"/>
-                <column property="ative"/>
                 <column property="name"/>
-                <column property="supplier"/>
+                <column property="partnerType"/>
+                <column property="active"/>
             </columns>
         </dataGrid>
         <hbox id="lookupActions" visible="false">

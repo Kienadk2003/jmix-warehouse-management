@@ -1,12 +1,14 @@
 package com.company.warehousemanagement.entity;
 
 import io.jmix.core.entity.annotation.JmixGeneratedValue;
+import io.jmix.core.metamodel.annotation.JmixEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 
 import java.util.UUID;
 
+@JmixEntity(name = "warehousemanagement_BaseUuidEntity")
 @MappedSuperclass
 public abstract class BaseUuidEntity {
 
@@ -23,4 +25,3 @@ public abstract class BaseUuidEntity {
         this.id = id;
     }
 }
-

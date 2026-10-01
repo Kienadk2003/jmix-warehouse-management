@@ -51,6 +51,10 @@ public class TransactionItem extends BaseUuidEntity {
         return version;
     }
 
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
     public WarehouseTransaction getTransaction() {
         return transaction;
     }
@@ -99,4 +103,3 @@ public class TransactionItem extends BaseUuidEntity {
         this.note = note;
     }
 }
-

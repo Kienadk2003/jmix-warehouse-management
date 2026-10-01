@@ -5,7 +5,7 @@
 
     <data>
         <instance id="partnerDc"
-                  class=>
+                  class="com.company.warehousemanagement.entity.Partner">
             <fetchPlan extends="_base"/>
             <loader id="partnerDl"/>
         </instance>
@@ -33,11 +33,9 @@
 
             <textField id="nameField" property="name"/>
 
-            <checkbox id="supplierField" property="supplier"/>
+            <select id="partnerTypeField" property="partnerType"/>
 
-            <checkbox id="customerField" property="customer"/>
-
-            <checkbox id="ativeField" property="ative"/>
+            <checkbox id="activeField" property="active"/>
 
         </formLayout>
 

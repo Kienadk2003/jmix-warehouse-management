@@ -1,5 +1,6 @@
 package com.company.warehousemanagement.entity;
 
+import io.jmix.core.metamodel.annotation.JmixEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Version;
@@ -10,6 +11,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.OffsetDateTime;
 
+@JmixEntity(name = "warehousemanagement_AuditedEntity")
 @MappedSuperclass
 public abstract class AuditedEntity extends BaseUuidEntity {
 
