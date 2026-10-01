@@ -21,6 +21,9 @@ public class ProductCategory extends AuditedEntity {
     @Column(name = "NAME", nullable = false)
     private String name;
 
+    @Column(name = "DESCRIPTION")
+    private String description;
+
     @Column(name = "ACTIVE", nullable = false)
     private Boolean active = true;
 
@@ -40,6 +43,14 @@ public class ProductCategory extends AuditedEntity {
         this.name = name;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public Boolean getActive() {
         return active;
     }
@@ -48,4 +59,3 @@ public class ProductCategory extends AuditedEntity {
         this.active = active;
     }
 }
-

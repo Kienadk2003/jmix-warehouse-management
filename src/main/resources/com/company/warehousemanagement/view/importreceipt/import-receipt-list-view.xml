@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="msg://importReceiptListView.title"
+      focusComponent="receiptsDataGrid">
+    <data>
+        <collection id="receiptsDc"
+                    class="com.company.warehousemanagement.entity.WarehouseTransaction">
+            <fetchPlan extends="_base">
+                <property name="destinationWarehouse" fetchPlan="_base"/>
+                <property name="partner" fetchPlan="_base"/>
+            </fetchPlan>
+            <loader id="receiptsDl" readOnly="true">
+                <query><![CDATA[
+                    select e from WarehouseTransaction e
+                    where e.type = 'IMPORT'
+                    order by e.documentDate desc, e.documentNo desc
+                ]]></query>
+            </loader>
+        </collection>
+    </data>
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+        <urlQueryParameters>
+            <pagination component="pagination"/>
+        </urlQueryParameters>
+    </facets>
+    <layout>
+        <hbox id="buttonsPanel" width="100%" wrap="true">
+            <startSlot>
+                <button id="createButton" text="Tạo phiếu nhập" themeNames="primary"/>
+                <button id="openButton" text="Xem chi tiết"/>
+                <button id="refreshButton" text="Làm mới"/>
+            </startSlot>
+            <endSlot>
+                <simplePagination id="pagination" dataLoader="receiptsDl"/>
+            </endSlot>
+        </hbox>
+        <dataGrid id="receiptsDataGrid"
+                  width="100%"
+                  minHeight="25em"
+                  dataContainer="receiptsDc"
+                  columnReorderingAllowed="true">
+            <columns resizable="true">
+                <column property="documentNo" header="Số phiếu"/>
+                <column property="documentDate" header="Ngày chứng từ"/>
+                <column property="destinationWarehouse" header="Kho nhận"/>
+                <column property="partner" header="Nhà cung cấp"/>
+                <column property="status" header="Trạng thái"/>
+                <column property="postedBy" header="Người ghi sổ"/>
+                <column property="postedAt" header="Thời gian ghi sổ"/>
+            </columns>
+        </dataGrid>
+    </layout>
+</view>

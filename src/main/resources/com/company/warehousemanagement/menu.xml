@@ -10,6 +10,8 @@
         <item view="Partner.list" title="msg://com.company.warehousemanagement.view.partner/partnerListView.title"/>
         <item view="Warehouse.list"
               title="msg://com.company.warehousemanagement.view.warehouse/warehouseListView.title"/>
+        <item view="ImportReceipt.list"
+              title="msg://com.company.warehousemanagement.view.importreceipt/importReceiptListView.title"/>
     </menu>
 
 </menu-config>

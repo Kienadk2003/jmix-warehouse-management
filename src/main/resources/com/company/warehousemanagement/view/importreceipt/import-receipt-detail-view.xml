@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="msg://importReceiptDetailView.title"
+      focusComponent="documentDateField">
+    <data>
+        <collection id="warehousesDc"
+                    class="com.company.warehousemanagement.entity.Warehouse">
+            <fetchPlan extends="_base"/>
+            <loader id="warehousesDl" readOnly="true">
+                <query><![CDATA[
+                    select e from Warehouse e
+                    where e.active = true
+                    order by e.name
+                ]]></query>
+            </loader>
+        </collection>
+        <collection id="partnersDc"
+                    class="com.company.warehousemanagement.entity.Partner">
+            <fetchPlan extends="_base"/>
+            <loader id="partnersDl" readOnly="true">
+                <query><![CDATA[
+                    select e from Partner e
+                    where e.active = true
+                      and e.partnerType in ('SUPPLIER', 'BOTH')
+                    order by e.name
+                ]]></query>
+            </loader>
+        </collection>
+        <collection id="productsDc"
+                    class="com.company.warehousemanagement.entity.Product">
+            <fetchPlan extends="_base">
+                <property name="baseUnit" fetchPlan="_base"/>
+            </fetchPlan>
+            <loader id="productsDl" readOnly="true">
+                <query><![CDATA[
+                    select e from Product e
+                    where e.active = true
+                    order by e.name
+                ]]></query>
+            </loader>
+        </collection>
+        <collection id="itemsDc"
+                    class="com.company.warehousemanagement.entity.TransactionItem">
+            <fetchPlan extends="_base">
+                <property name="product" fetchPlan="_base"/>
+                <property name="unit" fetchPlan="_base"/>
+            </fetchPlan>
+            <loader id="itemsDl" readOnly="true">
+                <query><![CDATA[
+                    select e from TransactionItem e
+                    where 1 = 0
+                ]]></query>
+            </loader>
+        </collection>
+    </data>
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+    </facets>
+    <layout>
+        <h3 text="Thông tin phiếu nhập"/>
+        <formLayout id="headerForm">
+            <responsiveSteps>
+                <responsiveStep minWidth="0" columns="1"/>
+                <responsiveStep minWidth="45em" columns="2"/>
+            </responsiveSteps>
+            <textField id="documentNoField" label="Số phiếu" readOnly="true"/>
+            <datePicker id="documentDateField"
+                        label="Ngày chứng từ"
+                        datatype="localDate"
+                        required="true"/>
+            <entityComboBox id="warehouseField"
+                            label="Kho nhận"
+                            metaClass="Warehouse"
+                            itemsContainer="warehousesDc"
+                            required="true"/>
+            <entityComboBox id="partnerField"
+                            label="Nhà cung cấp"
+                            metaClass="Partner"
+                            itemsContainer="partnersDc"
+                            required="true"/>
+            <textField id="statusField" label="Trạng thái" readOnly="true"/>
+            <textArea id="reasonField" label="Lý do/Ghi chú" maxLength="1000"/>
+        </formLayout>
+        <hbox width="100%" wrap="true">
+            <startSlot>
+                <button id="createReceiptButton"
+                        text="Tạo phiếu nháp"
+                        themeNames="primary"/>
+                <button id="confirmButton" text="Xác nhận"/>
+                <button id="postButton" text="Nhập kho" themeNames="primary success"/>
+                <button id="cancelButton" text="Hủy phiếu" themeNames="error"/>
+            </startSlot>
+            <endSlot>
+                <button id="backButton" text="Quay lại danh sách"/>
+            </endSlot>
+        </hbox>
+
+        <vbox id="itemsPanel" width="100%" visible="false">
+            <h3 text="Sản phẩm nhập kho"/>
+            <formLayout id="itemEditorForm">
+                <responsiveSteps>
+                    <responsiveStep minWidth="0" columns="1"/>
+                    <responsiveStep minWidth="45em" columns="3"/>
+                </responsiveSteps>
+                <entityComboBox id="productField"
+                                label="Sản phẩm"
+                                metaClass="Product"
+                                itemsContainer="productsDc"/>
+                <bigDecimalField id="quantityField" label="Số lượng"/>
+                <textField id="itemNoteField" label="Ghi chú" maxLength="1000"/>
+            </formLayout>
+            <hbox width="100%" wrap="true">
+                <button id="addItemButton" text="Thêm sản phẩm" themeNames="primary"/>
+                <button id="editItemButton" text="Chọn để sửa"/>
+                <button id="updateItemButton" text="Cập nhật dòng"/>
+                <button id="removeItemButton" text="Xóa dòng" themeNames="error"/>
+                <button id="clearItemButton" text="Nhập lại"/>
+            </hbox>
+            <dataGrid id="itemsDataGrid"
+                      width="100%"
+                      minHeight="18em"
+                      dataContainer="itemsDc">
+                <columns resizable="true">
+                    <column property="lineNo" header="STT"/>
+                    <column property="product.code" header="Mã sản phẩm"/>
+                    <column property="product.name" header="Tên sản phẩm"/>
+                    <column property="quantity" header="Số lượng"/>
+                    <column property="unit" header="Đơn vị"/>
+                    <column property="note" header="Ghi chú"/>
+                </columns>
+            </dataGrid>
+        </vbox>
+    </layout>
+</view>
