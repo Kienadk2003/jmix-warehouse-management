@@ -39,7 +39,6 @@ public class ImportReceiptService {
         this.currentAuthentication = currentAuthentication;
     }
 
-    /** Tạo phần đầu phiếu nhập; chưa làm thay đổi tồn kho. */
     @Transactional
     public WarehouseTransaction createDraft(CreateImportReceiptCommand command) {
         validateCreateCommand(command);
@@ -62,7 +61,6 @@ public class ImportReceiptService {
         return dataManager.save(receipt);
     }
 
-    /** Thêm sản phẩm vào phiếu nháp, sử dụng đơn vị cơ sở của sản phẩm. */
     @Transactional
     public TransactionItem addItem(AddImportReceiptItemCommand command) {
         validateAddItemCommand(command);
@@ -97,7 +95,6 @@ public class ImportReceiptService {
         return dataManager.save(item);
     }
 
-    /** Sửa số lượng và ghi chú khi phiếu còn là DRAFT. */
     @Transactional
     public TransactionItem updateItem(UpdateImportReceiptItemCommand command) {
         if (command == null || command.getItemId() == null) {
@@ -116,7 +113,6 @@ public class ImportReceiptService {
         return dataManager.save(item);
     }
 
-    /** Xóa một dòng hàng khỏi phiếu nháp. */
     @Transactional
     public void removeItem(UUID itemId) {
         if (itemId == null) {
@@ -129,7 +125,6 @@ public class ImportReceiptService {
         dataManager.remove(item);
     }
 
-    /** Xác nhận nội dung phiếu; chưa làm thay đổi tồn kho. */
     @Transactional
     public WarehouseTransaction confirm(UUID receiptId) {
         WarehouseTransaction receipt = loadImportReceipt(receiptId);
@@ -140,7 +135,6 @@ public class ImportReceiptService {
         return dataManager.save(receipt);
     }
 
-    /** Cộng tồn kho và tạo lịch sử biến động cho từng dòng hàng. */
     @Transactional
     public WarehouseTransaction post(UUID receiptId) {
         WarehouseTransaction receipt = loadImportReceipt(receiptId);
@@ -193,7 +187,6 @@ public class ImportReceiptService {
         return dataManager.save(receipt);
     }
 
-    /** Hủy phiếu DRAFT hoặc CONFIRMED; không dùng cho phiếu đã POSTED. */
     @Transactional
     public WarehouseTransaction cancel(UUID receiptId) {
         WarehouseTransaction receipt = loadImportReceipt(receiptId);
