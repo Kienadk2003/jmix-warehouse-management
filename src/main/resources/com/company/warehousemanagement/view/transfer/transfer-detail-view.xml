@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="Transfer Issue"
+      focusComponent="form">
+
+    <data>
+
+        <instance id="warehouseTransactionDc"
+                  class="com.company.warehousemanagement.entity.WarehouseTransaction">
+
+            <fetchPlan extends="_base">
+
+                <property name="sourceWarehouse"
+                          fetchPlan="_base"/>
+
+                <property name="destinationWarehouse"
+                          fetchPlan="_base"/>
+
+                <property name="items">
+                    <fetchPlan extends="_base">
+                        <property name="product"
+                                  fetchPlan="_base"/>
+                        <property name="unit"
+                                  fetchPlan="_base"/>
+                    </fetchPlan>
+                </property>
+
+            </fetchPlan>
+
+            <loader id="warehouseTransactionDl"/>
+
+            <collection id="itemsDc"
+                        property="items"/>
+
+        </instance>
+
+    </data>
+
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+    </facets>
+
+    <actions>
+        <action id="saveCloseAction"
+                type="detail_saveClose"/>
+
+        <action id="closeAction"
+                type="detail_close"/>
+    </actions>
+
+    <layout>
+
+        <hbox id="statusBox"
+              width="100%"
+              alignItems="CENTER">
+
+            <span text="Status:"/>
+
+            <span id="statusLabel"
+                  themeNames="badge"/>
+
+        </hbox>
+
+        <formLayout id="form"
+                    dataContainer="warehouseTransactionDc">
+
+            <responsiveSteps>
+
+                <responsiveStep minWidth="0"
+                                columns="1"/>
+
+                <responsiveStep minWidth="40em"
+                                columns="2"/>
+
+            </responsiveSteps>
+
+            <textField id="documentNoField"
+                       property="documentNo"
+                       label="Document No"
+                       readOnly="true"/>
+
+            <entityPicker id="sourceWarehouseField"
+                          property="sourceWarehouse"
+                          label="Source Warehouse"
+                          required="true"
+                          requiredMessage="Source warehouse is required">
+
+                <actions>
+
+                    <action id="entityLookupAction"
+                            type="entity_lookup"/>
+
+                    <action id="entityClearAction"
+                            type="entity_clear"/>
+
+                </actions>
+
+            </entityPicker>
+
+            <entityPicker id="destinationWarehouseField"
+                          property="destinationWarehouse"
+                          label="Destination Warehouse"
+                          required="true"
+                          requiredMessage="Destination warehouse is required">
+
+                <actions>
+
+                    <action id="entityLookupAction"
+                            type="entity_lookup"/>
+
+                    <action id="entityClearAction"
+                            type="entity_clear"/>
+
+                </actions>
+
+            </entityPicker>
+
+            <datePicker id="documentDateField"
+                        property="documentDate"
+                        label="Document Date"
+                        dateFormat="dd/MM/yyyy"
+                        required="true"
+                        requiredMessage="Document date is required"/>
+
+            <textArea id="reasonField"
+                      property="reason"
+                      label="Reason / Note"
+                      maxLength="1000"
+                      width="100%"
+                      colspan="2"
+                      minRows="2"
+                      maxRows="4"/>
+
+        </formLayout>
+
+        <hbox id="itemsHeader"
+              width="100%"
+              alignItems="CENTER">
+
+            <h3 text="Transfer Items"/>
+
+        </hbox>
+
+        <hbox id="itemsButtons"
+              classNames="buttons-panel">
+
+            <button id="addItemButton"
+                    action="itemsDataGrid.createAction"/>
+
+            <button id="editItemButton"
+                    action="itemsDataGrid.editAction"/>
+
+            <button id="removeItemButton"
+                    action="itemsDataGrid.removeAction"/>
+
+        </hbox>
+
+        <dataGrid id="itemsDataGrid"
+                  dataContainer="itemsDc"
+                  width="100%"
+                  minHeight="18em">
+
+            <actions>
+
+                <action id="createAction"
+                        type="list_create">
+
+                    <properties>
+
+                        <property name="openMode"
+                                  value="DIALOG"/>
+
+                    </properties>
+
+                </action>
+
+                <action id="editAction"
+                        type="list_edit">
+
+                    <properties>
+
+                        <property name="openMode"
+                                  value="DIALOG"/>
+
+                    </properties>
+
+                </action>
+
+                <action id="removeAction"
+                        type="list_remove"/>
+
+            </actions>
+
+            <columns resizable="true">
+
+                <column property="lineNo"
+                        header="No."/>
+
+                <column property="product"
+                        header="Product"/>
+
+                <column property="quantity"
+                        header="Quantity"/>
+
+                <column property="unit"
+                        header="Unit"/>
+
+                <column property="note"
+                        header="Note"/>
+
+            </columns>
+
+        </dataGrid>
+
+        <hbox id="detailActions">
+            <button id="postButton"
+                    text="POST"
+                    themeNames="primary"/>
+
+            <button id="saveAndCloseButton"
+                    action="saveCloseAction"/>
+
+            <button id="closeButton"
+                    action="closeAction"/>
+            <button id="reverseButton"
+                    text="Reverse"/>
+        </hbox>
+
+    </layout>
+
+</view>

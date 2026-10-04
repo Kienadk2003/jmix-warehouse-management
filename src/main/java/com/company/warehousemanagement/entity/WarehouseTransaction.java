@@ -1,5 +1,7 @@
 package com.company.warehousemanagement.entity;
 
+import io.jmix.core.DeletePolicy;
+import io.jmix.core.entity.annotation.OnDelete;
 import io.jmix.core.metamodel.annotation.Composition;
 import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
@@ -11,24 +13,52 @@ import java.util.ArrayList;
 import java.util.List;
 
 @JmixEntity
-@Table(name = "WAREHOUSE_TRANSACTION", uniqueConstraints = {
-        @UniqueConstraint(name = "IDX_WAREHOUSE_TRANSACTION_UNQ_NO", columnNames = "DOCUMENT_NO")
-}, indexes = {
-        @Index(name = "IDX_WT_TYPE_STATUS_DATE", columnList = "TYPE, STATUS, DOCUMENT_DATE"),
-        @Index(name = "IDX_WT_SOURCE_DATE", columnList = "SOURCE_WAREHOUSE_ID, DOCUMENT_DATE"),
-        @Index(name = "IDX_WT_DESTINATION_DATE", columnList = "DESTINATION_WAREHOUSE_ID, DOCUMENT_DATE")
-})
+@Table(
+        name = "WAREHOUSE_TRANSACTION",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "IDX_WAREHOUSE_TRANSACTION_UNQ_NO",
+                        columnNames = "DOCUMENT_NO"
+                )
+        },
+        indexes = {
+                @Index(
+                        name = "IDX_WT_TYPE_STATUS_DATE",
+                        columnList = "TYPE, STATUS, DOCUMENT_DATE"
+                ),
+                @Index(
+                        name = "IDX_WT_SOURCE_DATE",
+                        columnList = "SOURCE_WAREHOUSE_ID, DOCUMENT_DATE"
+                ),
+                @Index(
+                        name = "IDX_WT_DESTINATION_DATE",
+                        columnList = "DESTINATION_WAREHOUSE_ID, DOCUMENT_DATE"
+                )
+        }
+)
 @Entity
 public class WarehouseTransaction extends AuditedEntity {
 
     @InstanceName
-    @Column(name = "DOCUMENT_NO", nullable = false, length = 50)
+    @Column(
+            name = "DOCUMENT_NO",
+            nullable = false,
+            length = 50
+    )
     private String documentNo;
 
-    @Column(name = "TYPE", nullable = false, length = 20)
+    @Column(
+            name = "TYPE",
+            nullable = false,
+            length = 20
+    )
     private String type;
 
-    @Column(name = "STATUS", nullable = false, length = 20)
+    @Column(
+            name = "STATUS",
+            nullable = false,
+            length = 20
+    )
     private String status;
 
     @JoinColumn(name = "SOURCE_WAREHOUSE_ID")
@@ -43,7 +73,10 @@ public class WarehouseTransaction extends AuditedEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Partner partner;
 
-    @Column(name = "DOCUMENT_DATE", nullable = false)
+    @Column(
+            name = "DOCUMENT_DATE",
+            nullable = false
+    )
     private LocalDate documentDate;
 
     @Column(name = "POSTED_AT")
@@ -56,24 +89,53 @@ public class WarehouseTransaction extends AuditedEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private WarehouseTransaction reversalOf;
 
-    @Column(name = "REASON", length = 1000)
+    @Column(
+            name = "REASON",
+            length = 1000
+    )
     private String reason;
 
+    /*
+     * =========================
+     * TYPE
+     * =========================
+     */
+
     public WarehouseTransactionType getType() {
-        return type == null ? null : WarehouseTransactionType.fromId(type);
+        return type == null
+                ? null
+                : WarehouseTransactionType.fromId(type);
     }
 
     public void setType(WarehouseTransactionType type) {
-        this.type = type == null ? null : type.getId();
+        this.type = type == null
+                ? null
+                : type.getId();
     }
 
+    /*
+     * =========================
+     * STATUS
+     * =========================
+     */
+
     public WarehouseTransactionStatus getStatus() {
-        return status == null ? null : WarehouseTransactionStatus.fromId(status);
+        return status == null
+                ? null
+                : WarehouseTransactionStatus.fromId(status);
     }
 
     public void setStatus(WarehouseTransactionStatus status) {
-        this.status = status == null ? null : status.getId();
+        this.status = status == null
+                ? null
+                : status.getId();
     }
+
+    /*
+     * =========================
+     * DOCUMENT NO
+     * =========================
+     */
 
     public String getDocumentNo() {
         return documentNo;
@@ -83,6 +145,12 @@ public class WarehouseTransaction extends AuditedEntity {
         this.documentNo = documentNo;
     }
 
+    /*
+     * =========================
+     * SOURCE WAREHOUSE
+     * =========================
+     */
+
     public Warehouse getSourceWarehouse() {
         return sourceWarehouse;
     }
@@ -90,6 +158,12 @@ public class WarehouseTransaction extends AuditedEntity {
     public void setSourceWarehouse(Warehouse sourceWarehouse) {
         this.sourceWarehouse = sourceWarehouse;
     }
+
+    /*
+     * =========================
+     * DESTINATION WAREHOUSE
+     * =========================
+     */
 
     public Warehouse getDestinationWarehouse() {
         return destinationWarehouse;
@@ -99,6 +173,12 @@ public class WarehouseTransaction extends AuditedEntity {
         this.destinationWarehouse = destinationWarehouse;
     }
 
+    /*
+     * =========================
+     * PARTNER
+     * =========================
+     */
+
     public Partner getPartner() {
         return partner;
     }
@@ -106,6 +186,12 @@ public class WarehouseTransaction extends AuditedEntity {
     public void setPartner(Partner partner) {
         this.partner = partner;
     }
+
+    /*
+     * =========================
+     * DOCUMENT DATE
+     * =========================
+     */
 
     public LocalDate getDocumentDate() {
         return documentDate;
@@ -115,6 +201,12 @@ public class WarehouseTransaction extends AuditedEntity {
         this.documentDate = documentDate;
     }
 
+    /*
+     * =========================
+     * POSTED AT
+     * =========================
+     */
+
     public OffsetDateTime getPostedAt() {
         return postedAt;
     }
@@ -122,6 +214,12 @@ public class WarehouseTransaction extends AuditedEntity {
     public void setPostedAt(OffsetDateTime postedAt) {
         this.postedAt = postedAt;
     }
+
+    /*
+     * =========================
+     * POSTED BY
+     * =========================
+     */
 
     public String getPostedBy() {
         return postedBy;
@@ -131,6 +229,12 @@ public class WarehouseTransaction extends AuditedEntity {
         this.postedBy = postedBy;
     }
 
+    /*
+     * =========================
+     * REVERSAL OF
+     * =========================
+     */
+
     public WarehouseTransaction getReversalOf() {
         return reversalOf;
     }
@@ -138,6 +242,12 @@ public class WarehouseTransaction extends AuditedEntity {
     public void setReversalOf(WarehouseTransaction reversalOf) {
         this.reversalOf = reversalOf;
     }
+
+    /*
+     * =========================
+     * REASON
+     * =========================
+     */
 
     public String getReason() {
         return reason;
@@ -147,7 +257,19 @@ public class WarehouseTransaction extends AuditedEntity {
         this.reason = reason;
     }
 
+    /*
+     * =========================
+     * ITEMS
+     * =========================
+     *
+     * WarehouseTransaction 1 --- N TransactionItem
+     *
+     * TransactionItem.transaction
+     * is the owning side of the relationship.
+     */
+
     @Composition
+    @OnDelete(DeletePolicy.CASCADE)
     @OneToMany(
             mappedBy = "transaction",
             cascade = CascadeType.ALL,
@@ -163,5 +285,36 @@ public class WarehouseTransaction extends AuditedEntity {
     public void setItems(List<TransactionItem> items) {
         this.items = items;
     }
-}
 
+    /*
+     * =========================
+     * HELPER METHODS
+     * =========================
+     *
+     * These methods keep both sides of the
+     * relationship synchronized when we
+     * manipulate items programmatically.
+     */
+
+    public void addItem(TransactionItem item) {
+        if (item == null) {
+            return;
+        }
+
+        if (!items.contains(item)) {
+            items.add(item);
+        }
+
+        item.setTransaction(this);
+    }
+
+    public void removeItem(TransactionItem item) {
+        if (item == null) {
+            return;
+        }
+
+        if (items.remove(item)) {
+            item.setTransaction(null);
+        }
+    }
+}

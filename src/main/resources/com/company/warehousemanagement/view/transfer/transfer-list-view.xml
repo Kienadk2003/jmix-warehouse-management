@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="Transfer Issues"
+      focusComponent="transfersDataGrid">
+
+    <data>
+        <collection id="transfersDc"
+                    class="com.company.warehousemanagement.entity.WarehouseTransaction">
+
+            <fetchPlan extends="_base">
+                <property name="sourceWarehouse"
+                          fetchPlan="_base"/>
+                <property name="destinationWarehouse"
+                          fetchPlan="_base"/>
+                <property name="items"
+                          fetchPlan="_base"/>
+            </fetchPlan>
+
+            <loader id="transfersDl">
+                <query>
+                    <![CDATA[
+                        select e
+                        from WarehouseTransaction e
+                        where e.type = 'TRANSFER'
+                        order by e.documentDate desc,
+                                 e.documentNo desc
+                    ]]>
+                </query>
+            </loader>
+
+        </collection>
+    </data>
+
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+        <urlQueryParameters/>
+    </facets>
+
+    <layout>
+
+        <!-- FILTER -->
+        <genericFilter id="genericFilter"
+                       dataLoader="transfersDl"/>
+
+        <!-- BUTTONS -->
+        <hbox id="buttonsPanel"
+              classNames="buttons-panel">
+
+            <button id="createButton"
+                    action="transfersDataGrid.create"/>
+
+            <button id="editButton"
+                    action="transfersDataGrid.edit"/>
+
+            <button id="readButton"
+                    action="transfersDataGrid.read"/>
+
+            <button id="removeButton"
+                    action="transfersDataGrid.remove"/>
+
+        </hbox>
+
+        <!-- GRID -->
+        <dataGrid id="transfersDataGrid"
+                  dataContainer="transfersDc"
+                  width="100%"
+                  minHeight="20em">
+
+            <actions>
+
+                <action id="create"
+                        type="list_create">
+                    <properties>
+                        <property name="viewId"
+                                  value="WarehouseTransaction.transferDetail"/>
+                    </properties>
+                </action>
+
+                <action id="edit"
+                        type="list_edit">
+                    <properties>
+                        <property name="viewId"
+                                  value="WarehouseTransaction.transferDetail"/>
+                    </properties>
+                </action>
+
+                <action id="read"
+                        type="list_read">
+                    <properties>
+                        <property name="viewId"
+                                  value="WarehouseTransaction.transferDetail"/>
+                    </properties>
+                </action>
+
+                <action id="remove"
+                        type="list_remove"/>
+            </actions>
+
+            <columns resizable="true">
+
+                <column property="documentNo"
+                        header="Document No"/>
+
+                <column property="sourceWarehouse"
+                        header="Source Warehouse"/>
+
+                <column property="destinationWarehouse"
+                        header="Destination Warehouse"/>
+
+                <column property="documentDate"
+                        header="Document Date"/>
+
+                <column property="status"
+                        header="Status"/>
+
+            </columns>
+
+        </dataGrid>
+
+        <simplePagination id="pagination"
+                          dataLoader="transfersDl"/>
+
+    </layout>
+
+</view>

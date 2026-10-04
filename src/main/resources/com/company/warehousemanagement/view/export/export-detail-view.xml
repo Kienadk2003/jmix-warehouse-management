@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="Phiếu xuất kho"
+      focusComponent="form">
+    <data>
+        <instance id="warehouseTransactionDc"
+                  class="com.company.warehousemanagement.entity.WarehouseTransaction">
+            <fetchPlan extends="_base">
+                <property name="sourceWarehouse" fetchPlan="_base"/>
+                <property name="partner" fetchPlan="_base"/>
+                <property name="items" fetchPlan="_base"/>
+            </fetchPlan>
+            <loader id="warehouseTransactionDl"/>
+            <collection id="itemsDc" property="items"/>
+        </instance>
+    </data>
+
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+    </facets>
+
+    <actions>
+        <action id="saveCloseAction" type="detail_saveClose"/>
+        <action id="closeAction" type="detail_close"/>
+    </actions>
+
+    <layout>
+        <hbox id="statusBox" width="100%" alignItems="CENTER">
+            <span text="Trạng thái:"/>
+            <span id="statusLabel" themeNames="badge"/>
+        </hbox>
+
+        <formLayout id="form" dataContainer="warehouseTransactionDc">
+            <responsiveSteps>
+                <responsiveStep minWidth="0" columns="1"/>
+                <responsiveStep minWidth="40em" columns="2"/>
+            </responsiveSteps>
+
+            <textField id="documentNoField"
+                       property="documentNo"
+                       label="Số phiếu"
+                       readOnly="true"/>
+
+            <entityPicker id="sourceWarehouseField"
+                          property="sourceWarehouse"
+                          label="Kho xuất"
+                          required="true"
+                          requiredMessage="Bạn chưa chọn kho xuất">
+                <actions>
+                    <action id="entityLookupAction" type="entity_lookup"/>
+                    <action id="entityClearAction" type="entity_clear"/>
+                </actions>
+            </entityPicker>
+
+            <entityPicker id="partnerField"
+                          property="partner"
+                          label="Đối tác"
+                          required="true"
+                          requiredMessage="Bạn chưa chọn đối tác">
+                <actions>
+                    <action id="entityLookupAction" type="entity_lookup"/>
+                    <action id="entityClearAction" type="entity_clear"/>
+                </actions>
+            </entityPicker>
+
+            <datePicker id="documentDateField"
+                        property="documentDate"
+                        label="Ngày chứng từ"
+                        dateFormat="dd/MM/yyyy"
+                        required="true"
+                        requiredMessage="Ngày chứng từ không được để trống"/>
+
+            <textArea id="reasonField"
+                      property="reason"
+                      label="Lý do / ghi chú"
+                      maxLength="1000"
+                      width="100%"
+                      colspan="2"
+                      minRows="2"
+                      maxRows="4"/>
+        </formLayout>
+
+        <hbox id="itemsHeader" width="100%" alignItems="CENTER">
+            <h3 text="Danh sách sản phẩm xuất"/>
+        </hbox>
+
+        <hbox id="itemsButtons" classNames="buttons-panel">
+            <button id="addItemButton" action="itemsDataGrid.createAction"/>
+            <button id="editItemButton" action="itemsDataGrid.editAction"/>
+            <button id="removeItemButton" action="itemsDataGrid.removeAction"/>
+        </hbox>
+
+        <dataGrid id="itemsDataGrid"
+                  dataContainer="itemsDc"
+                  width="100%"
+                  minHeight="18em">
+            <actions>
+                <action id="createAction" type="list_create">
+                    <properties>
+                        <property name="openMode" value="DIALOG"/>
+                    </properties>
+                </action>
+
+                <action id="editAction" type="list_edit">
+                    <properties>
+                        <property name="openMode" value="DIALOG"/>
+                    </properties>
+                </action>
+
+                <action id="removeAction" type="list_remove"/>
+            </actions>
+
+            <columns resizable="true">
+                <column property="lineNo" header="No."/>
+                <column property="product" header="Product"/>
+                <column property="quantity" header="Quantity"/>
+                <column property="unit" header="Unit"/>
+                <column property="note" header="Note"/>
+            </columns>
+        </dataGrid>
+
+        <hbox id="detailActions">
+
+            <button id="postButton"
+                    text="POST"
+                    themeNames="primary"/>
+
+            <button id="saveAndCloseButton"
+                    action="saveCloseAction"/>
+
+            <button id="closeButton"
+                    action="closeAction"/>
+            <button id="reverseButton"
+                    text="Reverse"/>
+        </hbox>
+    </layout>
+</view>

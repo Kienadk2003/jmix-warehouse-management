@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="Phiếu xuất kho"
+      focusComponent="exportIssuesDataGrid">
+    <data>
+        <collection id="exportIssuesDc"
+                    class="com.company.warehousemanagement.entity.WarehouseTransaction">
+            <fetchPlan extends="_base">
+                <property name="sourceWarehouse" fetchPlan="_base"/>
+                <property name="partner" fetchPlan="_base"/>
+            </fetchPlan>
+            <loader id="exportIssuesDl" readOnly="true">
+                <query>
+                    <![CDATA[
+                        select e from WarehouseTransaction e
+                        where e.type = 'EXPORT'
+                        order by e.documentDate desc, e.documentNo desc
+                    ]]>
+                </query>
+            </loader>
+        </collection>
+    </data>
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+        <urlQueryParameters>
+            <genericFilter component="genericFilter"/>
+            <pagination component="pagination"/>
+        </urlQueryParameters>
+    </facets>
+    <actions>
+        <action id="selectAction" type="lookup_select"/>
+        <action id="discardAction" type="lookup_discard"/>
+    </actions>
+    <layout>
+        <genericFilter id="genericFilter" dataLoader="exportIssuesDl">
+            <properties include=".*"/>
+        </genericFilter>
+
+        <hbox id="buttonsPanel" wrap="true" width="100%">
+            <startSlot>
+                <button id="createButton" action="exportIssuesDataGrid.createAction"/>
+                <button id="editButton" action="exportIssuesDataGrid.editAction"/>
+                <button id="readButton" action="exportIssuesDataGrid.readAction"/>
+            </startSlot>
+            <endSlot>
+                <simplePagination id="pagination" dataLoader="exportIssuesDl"/>
+            </endSlot>
+        </hbox>
+
+        <dataGrid id="exportIssuesDataGrid"
+                  width="100%"
+                  minHeight="20em"
+                  dataContainer="exportIssuesDc"
+                  columnReorderingAllowed="true">
+            <actions>
+                <action id="createAction" type="list_create">
+                    <properties>
+                        <property name="viewId" value="WarehouseTransaction.exportDetail"/>
+                    </properties>
+                </action>
+                <action id="editAction" type="list_edit">
+                    <properties>
+                        <property name="viewId" value="WarehouseTransaction.exportDetail"/>
+                    </properties>
+                </action>
+                <action id="readAction" type="list_read">
+                    <properties>
+                        <property name="viewId" value="WarehouseTransaction.exportDetail"/>
+                    </properties>
+                </action>
+            </actions>
+            <columns>
+                <column property="documentNo"
+                        header="Document No"
+                        sortable="true"/>
+
+                <column property="sourceWarehouse"
+                        header="Source Warehouse"
+                        sortable="true"/>
+
+                <column property="partner"
+                        header="Partner"
+                        sortable="true"/>
+
+                <column property="documentDate"
+                        header="Document Date"
+                        sortable="true"/>
+
+                <column property="status"
+                        header="Status"
+                        sortable="true"/>
+            </columns>
+        </dataGrid>
+
+        <hbox id="lookupActions" visible="false">
+            <button id="selectButton" action="selectAction"/>
+            <button id="discardButton" action="discardAction"/>
+        </hbox>
+    </layout>
+</view>

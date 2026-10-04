@@ -12,6 +12,10 @@
               title="msg://com.company.warehousemanagement.view.warehouse/warehouseListView.title"/>
         <item view="ImportReceipt.list"
               title="msg://com.company.warehousemanagement.view.importreceipt/importReceiptListView.title"/>
+        <item view="WarehouseTransaction.exportList"
+              title="Stock Issuance"/>
+        <item view="WarehouseTransaction.transferList"
+              title="Transfer"/>
     </menu>
 
 </menu-config>
