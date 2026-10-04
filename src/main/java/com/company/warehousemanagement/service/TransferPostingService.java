@@ -76,7 +76,7 @@ public class TransferPostingService {
         }
 
         WarehouseTransaction transaction =
-                loadTransaction(transactionId);
+                loadTransactionForUpdate(transactionId);
 
         validateTransaction(transaction);
 
@@ -374,6 +374,57 @@ public class TransferPostingService {
         return dataManager.save(
                 transaction
         );
+    }
+
+    private WarehouseTransaction loadTransactionForUpdate(
+            UUID transactionId) {
+
+        List<WarehouseTransaction> transactions =
+                dataManager.load(WarehouseTransaction.class)
+                        .query("""
+                            select e
+                            from WarehouseTransaction e
+                            where e.id = ?1
+                            """,
+                                transactionId)
+                        .fetchPlan(fpb -> fpb
+                                .addFetchPlan(FetchPlan.BASE)
+
+                                .add("sourceWarehouse",
+                                        FetchPlan.BASE)
+
+                                .add("destinationWarehouse",
+                                        FetchPlan.BASE)
+
+                                .add("items", itemFp ->
+                                        itemFp
+                                                .addFetchPlan(FetchPlan.BASE)
+                                                .add("lineNo")
+                                                .add("quantity")
+                                                .add("product",
+                                                        FetchPlan.BASE)
+                                                .add("unit",
+                                                        FetchPlan.BASE)
+                                )
+                        )
+                        .lockMode(
+                                LockModeType.PESSIMISTIC_WRITE
+                        )
+                        .list();
+
+        if (transactions.isEmpty()) {
+            throw new WarehouseBusinessException(
+                    "Không tìm thấy phiếu chuyển"
+            );
+        }
+
+        if (transactions.size() > 1) {
+            throw new WarehouseBusinessException(
+                    "Dữ liệu không hợp lệ: nhiều phiếu có cùng ID"
+            );
+        }
+
+        return transactions.get(0);
     }
 
     /**
