@@ -17,8 +17,11 @@ import com.company.warehousemanagement.entity.WarehouseTransactionType;
 import com.company.warehousemanagement.exception.WarehouseBusinessException;
 import io.jmix.core.DataManager;
 import io.jmix.core.security.CurrentAuthentication;
+import jakarta.persistence.LockModeType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.company.warehousemanagement.event.WarehouseTransactionPostedEvent;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -32,11 +35,16 @@ public class ImportReceiptService {
 
     private final DataManager dataManager;
     private final CurrentAuthentication currentAuthentication;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public ImportReceiptService(DataManager dataManager,
-                                CurrentAuthentication currentAuthentication) {
+    public ImportReceiptService(
+            DataManager dataManager,
+            CurrentAuthentication currentAuthentication,
+            ApplicationEventPublisher eventPublisher) {
+
         this.dataManager = dataManager;
         this.currentAuthentication = currentAuthentication;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -137,9 +145,14 @@ public class ImportReceiptService {
 
     @Transactional
     public WarehouseTransaction post(UUID receiptId) {
-        WarehouseTransaction receipt = loadImportReceipt(receiptId);
+        WarehouseTransaction receipt = loadImportReceiptForUpdate(receiptId);
 
         if (receipt.getStatus() != WarehouseTransactionStatus.CONFIRMED) {
+            if (receipt.getStatus() == WarehouseTransactionStatus.POSTED) {
+                throw new WarehouseBusinessException(
+                        "Phiếu nhập đã được nhập kho, không thể nhập kho lần nữa"
+                );
+            }
             throw new WarehouseBusinessException(
                     "Chỉ được nhập kho với phiếu đã xác nhận"
             );
@@ -184,7 +197,17 @@ public class ImportReceiptService {
         receipt.setStatus(WarehouseTransactionStatus.POSTED);
         receipt.setPostedAt(occurredAt);
         receipt.setPostedBy(currentUsername());
-        return dataManager.save(receipt);
+
+        WarehouseTransaction postedReceipt =
+                dataManager.save(receipt);
+
+        eventPublisher.publishEvent(
+                new WarehouseTransactionPostedEvent(
+                        postedReceipt.getId()
+                )
+        );
+
+        return postedReceipt;
     }
 
     @Transactional
@@ -269,6 +292,29 @@ public class ImportReceiptService {
                         "Không tìm thấy phiếu nhập"
                 ));
 
+        if (receipt.getType() != WarehouseTransactionType.IMPORT) {
+            throw new WarehouseBusinessException("Chứng từ không phải phiếu nhập kho");
+        }
+        return receipt;
+    }
+
+    private WarehouseTransaction loadImportReceiptForUpdate(UUID receiptId) {
+        if (receiptId == null) {
+            throw new WarehouseBusinessException("Bạn chưa chọn phiếu nhập");
+        }
+
+        List<WarehouseTransaction> receipts = dataManager
+                .load(WarehouseTransaction.class)
+                .query("select e from WarehouseTransaction e where e.id = :receiptId")
+                .parameter("receiptId", receiptId)
+                .lockMode(LockModeType.PESSIMISTIC_WRITE)
+                .list();
+
+        if (receipts.isEmpty()) {
+            throw new WarehouseBusinessException("Không tìm thấy phiếu nhập");
+        }
+
+        WarehouseTransaction receipt = receipts.get(0);
         if (receipt.getType() != WarehouseTransactionType.IMPORT) {
             throw new WarehouseBusinessException("Chứng từ không phải phiếu nhập kho");
         }

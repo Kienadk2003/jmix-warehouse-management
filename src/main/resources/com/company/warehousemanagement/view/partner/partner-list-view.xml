@@ -55,6 +55,7 @@
             <columns resizable="true">
                 <column property="code"/>
                 <column property="name"/>
+                <column property="email"/>
                 <column property="partnerType"/>
                 <column property="active"/>
             </columns>

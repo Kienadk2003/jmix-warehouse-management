@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.Email;
 
 @JmixEntity
 @Table(name = "PARTNER", uniqueConstraints = {
@@ -29,6 +30,18 @@ public class Partner extends BaseUuidEntity {
 
     @Column(name = "ACTIVE", nullable = false)
     private Boolean active = true;
+
+    @Email
+    @Column(name = "EMAIL", length = 255)
+    private String email;
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     public PartnerType getPartnerType() {
         return partnerType == null ? null : PartnerType.fromId(partnerType);

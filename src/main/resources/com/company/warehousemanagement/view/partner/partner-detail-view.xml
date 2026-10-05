@@ -35,6 +35,8 @@
 
             <select id="partnerTypeField" property="partnerType"/>
 
+            <emailField id="emailField" property="email"/>
+
             <checkbox id="activeField" property="active"/>
 
         </formLayout>
