@@ -61,6 +61,8 @@ public class TransferDetailView
     @ViewComponent
     private JmixButton postButton;
 
+    private boolean postSaveInProgress;
+
     @ViewComponent
     private JmixButton reverseButton;
 
@@ -124,8 +126,7 @@ public class TransferDetailView
                 !entityStates.isNew(transaction);
 
         boolean canPost =
-                saved
-                        && transaction.getStatus() == WarehouseTransactionStatus.DRAFT
+                transaction.getStatus() == WarehouseTransactionStatus.DRAFT
                         && authorizationService.isAllowed(WarehousePermissions.POST);
 
         boolean canReverse = saved
@@ -202,15 +203,10 @@ public class TransferDetailView
         WarehouseTransaction current =
                 getEditedEntity();
 
-        /*
-         * Phiếu phải được lưu trước.
-         */
-        if (current == null
-                || current.getId() == null
-                || entityStates.isNew(current)) {
+        if (current == null) {
 
             Notification.show(
-                    "Bạn phải lưu phiếu DRAFT trước khi POST",
+                    "Không tìm thấy phiếu chuyển kho",
                     5000,
                     Position.TOP_END
             );
@@ -230,6 +226,36 @@ public class TransferDetailView
                     Position.TOP_END
             );
 
+            return;
+        }
+
+        postSaveInProgress = true;
+        postButton.setEnabled(false);
+        setShowSaveNotification(false);
+
+        save()
+                .then(() -> {
+                    postSaveInProgress = false;
+                    setShowSaveNotification(true);
+                    postSavedTransfer();
+                })
+                .otherwise(() -> {
+                    postSaveInProgress = false;
+                    setShowSaveNotification(true);
+                    postButton.setEnabled(true);
+                });
+    }
+
+    private void postSavedTransfer() {
+        WarehouseTransaction current = getEditedEntity();
+
+        if (current == null || current.getId() == null) {
+            postButton.setEnabled(true);
+            Notification.show(
+                    "Không thể lưu phiếu chuyển kho trước khi POST",
+                    5000,
+                    Position.TOP_END
+            );
             return;
         }
 
@@ -278,7 +304,13 @@ public class TransferDetailView
                     Position.TOP_END
             );
 
+            getUI().ifPresent(ui ->
+                    ui.navigate(TransferListView.class)
+            );
+
         } catch (WarehouseBusinessException e) {
+
+            postButton.setEnabled(true);
 
             Notification.show(
                     e.getMessage(),
@@ -415,8 +447,7 @@ public class TransferDetailView
                 !entityStates.isNew(transaction);
 
         boolean canPost =
-                saved
-                        && transaction.getStatus()
+                transaction.getStatus()
                         == WarehouseTransactionStatus.DRAFT
                         && authorizationService.isAllowed(WarehousePermissions.POST);
 
@@ -430,11 +461,13 @@ public class TransferDetailView
 
         updateStatusLabel(transaction);
 
-        Notification.show(
-                "Transfer draft saved successfully",
-                2500,
-                Position.TOP_END
-        );
+        if (!postSaveInProgress) {
+            Notification.show(
+                    "Transfer draft saved successfully",
+                    2500,
+                    Position.TOP_END
+            );
+        }
     }
 
 

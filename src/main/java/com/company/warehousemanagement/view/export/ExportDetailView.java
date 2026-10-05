@@ -72,6 +72,8 @@ public class ExportDetailView
     @ViewComponent
     private JmixButton postButton;
 
+    private boolean postSaveInProgress;
+
     @Subscribe
     public void onInitEntity(
             final InitEntityEvent<WarehouseTransaction> event) {
@@ -187,8 +189,7 @@ public class ExportDetailView
         removeItemButton.setVisible(editable);
 
         postButton.setVisible(
-                saved
-                        && transaction.getStatus() == WarehouseTransactionStatus.DRAFT
+                transaction.getStatus() == WarehouseTransactionStatus.DRAFT
                         && authorizationService.isAllowed(WarehousePermissions.POST)
         );
 
@@ -222,12 +223,8 @@ public class ExportDetailView
 
         updateStatusLabel(transaction);
 
-        boolean saved =
-                !entityStates.isNew(transaction);
-
         postButton.setVisible(
-                saved
-                        && transaction.getStatus()
+                transaction.getStatus()
                         == WarehouseTransactionStatus.DRAFT
                         && authorizationService.isAllowed(WarehousePermissions.POST)
         );
@@ -252,19 +249,6 @@ public class ExportDetailView
         }
 
 
-        if (current.getId() == null
-                || entityStates.isNew(current)) {
-
-            Notification.show(
-                    "Bạn phải lưu phiếu DRAFT trước khi POST",
-                    5000,
-                    Position.TOP_END
-            );
-
-            return;
-        }
-
-
         if (current.getStatus()
                 != WarehouseTransactionStatus.DRAFT) {
 
@@ -274,6 +258,36 @@ public class ExportDetailView
                     Position.TOP_END
             );
 
+            return;
+        }
+
+        postSaveInProgress = true;
+        postButton.setEnabled(false);
+        setShowSaveNotification(false);
+
+        save()
+                .then(() -> {
+                    postSaveInProgress = false;
+                    setShowSaveNotification(true);
+                    postSavedExport();
+                })
+                .otherwise(() -> {
+                    postSaveInProgress = false;
+                    setShowSaveNotification(true);
+                    postButton.setEnabled(true);
+                });
+    }
+
+    private void postSavedExport() {
+        WarehouseTransaction current = getEditedEntity();
+
+        if (current == null || current.getId() == null) {
+            postButton.setEnabled(true);
+            Notification.show(
+                    "Không thể lưu phiếu xuất trước khi POST",
+                    5000,
+                    Position.TOP_END
+            );
             return;
         }
 
@@ -316,7 +330,13 @@ public class ExportDetailView
                     Position.TOP_END
             );
 
+            getUI().ifPresent(ui ->
+                    ui.navigate(ExportListView.class)
+            );
+
         } catch (WarehouseBusinessException e) {
+
+            postButton.setEnabled(true);
 
             Notification.show(
                     e.getMessage(),
