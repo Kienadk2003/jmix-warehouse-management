@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="Adjustment">
+
+    <data>
+
+        <!-- =========================
+             MAIN TRANSACTION
+             ========================= -->
+
+        <instance id="warehouseTransactionDc"
+                  class="com.company.warehousemanagement.entity.WarehouseTransaction">
+
+            <fetchPlan extends="_base">
+
+                <property name="sourceWarehouse"
+                          fetchPlan="_instance_name"/>
+
+                <property name="items"
+                          fetchPlan="_base">
+
+                    <property name="product"
+                              fetchPlan="_instance_name"/>
+
+                    <property name="unit"
+                              fetchPlan="_instance_name"/>
+
+                </property>
+
+            </fetchPlan>
+
+            <loader id="warehouseTransactionDl"/>
+
+            <collection id="itemsDc"
+                        property="items"/>
+
+        </instance>
+
+
+        <!-- =========================
+             WAREHOUSE
+             ========================= -->
+
+        <collection id="warehousesDc"
+                    class="com.company.warehousemanagement.entity.Warehouse">
+
+            <fetchPlan extends="_instance_name"/>
+
+            <loader id="warehousesDl">
+
+                <query>
+                    <![CDATA[
+                        select e
+                        from Warehouse e
+                        where e.active = true
+                    ]]>
+                </query>
+
+            </loader>
+
+        </collection>
+
+    </data>
+
+
+    <facets>
+
+        <dataLoadCoordinator auto="true"/>
+
+    </facets>
+
+
+    <!-- =========================
+         VIEW ACTIONS
+         ========================= -->
+
+    <actions>
+
+        <action id="saveAction"
+                type="detail_save"/>
+
+        <action id="closeAction"
+                type="detail_close"/>
+
+    </actions>
+
+
+    <layout
+            padding="true"
+            spacing="true">
+
+
+        <!-- =========================
+             HEADER
+             ========================= -->
+
+        <formLayout
+                id="headerForm"
+                dataContainer="warehouseTransactionDc">
+
+            <textField
+                    id="documentNoField"
+                    property="documentNo"
+                    label="Document No"
+                    readOnly="true"/>
+
+            <entityComboBox
+                    id="warehouseField"
+                    property="sourceWarehouse"
+                    label="Warehouse"
+                    itemsContainer="warehousesDc"
+                    required="true"/>
+
+            <comboBox
+                    id="adjustmentDirectionField"
+                    property="adjustmentDirection"
+                    label="Direction"
+                    itemsEnum="com.company.warehousemanagement.entity.AdjustmentDirection"
+                    required="true"
+                    placeholder="Select direction"/>
+
+            <datePicker
+                    id="documentDateField"
+                    property="documentDate"
+                    label="Document Date"
+                    required="true"/>
+
+            <textField
+                    id="statusField"
+                    label="Status"
+                    readOnly="true"/>
+
+            <textArea
+                    id="reasonField"
+                    property="reason"
+                    label="Reason"
+                    required="true"
+                    maxLength="1000"
+                    width="100%"/>
+
+        </formLayout>
+
+
+        <!-- =========================
+             ITEMS BUTTONS
+             ========================= -->
+
+        <hbox
+                id="itemsButtonsPanel"
+                classNames="buttons-panel">
+
+            <button
+                    id="addItemButton"
+                    text="Add Item"/>
+
+            <button
+                    id="editItemButton"
+                    text="Edit Item"/>
+
+            <button
+                    id="removeItemButton"
+                    text="Remove Item"/>
+
+        </hbox>
+
+
+        <!-- =========================
+             ITEMS
+             ========================= -->
+
+        <dataGrid
+                id="itemsDataGrid"
+                dataContainer="itemsDc"
+                width="100%"
+                minHeight="15em"
+                editorBuffered="true">
+
+            <columns>
+
+                <column
+                        property="lineNo"
+                        header="Line"
+                        width="5em"/>
+
+                <column
+                        property="product"
+                        header="Product"
+                        editable="true"/>
+
+                <column
+                        property="quantity"
+                        header="Quantity"
+                        editable="true"/>
+
+                <column
+                        property="unit"
+                        header="Unit"
+                        editable="true"/>
+
+                <column
+                        property="note"
+                        header="Note"
+                        editable="true"/>
+
+                <editorActionsColumn
+                        key="editorActions">
+
+                    <editButton
+                            icon="PENCIL"/>
+
+                    <saveButton
+                            icon="CHECK"/>
+
+                    <cancelButton
+                            icon="CLOSE"/>
+
+                </editorActionsColumn>
+
+            </columns>
+
+        </dataGrid>
+
+
+        <!-- =========================
+             DETAIL ACTIONS
+             ========================= -->
+
+        <hbox
+                id="detailActions"
+                classNames="buttons-panel">
+
+            <button
+                    id="saveAndCloseBtn"
+                    action="saveAction"
+                    text="Save Draft"/>
+
+            <button
+                    id="closeBtn"
+                    action="closeAction"
+                    text="Close"/>
+
+            <button
+                    id="postButton"
+                    text="POST"/>
+
+        </hbox>
+
+    </layout>
+
+</view>

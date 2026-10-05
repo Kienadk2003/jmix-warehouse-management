@@ -41,24 +41,6 @@ public class ReversalService {
         this.availableStockService = availableStockService;
     }
 
-    /**
-     * Reverse một transaction đã POSTED.
-     *
-     * EXPORT:
-     *   Source Inventory + quantity
-     *
-     * TRANSFER:
-     *   Source Inventory      + quantity
-     *   Destination Inventory - quantity
-     *
-     * Đồng thời tạo:
-     *   - một WarehouseTransaction reversal
-     *   - các InventoryMovement loại REVERSAL
-     *
-     * Nếu gọi lại lần 2:
-     *   - không thay đổi Inventory lần nữa
-     *   - trả lại reversal transaction đã tồn tại
-     */
     @Transactional
     public WarehouseTransaction reverse(UUID transactionId) {
 
@@ -74,13 +56,7 @@ public class ReversalService {
             );
         }
 
-        /*
-         * Khóa transaction gốc.
-         *
-         * Mục đích:
-         * Hai request reverse đồng thời không được
-         * cùng nhìn thấy trạng thái POSTED rồi cùng reverse.
-         */
+
         WarehouseTransaction original = loadTransactionForUpdate(transactionId);
 
         if (original == null) {
@@ -89,11 +65,13 @@ public class ReversalService {
             );
         }
 
-        /*
-         * Idempotency:
-         * Nếu transaction đã REVERSED thì tìm reversal
-         * đã tạo trước đó và trả về nó.
-         */
+        if (original.getReversalOf() != null) {
+            throw new WarehouseBusinessException(
+                    "Không thể reverse một phiếu reversal"
+            );
+        }
+
+
         if (original.getStatus()
                 == WarehouseTransactionStatus.REVERSED) {
 
@@ -109,9 +87,6 @@ public class ReversalService {
             );
         }
 
-        /*
-         * Chỉ POSTED mới được reverse.
-         */
         if (original.getStatus()
                 != WarehouseTransactionStatus.POSTED) {
 
@@ -120,9 +95,6 @@ public class ReversalService {
             );
         }
 
-        /*
-         * MVP O06 hiện hỗ trợ EXPORT và TRANSFER.
-         */
         if (original.getType() != WarehouseTransactionType.EXPORT
                 && original.getType() != WarehouseTransactionType.TRANSFER) {
 

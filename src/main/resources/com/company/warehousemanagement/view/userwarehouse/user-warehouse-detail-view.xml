@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="msg://UserWarehouseDetailView.title">
+
+    <data>
+
+        <instance id="userWarehouseDc"
+                  class="com.company.warehousemanagement.entity.UserWarehouse">
+
+            <fetchPlan extends="_base">
+                <property name="user" fetchPlan="_base"/>
+                <property name="warehouse" fetchPlan="_base"/>
+            </fetchPlan>
+
+        </instance>
+
+        <collection id="usersDc"
+                    class="com.company.warehousemanagement.entity.User">
+
+            <fetchPlan extends="_base"/>
+
+            <loader id="usersDl">
+                <query>
+                    <![CDATA[
+                        select e
+                        from User e
+                        order by e.username
+                    ]]>
+                </query>
+            </loader>
+
+        </collection>
+
+        <collection id="warehousesDc"
+                    class="com.company.warehousemanagement.entity.Warehouse">
+
+            <fetchPlan extends="_base"/>
+
+            <loader id="warehousesDl">
+                <query>
+                    <![CDATA[
+                        select e
+                        from Warehouse e
+                        where e.active = true
+                        order by e.code
+                    ]]>
+                </query>
+            </loader>
+
+        </collection>
+
+    </data>
+
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+    </facets>
+
+    <actions>
+
+        <action id="saveAction"
+                type="detail_saveClose"/>
+
+        <action id="closeAction"
+                type="detail_close"/>
+
+    </actions>
+
+    <layout>
+
+        <formLayout width="100%">
+
+            <entityComboBox id="userField"
+                            dataContainer="userWarehouseDc"
+                            property="user"
+                            itemsContainer="usersDc"
+                            label="User"
+                            width="100%"
+                            required="true"/>
+
+            <entityComboBox id="warehouseField"
+                            dataContainer="userWarehouseDc"
+                            property="warehouse"
+                            itemsContainer="warehousesDc"
+                            label="Warehouse"
+                            width="100%"
+                            required="true"/>
+
+        </formLayout>
+
+        <hbox id="detailActions"
+              justifyContent="END"
+              width="100%">
+
+            <button id="closeButton"
+                    action="closeAction"/>
+
+            <button id="saveButton"
+                    action="saveAction"/>
+
+        </hbox>
+
+    </layout>
+
+</view>

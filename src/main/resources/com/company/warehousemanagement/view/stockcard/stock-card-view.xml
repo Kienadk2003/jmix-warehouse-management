@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="Stock Card">
+
+    <data>
+
+        <!-- =========================
+             WAREHOUSE
+             ========================= -->
+
+        <collection id="warehousesDc"
+                    class="com.company.warehousemanagement.entity.Warehouse">
+
+            <fetchPlan extends="_instance_name"/>
+
+            <loader id="warehousesDl">
+
+                <query>
+                    <![CDATA[
+                        select e
+                        from Warehouse e
+                        order by e.id
+                    ]]>
+                </query>
+
+            </loader>
+
+        </collection>
+
+
+        <!-- =========================
+             PRODUCT
+             ========================= -->
+
+        <collection id="productsDc"
+                    class="com.company.warehousemanagement.entity.Product">
+
+            <fetchPlan extends="_instance_name"/>
+
+            <loader id="productsDl">
+
+                <query>
+                    <![CDATA[
+                        select e
+                        from Product e
+                        order by e.id
+                    ]]>
+                </query>
+
+            </loader>
+
+        </collection>
+
+
+        <!-- =========================
+             STOCK CARD DATA
+             ========================= -->
+
+        <keyValueCollection id="stockCardDc">
+
+            <properties idProperty="movementId">
+
+                <property name="movementId"
+                          datatype="uuid"/>
+
+                <property name="movementTime"
+                          datatype="string"/>
+
+                <property name="documentNo"
+                          datatype="string"/>
+
+                <property name="transactionType"
+                          datatype="string"/>
+
+                <property name="movementType"
+                          datatype="string"/>
+
+                <property name="signedQuantity"
+                          datatype="decimal"/>
+
+                <property name="runningBalance"
+                          datatype="decimal"/>
+
+            </properties>
+
+        </keyValueCollection>
+
+    </data>
+
+
+    <facets>
+
+        <dataLoadCoordinator auto="true"/>
+
+    </facets>
+
+
+    <layout
+            padding="true"
+            spacing="true">
+
+
+        <!-- =========================
+             FILTER
+             ========================= -->
+
+        <formLayout id="filterForm">
+
+            <entityComboBox
+                    id="warehouseField"
+                    label="Warehouse"
+                    metaClass="Warehouse"
+                    itemsContainer="warehousesDc"
+                    required="true"/>
+
+            <entityComboBox
+                    id="productField"
+                    label="Product"
+                    metaClass="Product"
+                    itemsContainer="productsDc"
+                    required="true"/>
+
+            <datePicker
+                    id="fromDateField"
+                    label="From Date"
+                    datatype="localDate"
+                    required="true"/>
+
+            <datePicker
+                    id="toDateField"
+                    label="To Date"
+                    datatype="localDate"
+                    required="true"/>
+        </formLayout>
+
+
+        <hbox
+                id="filterButtons"
+                classNames="buttons-panel">
+
+            <button
+                    id="searchButton"
+                    text="Search"/>
+
+        </hbox>
+
+
+        <!-- =========================
+             SUMMARY
+             ========================= -->
+
+        <formLayout id="summaryForm">
+
+            <textField
+                    id="openingStockField"
+                    label="Opening Stock"
+                    readOnly="true"/>
+
+            <textField
+                    id="closingStockField"
+                    label="Closing Stock"
+                    readOnly="true"/>
+
+            <textField
+                    id="currentInventoryField"
+                    label="Current Inventory"
+                    readOnly="true"/>
+
+        </formLayout>
+
+
+        <!-- =========================
+             STOCK CARD
+             ========================= -->
+
+        <dataGrid
+                id="stockCardDataGrid"
+                dataContainer="stockCardDc"
+                width="100%"
+                minHeight="25em">
+
+            <columns>
+
+                <column
+                        property="movementTime"
+                        header="Movement Time"/>
+
+                <column
+                        property="documentNo"
+                        header="Document No"/>
+
+                <column
+                        property="transactionType"
+                        header="Transaction Type"/>
+
+                <column
+                        property="movementType"
+                        header="Movement Type"/>
+
+                <column
+                        property="signedQuantity"
+                        header="Quantity"
+                        textAlign="END"/>
+
+                <column
+                        property="runningBalance"
+                        header="Running Balance"
+                        textAlign="END"/>
+
+            </columns>
+
+        </dataGrid>
+
+    </layout>
+
+</view>

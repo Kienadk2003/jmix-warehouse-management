@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="Inventory Report">
+
+    <data>
+
+        <!-- =========================
+             WAREHOUSE
+             ========================= -->
+
+        <collection id="warehousesDc"
+                    class="com.company.warehousemanagement.entity.Warehouse">
+
+            <fetchPlan extends="_instance_name"/>
+
+            <loader id="warehousesDl">
+
+                <query>
+                    <![CDATA[
+                        select e
+                        from Warehouse e
+                        order by e.id
+                    ]]>
+                </query>
+
+            </loader>
+
+        </collection>
+
+
+        <!-- =========================
+             PRODUCT
+             ========================= -->
+
+        <collection id="productsDc"
+                    class="com.company.warehousemanagement.entity.Product">
+
+            <fetchPlan extends="_instance_name"/>
+
+            <loader id="productsDl">
+
+                <query>
+                    <![CDATA[
+                        select e
+                        from Product e
+                        order by e.id
+                    ]]>
+                </query>
+
+            </loader>
+
+        </collection>
+
+
+        <!-- =========================
+             REPORT DATA
+             ========================= -->
+
+        <keyValueCollection id="reportDc">
+
+            <properties>
+
+                <property
+                        name="warehouse"
+                        class="com.company.warehousemanagement.entity.Warehouse"/>
+
+                <property
+                        name="product"
+                        class="com.company.warehousemanagement.entity.Product"/>
+
+                <property
+                        name="opening"
+                        datatype="decimal"/>
+
+                <property
+                        name="inbound"
+                        datatype="decimal"/>
+
+                <property
+                        name="outbound"
+                        datatype="decimal"/>
+
+                <property
+                        name="adjustmentIn"
+                        datatype="decimal"/>
+
+                <property
+                        name="adjustmentOut"
+                        datatype="decimal"/>
+
+                <property
+                        name="closing"
+                        datatype="decimal"/>
+
+            </properties>
+
+        </keyValueCollection>
+
+    </data>
+
+
+    <facets>
+
+        <dataLoadCoordinator auto="true"/>
+
+    </facets>
+
+
+    <layout
+            padding="true"
+            spacing="true">
+
+
+        <!-- =========================
+             FILTER
+             ========================= -->
+
+        <formLayout id="filterForm">
+
+            <entityComboBox
+                    id="warehouseField"
+                    metaClass="Warehouse"
+                    itemsContainer="warehousesDc"
+                    label="Warehouse"/>
+
+            <entityComboBox
+                    id="productField"
+                    metaClass="Product"
+                    itemsContainer="productsDc"
+                    label="Product"/>
+
+            <datePicker
+                    id="fromDateField"
+                    datatype="localDate"
+                    label="From Date"
+                    required="true"/>
+
+            <datePicker
+                    id="toDateField"
+                    datatype="localDate"
+                    label="To Date"
+                    required="true"/>
+
+        </formLayout>
+
+
+        <hbox id="buttonsPanel"
+              classNames="buttons-panel">
+
+            <button id="searchButton"
+                    text="Search"/>
+
+            <button id="excelExportButton"
+                    action="reportDataGrid.excelExport"/>
+
+        </hbox>
+
+
+        <!-- =========================
+             REPORT TABLE
+             ========================= -->
+
+        <dataGrid
+                id="reportDataGrid"
+                dataContainer="reportDc"
+                width="100%"
+                minHeight="25em">
+            <actions>
+
+                <action id="excelExport"
+                        type="grdexp_excelExport"/>
+
+            </actions>
+
+            <columns>
+
+                <column
+                        property="warehouse"
+                        header="Warehouse"/>
+
+                <column
+                        property="product"
+                        header="Product"/>
+
+                <column
+                        property="opening"
+                        header="Opening Stock"
+                        textAlign="END"/>
+
+                <column
+                        property="inbound"
+                        header="Inbound"
+                        textAlign="END"/>
+
+                <column
+                        property="outbound"
+                        header="Outbound"
+                        textAlign="END"/>
+
+                <column
+                        property="adjustmentIn"
+                        header="Adjustment In"
+                        textAlign="END"/>
+
+                <column
+                        property="adjustmentOut"
+                        header="Adjustment Out"
+                        textAlign="END"/>
+
+                <column
+                        property="closing"
+                        header="Closing Stock"
+                        textAlign="END"/>
+
+            </columns>
+
+        </dataGrid>
+
+    </layout>
+
+</view>

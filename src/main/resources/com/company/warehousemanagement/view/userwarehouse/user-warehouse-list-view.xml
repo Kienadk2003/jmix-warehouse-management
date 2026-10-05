@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="msg://UserWarehouseListView.title"
+      focusComponent="userWarehousesDataGrid">
+
+    <data>
+        <collection id="userWarehousesDc"
+                    class="com.company.warehousemanagement.entity.UserWarehouse">
+            <fetchPlan extends="_base">
+                <property name="user" fetchPlan="_base"/>
+                <property name="warehouse" fetchPlan="_base"/>
+            </fetchPlan>
+
+            <loader id="userWarehousesDl" readOnly="true">
+                <query>
+                    <![CDATA[
+                        select e
+                        from UserWarehouse e
+                        order by e.user.username, e.warehouse.code
+                    ]]>
+                </query>
+            </loader>
+        </collection>
+    </data>
+
+    <actions>
+        <action id="selectAction" type="lookup_select"/>
+        <action id="discardAction" type="lookup_discard"/>
+    </actions>
+
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+        <urlQueryParameters>
+            <pagination component="pagination"/>
+        </urlQueryParameters>
+    </facets>
+
+    <layout>
+
+        <hbox id="buttonsPanel"
+              width="100%"
+              wrap="true">
+
+            <startSlot>
+
+                <button id="createButton"
+                        action="userWarehousesDataGrid.createAction"/>
+
+                <button id="editButton"
+                        action="userWarehousesDataGrid.editAction"/>
+
+                <button id="removeButton"
+                        action="userWarehousesDataGrid.removeAction"/>
+
+            </startSlot>
+
+            <endSlot>
+
+                <simplePagination id="pagination"
+                                  dataLoader="userWarehousesDl"/>
+
+            </endSlot>
+
+        </hbox>
+
+        <dataGrid id="userWarehousesDataGrid"
+                  width="100%"
+                  minHeight="20em"
+                  dataContainer="userWarehousesDc"
+                  columnReorderingAllowed="true">
+
+            <actions>
+
+                <action id="createAction"
+                        type="list_create"/>
+
+                <action id="editAction"
+                        type="list_edit"/>
+
+                <action id="removeAction"
+                        type="list_remove"/>
+
+            </actions>
+
+            <columns resizable="true">
+
+                <column property="user"/>
+
+                <column property="warehouse"/>
+
+            </columns>
+
+        </dataGrid>
+
+        <hbox id="lookupActions"
+              visible="false">
+
+            <button id="selectButton"
+                    action="selectAction"/>
+
+            <button id="discardButton"
+                    action="discardAction"/>
+
+        </hbox>
+
+    </layout>
+
+</view>

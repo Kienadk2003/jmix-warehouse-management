@@ -120,10 +120,9 @@ public class TransferDetailView
         boolean canPost =
                 saved && editable;
 
-        boolean canReverse =
-                saved
-                        && transaction.getStatus()
-                        == WarehouseTransactionStatus.POSTED;
+        boolean canReverse = saved
+                && transaction.getStatus() == WarehouseTransactionStatus.POSTED
+                && transaction.getReversalOf() == null;
 
         /*
          * DRAFT:
@@ -411,10 +410,9 @@ public class TransferDetailView
                         && transaction.getStatus()
                         == WarehouseTransactionStatus.DRAFT;
 
-        boolean canReverse =
-                saved
-                        && transaction.getStatus()
-                        == WarehouseTransactionStatus.POSTED;
+        boolean canReverse = saved
+                && transaction.getStatus() == WarehouseTransactionStatus.POSTED
+                && transaction.getReversalOf() == null;
 
         postButton.setVisible(canPost);
         reverseButton.setVisible(canReverse);

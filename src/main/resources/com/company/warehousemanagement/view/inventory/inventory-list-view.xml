@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="Tồn kho">
+
+    <data readOnly="true">
+
+        <collection id="inventoryDc"
+                    class="com.company.warehousemanagement.entity.Inventory">
+
+            <fetchPlan extends="_base">
+
+                <property name="warehouse"
+                          fetchPlan="_instance_name"/>
+
+                <property name="product"
+                          fetchPlan="_instance_name"/>
+
+            </fetchPlan>
+
+            <loader id="inventoryDl">
+
+                <query>
+                    <![CDATA[
+                        select e
+                        from Inventory e
+                        order by e.warehouse.id, e.product.id
+                    ]]>
+                </query>
+
+            </loader>
+
+        </collection>
+
+    </data>
+
+    <facets>
+
+        <dataLoadCoordinator
+                auto="true"/>
+
+    </facets>
+
+    <layout
+            padding="true">
+
+        <genericFilter id="genericFilter"
+                       dataLoader="inventoryDl">
+
+            <properties include=".*"/>
+
+        </genericFilter>
+
+
+        <hbox id="buttonsPanel" classNames="buttons-panel">
+            <button id="refreshButton" action="inventoryDataGrid.refresh"/>
+        </hbox>
+
+
+        <dataGrid id="inventoryDataGrid"
+                  dataContainer="inventoryDc"
+                  width="100%"
+                  minHeight="20em">
+
+            <actions>
+                <action id="refresh" type="list_refresh"/>
+            </actions>
+
+            <columns>
+
+                <column property="warehouse"
+                        header="Warehouse"/>
+
+                <column property="product"
+                        header="Product"/>
+
+                <column property="quantity"
+                        header="On Hand"
+                        textAlign="END"/>
+
+                <column property="reservedQuantity"
+                        header="Reserved"
+                        textAlign="END"/>
+
+                <column property="updatedAt"
+                        header="Updated At"/>
+
+            </columns>
+
+        </dataGrid>
+
+    </layout>
+
+</view>

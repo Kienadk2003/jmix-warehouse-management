@@ -44,19 +44,7 @@ public class ExportPostingService {
         this.eventPublisher = eventPublisher;
     }
 
-    /**
-     * POST một phiếu EXPORT.
-     *
-     * Tất cả thao tác:
-     * - kiểm tra chứng từ
-     * - khóa Inventory
-     * - kiểm tra tồn
-     * - giảm Inventory
-     * - tạo InventoryMovement
-     * - cập nhật POSTED
-     *
-     * đều nằm trong cùng một transaction.
-     */
+
     @Transactional
     public WarehouseTransaction postExport(UUID transactionId) {
 

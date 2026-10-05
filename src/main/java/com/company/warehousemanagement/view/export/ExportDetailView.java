@@ -167,10 +167,9 @@ public class ExportDetailView
         boolean saved =
                 !entityStates.isNew(transaction);
 
-        boolean canReverse =
-                saved
-                        && transaction.getStatus()
-                        == WarehouseTransactionStatus.POSTED;
+        boolean canReverse = saved
+                && transaction.getStatus() == WarehouseTransactionStatus.POSTED
+                && transaction.getReversalOf() == null;
 
         setReadOnly(!editable);
 

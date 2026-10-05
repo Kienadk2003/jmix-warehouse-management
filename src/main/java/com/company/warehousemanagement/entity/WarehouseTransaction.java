@@ -61,6 +61,22 @@ public class WarehouseTransaction extends AuditedEntity {
     )
     private String status;
 
+    /*
+     * =========================
+     * ADJUSTMENT DIRECTION
+     * =========================
+     *
+     * Chỉ sử dụng khi TYPE = ADJUSTMENT
+     *
+     * IN  = tăng tồn
+     * OUT = giảm tồn
+     */
+    @Column(
+            name = "ADJUSTMENT_DIRECTION",
+            length = 10
+    )
+    private String adjustmentDirection;
+
     @JoinColumn(name = "SOURCE_WAREHOUSE_ID")
     @ManyToOne(fetch = FetchType.LAZY)
     private Warehouse sourceWarehouse;
@@ -129,6 +145,26 @@ public class WarehouseTransaction extends AuditedEntity {
         this.status = status == null
                 ? null
                 : status.getId();
+    }
+
+    /*
+     * =========================
+     * ADJUSTMENT DIRECTION
+     * =========================
+     */
+
+    public AdjustmentDirection getAdjustmentDirection() {
+        return adjustmentDirection == null
+                ? null
+                : AdjustmentDirection.fromId(adjustmentDirection);
+    }
+
+    public void setAdjustmentDirection(
+            AdjustmentDirection adjustmentDirection
+    ) {
+        this.adjustmentDirection = adjustmentDirection == null
+                ? null
+                : adjustmentDirection.getId();
     }
 
     /*

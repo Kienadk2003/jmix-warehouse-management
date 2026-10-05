@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="Adjustment">
+
+    <data readOnly="true">
+
+        <collection id="adjustmentsDc"
+                    class="com.company.warehousemanagement.entity.WarehouseTransaction">
+
+            <fetchPlan extends="_base">
+
+                <property name="sourceWarehouse"
+                          fetchPlan="_instance_name"/>
+
+            </fetchPlan>
+
+            <loader id="adjustmentsDl">
+
+                <query>
+                    <![CDATA[
+                        select e
+                        from WarehouseTransaction e
+                        where e.type = 'ADJUSTMENT'
+                        order by e.documentDate desc
+                    ]]>
+                </query>
+
+            </loader>
+
+        </collection>
+
+    </data>
+
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+    </facets>
+
+    <layout padding="true">
+
+        <genericFilter id="genericFilter"
+                       dataLoader="adjustmentsDl">
+
+            <properties include=".*"/>
+
+        </genericFilter>
+
+        <hbox id="buttonsPanel"
+              classNames="buttons-panel">
+
+            <button id="createButton"
+                    action="adjustmentsDataGrid.create"/>
+
+            <button id="editButton"
+                    action="adjustmentsDataGrid.edit"/>
+
+            <button id="readButton"
+                    action="adjustmentsDataGrid.read"/>
+
+            <button id="refreshButton"
+                    action="adjustmentsDataGrid.refresh"/>
+
+        </hbox>
+
+        <dataGrid id="adjustmentsDataGrid"
+                  dataContainer="adjustmentsDc"
+                  width="100%"
+                  minHeight="20em">
+
+            <actions>
+
+                <action id="create" type="list_create">
+                    <properties>
+                        <property name="viewId"
+                                  value="WarehouseTransaction.adjustmentDetail"/>
+                    </properties>
+                </action>
+
+                <action id="edit" type="list_edit">
+                    <properties>
+                        <property name="viewId"
+                                  value="WarehouseTransaction.adjustmentDetail"/>
+                    </properties>
+                </action>
+
+                <action id="read" type="list_read">
+                    <properties>
+                        <property name="viewId"
+                                  value="WarehouseTransaction.adjustmentDetail"/>
+                    </properties>
+                </action>
+
+                <action id="refresh"
+                        type="list_refresh"/>
+
+            </actions>
+
+            <columns>
+
+                <column property="documentNo"
+                        header="Document No"/>
+
+                <column property="sourceWarehouse"
+                        header="Warehouse"/>
+
+                <column property="adjustmentDirection"
+                        header="Direction"/>
+
+                <column property="documentDate"
+                        header="Document Date"/>
+
+                <column property="status"
+                        header="Status"/>
+
+                <column property="reason"
+                        header="Reason"/>
+
+            </columns>
+
+        </dataGrid>
+
+    </layout>
+
+</view>
