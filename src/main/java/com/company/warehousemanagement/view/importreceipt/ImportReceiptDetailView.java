@@ -217,6 +217,7 @@ public class ImportReceiptDetailView extends StandardView
         try {
             WarehouseTransaction created = importReceiptService.createDraft(command);
             notifications.show("Đã tạo phiếu nhập " + created.getDocumentNo());
+            viewInitialized = false;
             getUI().ifPresent(ui ->
                     ui.navigate("import-receipts/" + created.getId())
             );
