@@ -185,9 +185,6 @@ public class ImportReceiptDetailView extends StandardView
         partnersDl.load();
         productsDl.load();
 
-        // Bind the loaded containers explicitly. With a standalone StandardView,
-        // relying only on the XML itemsContainer binding may leave the combo-box
-        // data provider empty when the loaders are invoked during BeforeShowEvent.
         warehouseField.setItems(warehousesDc);
         partnerField.setItems(partnersDc);
         productField.setItems(productsDc);
