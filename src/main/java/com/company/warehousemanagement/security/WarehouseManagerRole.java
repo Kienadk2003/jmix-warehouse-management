@@ -1,13 +1,14 @@
 package com.company.warehousemanagement.security;
 
-import com.company.warehousemanagement.entity.Stocktake;
-import com.company.warehousemanagement.entity.StocktakeItem;
-import com.company.warehousemanagement.entity.TransactionItem;
-import com.company.warehousemanagement.entity.WarehouseTransaction;
+import com.company.warehousemanagement.entity.Inventory;
+import com.company.warehousemanagement.entity.InventoryMovement;
+import io.jmix.security.model.EntityAttributePolicyAction;
 import io.jmix.security.model.EntityPolicyAction;
 import io.jmix.security.model.SecurityScope;
+import io.jmix.security.role.annotation.EntityAttributePolicy;
 import io.jmix.security.role.annotation.EntityPolicy;
 import io.jmix.security.role.annotation.ResourceRole;
+import io.jmix.security.role.annotation.SpecificPolicy;
 import io.jmix.securityflowui.role.annotation.ViewPolicy;
 
 @ResourceRole(
@@ -36,51 +37,46 @@ public interface WarehouseManagerRole extends WarehouseStaffRole {
     })
     void managerViews();
 
+    @SpecificPolicy(resources = {
+            WarehousePermissions.CONFIRM,
+            WarehousePermissions.POST,
+            WarehousePermissions.CANCEL,
+            WarehousePermissions.REVERSE,
+            WarehousePermissions.APPROVE_STOCKTAKE
+    })
+    void managerOperations();
+
     /*
-     * Manager được sửa transaction theo quyền entity.
-     * POST / CANCEL / REVERSE sẽ được bảo vệ thêm
-     * ở backend service.
+     * POST/REVERSE cập nhật tồn kho và tạo bút toán kho.
+     * Chỉ Manager có quyền ghi hai entity kỹ thuật này;
+     * Staff vẫn kế thừa quyền READ từ ViewerRole.
      */
-
     @EntityPolicy(
-            entityClass = WarehouseTransaction.class,
+            entityClass = Inventory.class,
             actions = {
                     EntityPolicyAction.CREATE,
                     EntityPolicyAction.READ,
                     EntityPolicyAction.UPDATE
             }
     )
-    void transaction();
+    @EntityAttributePolicy(
+            entityClass = Inventory.class,
+            attributes = "*",
+            action = EntityAttributePolicyAction.MODIFY
+    )
+    void inventoryForPosting();
 
     @EntityPolicy(
-            entityClass = TransactionItem.class,
+            entityClass = InventoryMovement.class,
             actions = {
                     EntityPolicyAction.CREATE,
-                    EntityPolicyAction.READ,
-                    EntityPolicyAction.UPDATE,
-                    EntityPolicyAction.DELETE
+                    EntityPolicyAction.READ
             }
     )
-    void transactionItem();
-
-    @EntityPolicy(
-            entityClass = Stocktake.class,
-            actions = {
-                    EntityPolicyAction.CREATE,
-                    EntityPolicyAction.READ,
-                    EntityPolicyAction.UPDATE
-            }
+    @EntityAttributePolicy(
+            entityClass = InventoryMovement.class,
+            attributes = "*",
+            action = EntityAttributePolicyAction.MODIFY
     )
-    void stocktake();
-
-    @EntityPolicy(
-            entityClass = StocktakeItem.class,
-            actions = {
-                    EntityPolicyAction.CREATE,
-                    EntityPolicyAction.READ,
-                    EntityPolicyAction.UPDATE,
-                    EntityPolicyAction.DELETE
-            }
-    )
-    void stocktakeItem();
+    void inventoryMovementForPosting();
 }

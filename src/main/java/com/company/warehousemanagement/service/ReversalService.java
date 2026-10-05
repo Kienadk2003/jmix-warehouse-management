@@ -10,6 +10,8 @@ import com.company.warehousemanagement.entity.WarehouseTransaction;
 import com.company.warehousemanagement.entity.WarehouseTransactionStatus;
 import com.company.warehousemanagement.entity.WarehouseTransactionType;
 import com.company.warehousemanagement.exception.WarehouseBusinessException;
+import com.company.warehousemanagement.security.WarehouseAuthorizationService;
+import com.company.warehousemanagement.security.WarehousePermissions;
 import io.jmix.core.DataManager;
 import io.jmix.core.FetchPlan;
 import io.jmix.core.security.CurrentAuthentication;
@@ -32,17 +34,24 @@ public class ReversalService {
     private final DataManager dataManager;
     private final CurrentAuthentication currentAuthentication;
     private final AvailableStockService availableStockService;
+    private final WarehouseAuthorizationService authorizationService;
 
     public ReversalService(DataManager dataManager,
                            CurrentAuthentication currentAuthentication,
-                           AvailableStockService availableStockService) {
+                           AvailableStockService availableStockService,
+                           WarehouseAuthorizationService authorizationService) {
         this.dataManager = dataManager;
         this.currentAuthentication = currentAuthentication;
         this.availableStockService = availableStockService;
+        this.authorizationService = authorizationService;
     }
 
     @Transactional
     public WarehouseTransaction reverse(UUID transactionId) {
+        authorizationService.require(
+                WarehousePermissions.REVERSE,
+                "Bạn không có quyền reverse chứng từ"
+        );
 
         if (transactionId == null) {
             throw new WarehouseBusinessException(

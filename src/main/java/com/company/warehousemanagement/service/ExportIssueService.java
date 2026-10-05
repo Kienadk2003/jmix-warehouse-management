@@ -11,6 +11,8 @@ import com.company.warehousemanagement.entity.WarehouseTransaction;
 import com.company.warehousemanagement.entity.WarehouseTransactionStatus;
 import com.company.warehousemanagement.entity.WarehouseTransactionType;
 import com.company.warehousemanagement.exception.WarehouseBusinessException;
+import com.company.warehousemanagement.security.WarehouseAuthorizationService;
+import com.company.warehousemanagement.security.WarehousePermissions;
 import io.jmix.core.DataManager;
 import org.springframework.stereotype.Service;
 
@@ -30,15 +32,19 @@ public class ExportIssueService {
     private static final int MAX_REASON_LENGTH = 1000;
 
     private final DataManager dataManager;
+    private final WarehouseAuthorizationService authorizationService;
 
-    public ExportIssueService(DataManager dataManager) {
+    public ExportIssueService(DataManager dataManager,
+                              WarehouseAuthorizationService authorizationService) {
         this.dataManager = dataManager;
+        this.authorizationService = authorizationService;
     }
 
     /**
      * Initializes a brand-new export document. No database write is performed here.
      */
     public void prepareNewDraft(WarehouseTransaction transaction) {
+        requireEditDraft();
         if (transaction == null) {
             throw new WarehouseBusinessException("Không thể khởi tạo phiếu xuất rỗng");
         }
@@ -54,6 +60,7 @@ public class ExportIssueService {
      * The method intentionally does not change inventory.
      */
     public void validateDraft(WarehouseTransaction transaction) {
+        requireEditDraft();
         if (transaction == null) {
             throw new WarehouseBusinessException("Phiếu xuất không được để trống");
         }
@@ -213,5 +220,12 @@ public class ExportIssueService {
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    private void requireEditDraft() {
+        authorizationService.require(
+                WarehousePermissions.EDIT_DRAFT,
+                "Bạn không có quyền tạo hoặc sửa phiếu xuất nháp"
+        );
     }
 }

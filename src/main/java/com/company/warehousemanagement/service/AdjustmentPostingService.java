@@ -9,6 +9,8 @@ import com.company.warehousemanagement.entity.WarehouseTransaction;
 import com.company.warehousemanagement.entity.WarehouseTransactionStatus;
 import com.company.warehousemanagement.entity.WarehouseTransactionType;
 import com.company.warehousemanagement.exception.WarehouseBusinessException;
+import com.company.warehousemanagement.security.WarehouseAuthorizationService;
+import com.company.warehousemanagement.security.WarehousePermissions;
 import io.jmix.core.DataManager;
 import io.jmix.core.security.CurrentAuthentication;
 import jakarta.persistence.LockModeType;
@@ -25,17 +27,24 @@ public class AdjustmentPostingService {
 
     private final DataManager dataManager;
     private final CurrentAuthentication currentAuthentication;
+    private final WarehouseAuthorizationService authorizationService;
 
     public AdjustmentPostingService(
             DataManager dataManager,
-            CurrentAuthentication currentAuthentication) {
+            CurrentAuthentication currentAuthentication,
+            WarehouseAuthorizationService authorizationService) {
 
         this.dataManager = dataManager;
         this.currentAuthentication = currentAuthentication;
+        this.authorizationService = authorizationService;
     }
 
     @Transactional
     public WarehouseTransaction postAdjustment(UUID transactionId) {
+        authorizationService.require(
+                WarehousePermissions.POST,
+                "Bạn không có quyền POST phiếu điều chỉnh"
+        );
 
         WarehouseTransaction transaction =
                 dataManager.load(WarehouseTransaction.class)

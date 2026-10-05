@@ -11,6 +11,8 @@ import com.company.warehousemanagement.entity.WarehouseTransaction;
 import com.company.warehousemanagement.entity.WarehouseTransactionStatus;
 import com.company.warehousemanagement.exception.WarehouseBusinessException;
 import com.company.warehousemanagement.service.ImportReceiptService;
+import com.company.warehousemanagement.security.WarehouseAuthorizationService;
+import com.company.warehousemanagement.security.WarehousePermissions;
 import com.company.warehousemanagement.view.main.MainView;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -57,6 +59,9 @@ public class ImportReceiptDetailView extends StandardView
     @Autowired
     private Notifications notifications;
 
+    @Autowired
+    private WarehouseAuthorizationService authorizationService;
+
     @ViewComponent
     private CollectionLoader<Warehouse> warehousesDl;
 
@@ -76,7 +81,7 @@ public class ImportReceiptDetailView extends StandardView
     private CollectionContainer<Product> productsDc;
 
     @ViewComponent
-    private CollectionLoader<TransactionItem> itemsDl;
+    private CollectionContainer<TransactionItem> itemsDc;
 
     @ViewComponent
     private TextField documentNoField;
@@ -381,11 +386,7 @@ public class ImportReceiptDetailView extends StandardView
         if (receiptId == null) {
             return;
         }
-        itemsDl.setQuery("select e from TransactionItem e "
-                + "where e.transaction.id = :receiptId "
-                + "order by e.lineNo");
-        itemsDl.setParameter("receiptId", receiptId);
-        itemsDl.load();
+        itemsDc.setItems(importReceiptService.getItems(receiptId));
     }
 
     private boolean validateItemEditor() {
@@ -414,18 +415,34 @@ public class ImportReceiptDetailView extends StandardView
                 && receipt.getStatus() == WarehouseTransactionStatus.DRAFT;
         boolean confirmed = existing
                 && receipt.getStatus() == WarehouseTransactionStatus.CONFIRMED;
+        boolean canEditDraft = authorizationService.isAllowed(
+                WarehousePermissions.EDIT_DRAFT
+        );
+        boolean canConfirm = authorizationService.isAllowed(
+                WarehousePermissions.CONFIRM
+        );
+        boolean canPost = authorizationService.isAllowed(
+                WarehousePermissions.POST
+        );
+        boolean canCancel = authorizationService.isAllowed(
+                WarehousePermissions.CANCEL
+        );
 
-        productField.setReadOnly(!draft || editingItemId != null);
-        quantityField.setReadOnly(!draft);
-        itemNoteField.setReadOnly(!draft);
+        createReceiptButton.setVisible(!existing && canEditDraft);
+        productField.setReadOnly(!draft || !canEditDraft || editingItemId != null);
+        quantityField.setReadOnly(!draft || !canEditDraft);
+        itemNoteField.setReadOnly(!draft || !canEditDraft);
 
-        addItemButton.setEnabled(draft && editingItemId == null);
-        editItemButton.setEnabled(draft);
-        updateItemButton.setEnabled(draft && editingItemId != null);
-        removeItemButton.setEnabled(draft);
-        confirmButton.setEnabled(draft);
-        postButton.setEnabled(confirmed);
-        cancelButton.setEnabled(draft || confirmed);
+        addItemButton.setEnabled(draft && canEditDraft && editingItemId == null);
+        editItemButton.setEnabled(draft && canEditDraft);
+        updateItemButton.setEnabled(draft && canEditDraft && editingItemId != null);
+        removeItemButton.setEnabled(draft && canEditDraft);
+        confirmButton.setVisible(canConfirm);
+        confirmButton.setEnabled(draft && canConfirm);
+        postButton.setVisible(canPost);
+        postButton.setEnabled(confirmed && canPost);
+        cancelButton.setVisible(canCancel);
+        cancelButton.setEnabled((draft || confirmed) && canCancel);
     }
 
     private void setHeaderReadOnly(boolean readOnly) {

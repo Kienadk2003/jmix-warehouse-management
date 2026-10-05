@@ -9,6 +9,8 @@ import com.company.warehousemanagement.entity.WarehouseTransaction;
 import com.company.warehousemanagement.entity.WarehouseTransactionStatus;
 import com.company.warehousemanagement.entity.WarehouseTransactionType;
 import com.company.warehousemanagement.exception.WarehouseBusinessException;
+import com.company.warehousemanagement.security.WarehouseAuthorizationService;
+import com.company.warehousemanagement.security.WarehousePermissions;
 import io.jmix.core.DataManager;
 import org.springframework.stereotype.Service;
 
@@ -22,12 +24,16 @@ import java.util.UUID;
 public class AdjustmentIssueService {
 
     private final DataManager dataManager;
+    private final WarehouseAuthorizationService authorizationService;
 
-    public AdjustmentIssueService(DataManager dataManager) {
+    public AdjustmentIssueService(DataManager dataManager,
+                                  WarehouseAuthorizationService authorizationService) {
         this.dataManager = dataManager;
+        this.authorizationService = authorizationService;
     }
 
     public void prepareNewDraft(WarehouseTransaction transaction) {
+        requireEditDraft();
 
         transaction.setType(WarehouseTransactionType.ADJUSTMENT);
         transaction.setStatus(WarehouseTransactionStatus.DRAFT);
@@ -48,6 +54,7 @@ public class AdjustmentIssueService {
     }
 
     public void validateDraft(WarehouseTransaction transaction) {
+        requireEditDraft();
 
         if (transaction == null) {
             throw new WarehouseBusinessException(
@@ -259,5 +266,12 @@ public class AdjustmentIssueService {
                                     "Không tìm thấy Unit"
                             ));
         }
+    }
+
+    private void requireEditDraft() {
+        authorizationService.require(
+                WarehousePermissions.EDIT_DRAFT,
+                "Bạn không có quyền tạo hoặc sửa phiếu điều chỉnh nháp"
+        );
     }
 }

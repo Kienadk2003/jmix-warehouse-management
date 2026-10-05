@@ -45,17 +45,8 @@
                 <property name="product" fetchPlan="_base"/>
                 <property name="unit" fetchPlan="_base"/>
             </fetchPlan>
-            <loader id="itemsDl" readOnly="true">
-                <query><![CDATA[
-                    select e from TransactionItem e
-                    where 1 = 0
-                ]]></query>
-            </loader>
         </collection>
     </data>
-    <facets>
-        <dataLoadCoordinator auto="true"/>
-    </facets>
     <layout>
         <h3 text="Thông tin phiếu nhập"/>
         <formLayout id="headerForm">

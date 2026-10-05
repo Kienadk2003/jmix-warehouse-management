@@ -9,6 +9,8 @@ import com.company.warehousemanagement.entity.WarehouseTransaction;
 import com.company.warehousemanagement.entity.WarehouseTransactionStatus;
 import com.company.warehousemanagement.entity.WarehouseTransactionType;
 import com.company.warehousemanagement.exception.WarehouseBusinessException;
+import com.company.warehousemanagement.security.WarehouseAuthorizationService;
+import com.company.warehousemanagement.security.WarehousePermissions;
 import io.jmix.core.DataManager;
 import org.springframework.stereotype.Service;
 
@@ -28,9 +30,12 @@ public class TransferIssueService {
     private static final int MAX_REASON_LENGTH = 1000;
 
     private final DataManager dataManager;
+    private final WarehouseAuthorizationService authorizationService;
 
-    public TransferIssueService(DataManager dataManager) {
+    public TransferIssueService(DataManager dataManager,
+                                WarehouseAuthorizationService authorizationService) {
         this.dataManager = dataManager;
+        this.authorizationService = authorizationService;
     }
 
     /**
@@ -38,6 +43,7 @@ public class TransferIssueService {
      * Chưa ghi database ở đây.
      */
     public void prepareNewDraft(WarehouseTransaction transaction) {
+        requireEditDraft();
 
         if (transaction == null) {
             throw new WarehouseBusinessException(
@@ -57,6 +63,7 @@ public class TransferIssueService {
      * Validate phiếu TRANSFER trước khi lưu DRAFT.
      */
     public void validateDraft(WarehouseTransaction transaction) {
+        requireEditDraft();
 
         if (transaction == null) {
             throw new WarehouseBusinessException(
@@ -347,5 +354,12 @@ public class TransferIssueService {
     private boolean isBlank(String value) {
         return value == null
                 || value.trim().isEmpty();
+    }
+
+    private void requireEditDraft() {
+        authorizationService.require(
+                WarehousePermissions.EDIT_DRAFT,
+                "Bạn không có quyền tạo hoặc sửa phiếu chuyển kho nháp"
+        );
     }
 }

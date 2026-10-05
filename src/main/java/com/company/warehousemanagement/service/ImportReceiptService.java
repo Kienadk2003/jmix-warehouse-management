@@ -15,7 +15,11 @@ import com.company.warehousemanagement.entity.WarehouseTransaction;
 import com.company.warehousemanagement.entity.WarehouseTransactionStatus;
 import com.company.warehousemanagement.entity.WarehouseTransactionType;
 import com.company.warehousemanagement.exception.WarehouseBusinessException;
+import com.company.warehousemanagement.security.WarehouseAuthorizationService;
+import com.company.warehousemanagement.security.WarehousePermissions;
 import io.jmix.core.DataManager;
+import io.jmix.core.FetchPlan;
+import io.jmix.core.UnconstrainedDataManager;
 import io.jmix.core.security.CurrentAuthentication;
 import jakarta.persistence.LockModeType;
 import org.springframework.stereotype.Service;
@@ -34,21 +38,28 @@ import java.util.UUID;
 public class ImportReceiptService {
 
     private final DataManager dataManager;
+    private final UnconstrainedDataManager unconstrainedDataManager;
     private final CurrentAuthentication currentAuthentication;
     private final ApplicationEventPublisher eventPublisher;
+    private final WarehouseAuthorizationService authorizationService;
 
     public ImportReceiptService(
             DataManager dataManager,
+            UnconstrainedDataManager unconstrainedDataManager,
             CurrentAuthentication currentAuthentication,
-            ApplicationEventPublisher eventPublisher) {
+            ApplicationEventPublisher eventPublisher,
+            WarehouseAuthorizationService authorizationService) {
 
         this.dataManager = dataManager;
+        this.unconstrainedDataManager = unconstrainedDataManager;
         this.currentAuthentication = currentAuthentication;
         this.eventPublisher = eventPublisher;
+        this.authorizationService = authorizationService;
     }
 
     @Transactional
     public WarehouseTransaction createDraft(CreateImportReceiptCommand command) {
+        requireEditDraft();
         validateCreateCommand(command);
 
         Warehouse warehouse = loadActiveWarehouse(command.getWarehouseId());
@@ -71,6 +82,7 @@ public class ImportReceiptService {
 
     @Transactional
     public TransactionItem addItem(AddImportReceiptItemCommand command) {
+        requireEditDraft();
         validateAddItemCommand(command);
 
         WarehouseTransaction receipt = loadImportReceipt(command.getReceiptId());
@@ -79,7 +91,7 @@ public class ImportReceiptService {
         Product product = loadActiveProduct(command.getProductId());
         validateQuantity(command.getQuantity(), product);
 
-        boolean duplicated = dataManager.load(TransactionItem.class)
+        boolean duplicated = unconstrainedDataManager.load(TransactionItem.class)
                 .query("select e from TransactionItem e "
                         + "where e.transaction.id = :receiptId "
                         + "and e.product.id = :productId")
@@ -103,8 +115,17 @@ public class ImportReceiptService {
         return dataManager.save(item);
     }
 
+    @Transactional(readOnly = true)
+    public List<TransactionItem> getItems(UUID receiptId) {
+        // Kiểm tra quyền READ và Warehouse Scope trên phiếu cha trước khi
+        // dùng loader nội bộ để lấy các dòng hàng của chính phiếu đó.
+        loadImportReceipt(receiptId);
+        return loadItems(receiptId);
+    }
+
     @Transactional
     public TransactionItem updateItem(UpdateImportReceiptItemCommand command) {
+        requireEditDraft();
         if (command == null || command.getItemId() == null) {
             throw new WarehouseBusinessException("Bạn chưa chọn dòng hàng cần sửa");
         }
@@ -123,6 +144,7 @@ public class ImportReceiptService {
 
     @Transactional
     public void removeItem(UUID itemId) {
+        requireEditDraft();
         if (itemId == null) {
             throw new WarehouseBusinessException("Bạn chưa chọn dòng hàng cần xóa");
         }
@@ -135,6 +157,10 @@ public class ImportReceiptService {
 
     @Transactional
     public WarehouseTransaction confirm(UUID receiptId) {
+        authorizationService.require(
+                WarehousePermissions.CONFIRM,
+                "Bạn không có quyền xác nhận phiếu nhập"
+        );
         WarehouseTransaction receipt = loadImportReceipt(receiptId);
         ensureDraft(receipt);
         validateReceiptItems(loadItems(receipt.getId()));
@@ -145,6 +171,10 @@ public class ImportReceiptService {
 
     @Transactional
     public WarehouseTransaction post(UUID receiptId) {
+        authorizationService.require(
+                WarehousePermissions.POST,
+                "Bạn không có quyền nhập kho"
+        );
         WarehouseTransaction receipt = loadImportReceiptForUpdate(receiptId);
 
         if (receipt.getStatus() != WarehouseTransactionStatus.CONFIRMED) {
@@ -212,6 +242,10 @@ public class ImportReceiptService {
 
     @Transactional
     public WarehouseTransaction cancel(UUID receiptId) {
+        authorizationService.require(
+                WarehousePermissions.CANCEL,
+                "Bạn không có quyền hủy phiếu nhập"
+        );
         WarehouseTransaction receipt = loadImportReceipt(receiptId);
 
         if (receipt.getStatus() != WarehouseTransactionStatus.DRAFT
@@ -322,7 +356,7 @@ public class ImportReceiptService {
     }
 
     private TransactionItem loadItem(UUID itemId) {
-        return dataManager.load(TransactionItem.class)
+        return unconstrainedDataManager.load(TransactionItem.class)
                 .id(itemId)
                 .optional()
                 .orElseThrow(() -> new WarehouseBusinessException(
@@ -331,11 +365,16 @@ public class ImportReceiptService {
     }
 
     private List<TransactionItem> loadItems(UUID receiptId) {
-        return dataManager.load(TransactionItem.class)
+        return unconstrainedDataManager.load(TransactionItem.class)
                 .query("select e from TransactionItem e "
                         + "where e.transaction.id = :receiptId "
                         + "order by e.lineNo")
                 .parameter("receiptId", receiptId)
+                .fetchPlan(fetchPlan -> fetchPlan
+                        .addFetchPlan(FetchPlan.BASE)
+                        .add("transaction", FetchPlan.BASE)
+                        .add("product", FetchPlan.BASE)
+                        .add("unit", FetchPlan.BASE))
                 .list();
     }
 
@@ -410,7 +449,7 @@ public class ImportReceiptService {
     }
 
     private int nextLineNo(UUID receiptId) {
-        return dataManager.load(TransactionItem.class)
+        return unconstrainedDataManager.load(TransactionItem.class)
                 .query("select e from TransactionItem e "
                         + "where e.transaction.id = :receiptId "
                         + "order by e.lineNo desc")
@@ -442,5 +481,12 @@ public class ImportReceiptService {
             return null;
         }
         return value.trim();
+    }
+
+    private void requireEditDraft() {
+        authorizationService.require(
+                WarehousePermissions.EDIT_DRAFT,
+                "Bạn không có quyền tạo hoặc sửa phiếu nháp"
+        );
     }
 }

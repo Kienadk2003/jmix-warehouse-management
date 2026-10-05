@@ -42,6 +42,7 @@ public interface ViewerRole extends UiMinimalRole {
             "Inventory.stockCard",
             "Inventory.report",
             "ImportReceipt.list",
+            "ImportReceipt.detail",
             "WarehouseTransaction.exportList",
             "WarehouseTransaction.transferList",
             "WarehouseTransaction.adjustmentList",

@@ -1,4 +1,4 @@
-plugins {
+        plugins {
     id 'io.jmix' version '3.0.2'
     id 'java'
     id 'org.jetbrains.gradle.plugin.idea-ext' version '1.4.1'

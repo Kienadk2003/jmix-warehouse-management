@@ -6,6 +6,8 @@ import com.company.warehousemanagement.entity.WarehouseTransactionStatus;
 import com.company.warehousemanagement.exception.WarehouseBusinessException;
 import com.company.warehousemanagement.service.AdjustmentIssueService;
 import com.company.warehousemanagement.service.AdjustmentPostingService;
+import com.company.warehousemanagement.security.WarehouseAuthorizationService;
+import com.company.warehousemanagement.security.WarehousePermissions;
 import com.company.warehousemanagement.view.main.MainView;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.notification.Notification;
@@ -54,6 +56,9 @@ public class AdjustmentDetailView
     private EntityStates entityStates;
 
     @Autowired
+    private WarehouseAuthorizationService authorizationService;
+
+    @Autowired
     private DataManager dataManager;
 
     @ViewComponent
@@ -98,13 +103,16 @@ public class AdjustmentDetailView
 
         boolean editable =
                 transaction.getStatus()
-                        == WarehouseTransactionStatus.DRAFT;
+                        == WarehouseTransactionStatus.DRAFT
+                        && authorizationService.isAllowed(WarehousePermissions.EDIT_DRAFT);
 
         boolean saved =
                 !entityStates.isNew(transaction);
 
         boolean canPost =
-                saved && editable;
+                saved
+                        && transaction.getStatus() == WarehouseTransactionStatus.DRAFT
+                        && authorizationService.isAllowed(WarehousePermissions.POST);
 
         setReadOnly(!editable);
 
@@ -147,7 +155,8 @@ public class AdjustmentDetailView
         boolean canPost =
                 saved
                         && transaction.getStatus()
-                        == WarehouseTransactionStatus.DRAFT;
+                        == WarehouseTransactionStatus.DRAFT
+                        && authorizationService.isAllowed(WarehousePermissions.POST);
 
         postButton.setVisible(canPost);
 

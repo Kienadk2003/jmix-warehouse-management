@@ -10,6 +10,8 @@ import com.company.warehousemanagement.entity.WarehouseTransaction;
 import com.company.warehousemanagement.entity.WarehouseTransactionStatus;
 import com.company.warehousemanagement.entity.WarehouseTransactionType;
 import com.company.warehousemanagement.exception.WarehouseBusinessException;
+import com.company.warehousemanagement.security.WarehouseAuthorizationService;
+import com.company.warehousemanagement.security.WarehousePermissions;
 import io.jmix.core.DataManager;
 import io.jmix.core.FetchPlan;
 import io.jmix.core.security.CurrentAuthentication;
@@ -31,22 +33,29 @@ public class ExportPostingService {
     private final CurrentAuthentication currentAuthentication;
     private final AvailableStockService availableStockService;
     private final ApplicationEventPublisher eventPublisher;
+    private final WarehouseAuthorizationService authorizationService;
 
     public ExportPostingService(
             DataManager dataManager,
             CurrentAuthentication currentAuthentication,
             AvailableStockService availableStockService,
-            ApplicationEventPublisher eventPublisher) {
+            ApplicationEventPublisher eventPublisher,
+            WarehouseAuthorizationService authorizationService) {
 
         this.dataManager = dataManager;
         this.currentAuthentication = currentAuthentication;
         this.availableStockService = availableStockService;
         this.eventPublisher = eventPublisher;
+        this.authorizationService = authorizationService;
     }
 
 
     @Transactional
     public WarehouseTransaction postExport(UUID transactionId) {
+        authorizationService.require(
+                WarehousePermissions.POST,
+                "Bạn không có quyền POST phiếu xuất"
+        );
 
         if (transactionId == null) {
             throw new WarehouseBusinessException(

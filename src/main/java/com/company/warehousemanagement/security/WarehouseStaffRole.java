@@ -5,9 +5,12 @@ import com.company.warehousemanagement.entity.StocktakeItem;
 import com.company.warehousemanagement.entity.TransactionItem;
 import com.company.warehousemanagement.entity.WarehouseTransaction;
 import io.jmix.security.model.EntityPolicyAction;
+import io.jmix.security.model.EntityAttributePolicyAction;
 import io.jmix.security.model.SecurityScope;
+import io.jmix.security.role.annotation.EntityAttributePolicy;
 import io.jmix.security.role.annotation.EntityPolicy;
 import io.jmix.security.role.annotation.ResourceRole;
+import io.jmix.security.role.annotation.SpecificPolicy;
 import io.jmix.securityflowui.role.annotation.MenuPolicy;
 import io.jmix.securityflowui.role.annotation.ViewPolicy;
 
@@ -31,7 +34,12 @@ public interface WarehouseStaffRole extends ViewerRole {
             "WarehouseTransaction.transferList",
             "WarehouseTransaction.transferDetail",
             "WarehouseTransaction.adjustmentList",
-            "WarehouseTransaction.adjustmentDetail"
+            "WarehouseTransaction.adjustmentDetail",
+            "TransactionItem.detail",
+            "Warehouse.list",
+            "Partner.list",
+            "Product.list",
+            "Unit.list"
     })
     @MenuPolicy(menuIds = {
             "ImportReceipt.list",
@@ -62,6 +70,11 @@ public interface WarehouseStaffRole extends ViewerRole {
                     EntityPolicyAction.UPDATE
             }
     )
+    @EntityAttributePolicy(
+            entityClass = WarehouseTransaction.class,
+            attributes = "*",
+            action = EntityAttributePolicyAction.MODIFY
+    )
     void transaction();
 
     /*
@@ -82,6 +95,11 @@ public interface WarehouseStaffRole extends ViewerRole {
                     EntityPolicyAction.DELETE
             }
     )
+    @EntityAttributePolicy(
+            entityClass = TransactionItem.class,
+            attributes = "*",
+            action = EntityAttributePolicyAction.MODIFY
+    )
     void transactionItem();
 
     /*
@@ -98,6 +116,11 @@ public interface WarehouseStaffRole extends ViewerRole {
                     EntityPolicyAction.UPDATE
             }
     )
+    @EntityAttributePolicy(
+            entityClass = Stocktake.class,
+            attributes = "*",
+            action = EntityAttributePolicyAction.MODIFY
+    )
     void stocktake();
 
     @EntityPolicy(
@@ -109,5 +132,16 @@ public interface WarehouseStaffRole extends ViewerRole {
                     EntityPolicyAction.DELETE
             }
     )
+    @EntityAttributePolicy(
+            entityClass = StocktakeItem.class,
+            attributes = "*",
+            action = EntityAttributePolicyAction.MODIFY
+    )
     void stocktakeItem();
+
+    @SpecificPolicy(resources = {
+            WarehousePermissions.EDIT_DRAFT,
+            WarehousePermissions.COUNT_STOCK
+    })
+    void staffOperations();
 }

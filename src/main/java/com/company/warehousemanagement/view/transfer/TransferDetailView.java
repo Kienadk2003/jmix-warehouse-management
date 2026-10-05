@@ -6,6 +6,8 @@ import com.company.warehousemanagement.exception.WarehouseBusinessException;
 import com.company.warehousemanagement.service.ReversalService;
 import com.company.warehousemanagement.service.TransferIssueService;
 import com.company.warehousemanagement.service.TransferPostingService;
+import com.company.warehousemanagement.security.WarehouseAuthorizationService;
+import com.company.warehousemanagement.security.WarehousePermissions;
 import com.company.warehousemanagement.view.main.MainView;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.html.Span;
@@ -52,6 +54,9 @@ public class TransferDetailView
 
     @Autowired
     private EntityStates entityStates;
+
+    @Autowired
+    private WarehouseAuthorizationService authorizationService;
 
     @ViewComponent
     private JmixButton postButton;
@@ -112,17 +117,21 @@ public class TransferDetailView
 
         boolean editable =
                 transaction.getStatus()
-                        == WarehouseTransactionStatus.DRAFT;
+                        == WarehouseTransactionStatus.DRAFT
+                        && authorizationService.isAllowed(WarehousePermissions.EDIT_DRAFT);
 
         boolean saved =
                 !entityStates.isNew(transaction);
 
         boolean canPost =
-                saved && editable;
+                saved
+                        && transaction.getStatus() == WarehouseTransactionStatus.DRAFT
+                        && authorizationService.isAllowed(WarehousePermissions.POST);
 
         boolean canReverse = saved
                 && transaction.getStatus() == WarehouseTransactionStatus.POSTED
-                && transaction.getReversalOf() == null;
+                && transaction.getReversalOf() == null
+                && authorizationService.isAllowed(WarehousePermissions.REVERSE);
 
         /*
          * DRAFT:
@@ -408,11 +417,13 @@ public class TransferDetailView
         boolean canPost =
                 saved
                         && transaction.getStatus()
-                        == WarehouseTransactionStatus.DRAFT;
+                        == WarehouseTransactionStatus.DRAFT
+                        && authorizationService.isAllowed(WarehousePermissions.POST);
 
         boolean canReverse = saved
                 && transaction.getStatus() == WarehouseTransactionStatus.POSTED
-                && transaction.getReversalOf() == null;
+                && transaction.getReversalOf() == null
+                && authorizationService.isAllowed(WarehousePermissions.REVERSE);
 
         postButton.setVisible(canPost);
         reverseButton.setVisible(canReverse);

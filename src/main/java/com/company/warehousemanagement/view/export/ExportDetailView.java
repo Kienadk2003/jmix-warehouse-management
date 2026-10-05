@@ -6,6 +6,8 @@ import com.company.warehousemanagement.exception.WarehouseBusinessException;
 import com.company.warehousemanagement.service.ExportIssueService;
 import com.company.warehousemanagement.service.ExportPostingService;
 import com.company.warehousemanagement.service.ReversalService;
+import com.company.warehousemanagement.security.WarehouseAuthorizationService;
+import com.company.warehousemanagement.security.WarehousePermissions;
 import com.company.warehousemanagement.view.main.MainView;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.html.Span;
@@ -46,6 +48,9 @@ public class ExportDetailView
 
     @Autowired
     private EntityStates entityStates;
+
+    @Autowired
+    private WarehouseAuthorizationService authorizationService;
     @ViewComponent
     private JmixButton reverseButton;
 
@@ -162,14 +167,16 @@ public class ExportDetailView
 
         boolean editable =
                 transaction.getStatus()
-                        == WarehouseTransactionStatus.DRAFT;
+                        == WarehouseTransactionStatus.DRAFT
+                        && authorizationService.isAllowed(WarehousePermissions.EDIT_DRAFT);
 
         boolean saved =
                 !entityStates.isNew(transaction);
 
         boolean canReverse = saved
                 && transaction.getStatus() == WarehouseTransactionStatus.POSTED
-                && transaction.getReversalOf() == null;
+                && transaction.getReversalOf() == null
+                && authorizationService.isAllowed(WarehousePermissions.REVERSE);
 
         setReadOnly(!editable);
 
@@ -179,7 +186,11 @@ public class ExportDetailView
         editItemButton.setVisible(editable);
         removeItemButton.setVisible(editable);
 
-        postButton.setVisible(saved && editable);
+        postButton.setVisible(
+                saved
+                        && transaction.getStatus() == WarehouseTransactionStatus.DRAFT
+                        && authorizationService.isAllowed(WarehousePermissions.POST)
+        );
 
         reverseButton.setVisible(canReverse);
     }
@@ -218,6 +229,7 @@ public class ExportDetailView
                 saved
                         && transaction.getStatus()
                         == WarehouseTransactionStatus.DRAFT
+                        && authorizationService.isAllowed(WarehousePermissions.POST)
         );
     }
 
