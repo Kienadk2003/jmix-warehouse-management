@@ -21,10 +21,15 @@
     <facets>
         <dataLoadCoordinator auto="true"/>
         <urlQueryParameters>
+            <genericFilter component="genericFilter"/>
             <pagination component="pagination"/>
         </urlQueryParameters>
     </facets>
     <layout>
+        <genericFilter id="genericFilter" dataLoader="receiptsDl">
+            <properties include=".*"/>
+        </genericFilter>
+
         <hbox id="buttonsPanel" width="100%" wrap="true">
             <startSlot>
                 <button id="createButton" text="Tạo phiếu nhập" themeNames="primary"/>
