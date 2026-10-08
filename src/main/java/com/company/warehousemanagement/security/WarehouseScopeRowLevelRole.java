@@ -3,6 +3,8 @@ package com.company.warehousemanagement.security;
 import com.company.warehousemanagement.entity.Inventory;
 import com.company.warehousemanagement.entity.InventoryMovement;
 import com.company.warehousemanagement.entity.TransactionItem;
+import com.company.warehousemanagement.entity.User;
+import com.company.warehousemanagement.entity.UserWarehouse;
 import com.company.warehousemanagement.entity.Warehouse;
 import com.company.warehousemanagement.entity.WarehouseTransaction;
 import io.jmix.security.role.annotation.JpqlRowLevelPolicy;
@@ -128,4 +130,51 @@ public interface WarehouseScopeRowLevelRole {
                     """
     )
     void transactionItem();
+
+    /*
+     * =========================
+     * USER / EMPLOYEE
+     * =========================
+     *
+     * Manager chỉ nhìn thấy User được
+     * phân công vào cùng Warehouse với Manager.
+     */
+    @JpqlRowLevelPolicy(
+            entityClass = User.class,
+            where = """
+                    exists (
+                        select uw.id
+                        from UserWarehouse uw
+                        where uw.user = {E}
+                          and exists (
+                              select managerUw.id
+                              from UserWarehouse managerUw
+                              where managerUw.warehouse = uw.warehouse
+                                and managerUw.user.id = :current_user_id
+                          )
+                    )
+                    """
+    )
+    void user();
+
+    /*
+     * =========================
+     * USER WAREHOUSE
+     * =========================
+     *
+     * Manager chỉ nhìn thấy các bản ghi
+     * UserWarehouse thuộc Warehouse của mình.
+     */
+    @JpqlRowLevelPolicy(
+            entityClass = UserWarehouse.class,
+            where = """
+                    exists (
+                        select managerUw.id
+                        from UserWarehouse managerUw
+                        where managerUw.warehouse = {E}.warehouse
+                          and managerUw.user.id = :current_user_id
+                    )
+                    """
+    )
+    void userWarehouse();
 }

@@ -1,5 +1,7 @@
 package com.company.warehousemanagement.security;
 
+import com.company.warehousemanagement.entity.User;
+import com.company.warehousemanagement.entity.UserWarehouse;
 import com.company.warehousemanagement.entity.Inventory;
 import com.company.warehousemanagement.entity.InventoryMovement;
 import io.jmix.security.model.EntityAttributePolicyAction;
@@ -33,7 +35,13 @@ public interface WarehouseManagerRole extends WarehouseStaffRole {
             "WarehouseTransaction.transferList",
             "WarehouseTransaction.transferDetail",
             "WarehouseTransaction.adjustmentList",
-            "WarehouseTransaction.adjustmentDetail"
+            "WarehouseTransaction.adjustmentDetail",
+
+            // Quản lý Employee
+            "User.list",
+            "User.detail",
+            "UserWarehouse.list",
+            "UserWarehouse.detail"
     })
     void managerViews();
 
@@ -79,4 +87,45 @@ public interface WarehouseManagerRole extends WarehouseStaffRole {
             action = EntityAttributePolicyAction.MODIFY
     )
     void inventoryMovementForPosting();
+
+    /*
+     * Manager quản lý Employee.
+     *
+     * Row-level scope sẽ được xử lý riêng trong
+     * WarehouseScopeRowLevelRole để Manager chỉ
+     * nhìn thấy Employee thuộc kho của mình.
+     */
+    @EntityPolicy(
+            entityClass = User.class,
+            actions = {
+                    EntityPolicyAction.CREATE,
+                    EntityPolicyAction.READ,
+                    EntityPolicyAction.UPDATE
+            }
+    )
+    @EntityAttributePolicy(
+            entityClass = User.class,
+            attributes = "*",
+            action = EntityAttributePolicyAction.MODIFY
+    )
+    void employeeManagement();
+
+    /*
+     * Manager quản lý việc phân công Employee vào Warehouse.
+     */
+    @EntityPolicy(
+            entityClass = UserWarehouse.class,
+            actions = {
+                    EntityPolicyAction.CREATE,
+                    EntityPolicyAction.READ,
+                    EntityPolicyAction.UPDATE,
+                    EntityPolicyAction.DELETE
+            }
+    )
+    @EntityAttributePolicy(
+            entityClass = UserWarehouse.class,
+            attributes = "*",
+            action = EntityAttributePolicyAction.MODIFY
+    )
+    void employeeWarehouseAssignment();
 }
