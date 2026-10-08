@@ -12,11 +12,14 @@
         <item view="User.list"
               title="msg://com.company.warehousemanagement.view.user/UserListView.title"/>
 
-        <item view="UserWarehouse.list"
-              title="User Warehouse Access"/>
+        <item view="employeeAssignment-list"
+              title="msg://com.company.warehousemanagement.view.employeeassignments/employeeAssignmentListView.title"/>
 
-        <item view="UserProductCategory.list"
-              title="msg://com.company.warehousemanagement.view.userproductcategory/userProductCategoryListView.title"/>
+<!--        <item view="UserWarehouse.list"-->
+<!--              title="User Warehouse Access"/>-->
+
+<!--        <item view="UserProductCategory.list"-->
+<!--              title="msg://com.company.warehousemanagement.view.userproductcategory/userProductCategoryListView.title"/>-->
 
         <item view="ProductCategory.list"
               title="msg://com.company.warehousemanagement.view.productcategory/productCategoryListView.title"/>
@@ -60,6 +63,7 @@
               title="Stock Card"/>
         <item view="Inventory.report"
               title="Inventory Report"/>
+
     </menu>
 
 </menu-config>

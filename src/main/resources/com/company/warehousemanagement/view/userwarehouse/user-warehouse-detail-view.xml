@@ -12,6 +12,8 @@
                 <property name="warehouse" fetchPlan="_base"/>
             </fetchPlan>
 
+            <loader id="userWarehouseDl"/>
+
         </instance>
 
         <collection id="usersDc"
@@ -43,6 +45,26 @@
                         from Warehouse e
                         where e.active = true
                         order by e.code
+                    ]]>
+                </query>
+            </loader>
+
+        </collection>
+
+        <!-- PRODUCT CATEGORIES -->
+
+        <collection id="productCategoriesDc"
+                    class="com.company.warehousemanagement.entity.ProductCategory">
+
+            <fetchPlan extends="_base"/>
+
+            <loader id="productCategoriesDl">
+                <query>
+                    <![CDATA[
+                        select e
+                        from ProductCategory e
+                        where e.active = true
+                        order by e.name
                     ]]>
                 </query>
             </loader>
@@ -82,6 +104,14 @@
                             property="warehouse"
                             itemsContainer="warehousesDc"
                             label="Warehouse"
+                            width="100%"
+                            required="true"/>
+
+            <entityComboBox id="productCategoryField"
+                            dataContainer="userWarehouseDc"
+                            property="productCategory"
+                            itemsContainer="productCategoriesDc"
+                            label="Product Category"
                             width="100%"
                             required="true"/>
 
