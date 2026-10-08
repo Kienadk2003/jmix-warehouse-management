@@ -15,6 +15,9 @@
         <item view="UserWarehouse.list"
               title="User Warehouse Access"/>
 
+        <item view="UserProductCategory.list"
+              title="msg://com.company.warehousemanagement.view.userproductcategory/userProductCategoryListView.title"/>
+
         <item view="ProductCategory.list"
               title="msg://com.company.warehousemanagement.view.productcategory/productCategoryListView.title"/>
 
