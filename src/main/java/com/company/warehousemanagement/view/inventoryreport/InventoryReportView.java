@@ -160,7 +160,7 @@ public class InventoryReportView extends StandardView {
             reportDc.setItems(entities);
 
             Notification.show(
-                    "Inventory report loaded successfully",
+                    "Đã tải báo cáo tồn kho thành công",
                     2500,
                     Position.TOP_END
             );

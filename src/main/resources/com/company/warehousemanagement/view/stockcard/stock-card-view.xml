@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <view xmlns="http://jmix.io/schema/flowui/view"
-      title="Stock Card">
+      title="Thẻ kho">
 
     <data>
 
@@ -108,27 +108,27 @@
 
             <entityComboBox
                     id="warehouseField"
-                    label="Warehouse"
+                    label="Kho"
                     metaClass="Warehouse"
                     itemsContainer="warehousesDc"
                     required="true"/>
 
             <entityComboBox
                     id="productField"
-                    label="Product"
+                    label="Sản phẩm"
                     metaClass="Product"
                     itemsContainer="productsDc"
                     required="true"/>
 
             <datePicker
                     id="fromDateField"
-                    label="From Date"
+                    label="Từ ngày"
                     datatype="localDate"
                     required="true"/>
 
             <datePicker
                     id="toDateField"
-                    label="To Date"
+                    label="Đến ngày"
                     datatype="localDate"
                     required="true"/>
         </formLayout>
@@ -140,7 +140,7 @@
 
             <button
                     id="searchButton"
-                    text="Search"/>
+                    text="Tìm kiếm"/>
 
         </hbox>
 
@@ -153,17 +153,17 @@
 
             <textField
                     id="openingStockField"
-                    label="Opening Stock"
+                    label="Tồn đầu kỳ"
                     readOnly="true"/>
 
             <textField
                     id="closingStockField"
-                    label="Closing Stock"
+                    label="Tồn cuối kỳ"
                     readOnly="true"/>
 
             <textField
                     id="currentInventoryField"
-                    label="Current Inventory"
+                    label="Tồn kho hiện tại"
                     readOnly="true"/>
 
         </formLayout>
@@ -183,28 +183,28 @@
 
                 <column
                         property="movementTime"
-                        header="Movement Time"/>
+                        header="Thời gian phát sinh"/>
 
                 <column
                         property="documentNo"
-                        header="Document No"/>
+                        header="Số phiếu"/>
 
                 <column
                         property="transactionType"
-                        header="Transaction Type"/>
+                        header="Loại phiếu"/>
 
                 <column
                         property="movementType"
-                        header="Movement Type"/>
+                        header="Loại biến động"/>
 
                 <column
                         property="signedQuantity"
-                        header="Quantity"
+                        header="Số lượng"
                         textAlign="END"/>
 
                 <column
                         property="runningBalance"
-                        header="Running Balance"
+                        header="Tồn sau giao dịch"
                         textAlign="END"/>
 
             </columns>

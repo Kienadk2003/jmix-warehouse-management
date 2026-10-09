@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <view xmlns="http://jmix.io/schema/flowui/view"
-      title="Inventory Report">
+      title="Báo cáo tồn kho">
 
     <data>
 
@@ -121,24 +121,24 @@
                     id="warehouseField"
                     metaClass="Warehouse"
                     itemsContainer="warehousesDc"
-                    label="Warehouse"/>
+                    label="Kho"/>
 
             <entityComboBox
                     id="productField"
                     metaClass="Product"
                     itemsContainer="productsDc"
-                    label="Product"/>
+                    label="Sản phẩm"/>
 
             <datePicker
                     id="fromDateField"
                     datatype="localDate"
-                    label="From Date"
+                    label="Từ ngày"
                     required="true"/>
 
             <datePicker
                     id="toDateField"
                     datatype="localDate"
-                    label="To Date"
+                    label="Đến ngày"
                     required="true"/>
 
         </formLayout>
@@ -148,7 +148,7 @@
               classNames="buttons-panel">
 
             <button id="searchButton"
-                    text="Search"/>
+                    text="Tìm kiếm"/>
 
             <button id="excelExportButton"
                     action="reportDataGrid.excelExport"/>
@@ -176,40 +176,40 @@
 
                 <column
                         property="warehouse"
-                        header="Warehouse"/>
+                        header="Kho"/>
 
                 <column
                         property="product"
-                        header="Product"/>
+                        header="Sản phẩm"/>
 
                 <column
                         property="opening"
-                        header="Opening Stock"
+                        header="Tồn đầu kỳ"
                         textAlign="END"/>
 
                 <column
                         property="inbound"
-                        header="Inbound"
+                        header="Nhập trong kỳ"
                         textAlign="END"/>
 
                 <column
                         property="outbound"
-                        header="Outbound"
+                        header="Xuất trong kỳ"
                         textAlign="END"/>
 
                 <column
                         property="adjustmentIn"
-                        header="Adjustment In"
+                        header="Điều chỉnh tăng"
                         textAlign="END"/>
 
                 <column
                         property="adjustmentOut"
-                        header="Adjustment Out"
+                        header="Điều chỉnh giảm"
                         textAlign="END"/>
 
                 <column
                         property="closing"
-                        header="Closing Stock"
+                        header="Tồn cuối kỳ"
                         textAlign="END"/>
 
             </columns>

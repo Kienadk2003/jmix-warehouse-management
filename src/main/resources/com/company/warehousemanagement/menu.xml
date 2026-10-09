@@ -41,16 +41,16 @@
              ========================= -->
 
         <item view="ImportReceipt.list"
-              title="Import"/>
+              title="Phiếu nhập kho"/>
 
         <item view="WarehouseTransaction.exportList"
-              title="Export"/>
+              title="Phiếu xuất kho"/>
 
         <item view="WarehouseTransaction.transferList"
-              title="Transfer"/>
+              title="Phiếu chuyển kho"/>
 
         <item view="WarehouseTransaction.adjustmentList"
-              title="Adjustment"/>
+              title="Phiếu điều chỉnh kho"/>
 
         <!-- =========================
              INVENTORY
@@ -58,11 +58,11 @@
 
         <item view="Inventory.list"
               id="inventoryList"
-              title="Inventory"/>
+              title="Tồn kho hiện tại"/>
         <item view="Inventory.stockCard"
-              title="Stock Card"/>
+              title="Thẻ kho"/>
         <item view="Inventory.report"
-              title="Inventory Report"/>
+              title="Báo cáo tồn kho"/>
 
     </menu>
 

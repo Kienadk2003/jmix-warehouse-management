@@ -107,7 +107,7 @@ public class StockCardView extends StandardView {
         if (warehouse == null) {
 
             Notification.show(
-                    "Vui lòng chọn Warehouse",
+                    "Vui lòng chọn kho",
                     3000,
                     Position.TOP_END
             );
@@ -118,7 +118,7 @@ public class StockCardView extends StandardView {
         if (product == null) {
 
             Notification.show(
-                    "Vui lòng chọn Product",
+                    "Vui lòng chọn sản phẩm",
                     3000,
                     Position.TOP_END
             );
@@ -198,7 +198,7 @@ public class StockCardView extends StandardView {
             }
 
             Notification.show(
-                    "Stock Card loaded successfully",
+                    "Đã tải thẻ kho thành công",
                     2000,
                     Position.TOP_END
             );
