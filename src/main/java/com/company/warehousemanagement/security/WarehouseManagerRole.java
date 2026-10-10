@@ -50,7 +50,10 @@ public interface WarehouseManagerRole extends WarehouseStaffRole {
             WarehousePermissions.POST,
             WarehousePermissions.CANCEL,
             WarehousePermissions.REVERSE,
-            WarehousePermissions.APPROVE_STOCKTAKE
+            WarehousePermissions.APPROVE,
+            WarehousePermissions.REJECT,
+            WarehousePermissions.APPROVE_STOCKTAKE,
+            WarehousePermissions.REJECT_STOCKTAKE
     })
     void managerOperations();
 

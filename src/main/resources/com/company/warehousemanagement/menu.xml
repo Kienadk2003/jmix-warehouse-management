@@ -1,69 +1,34 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <menu-config xmlns="http://jmix.io/schema/flowui/menu">
-
-    <menu id="application"
-          title="msg://com.company.warehousemanagement/menu.application.title"
-          opened="true">
-
-        <!-- =========================
-             MASTER DATA
-             ========================= -->
-
-        <item view="User.list"
-              title="msg://com.company.warehousemanagement.view.user/UserListView.title"/>
-
-        <item view="employeeAssignment-list"
-              title="msg://com.company.warehousemanagement.view.employeeassignments/employeeAssignmentListView.title"/>
-
-<!--        <item view="UserWarehouse.list"-->
-<!--              title="User Warehouse Access"/>-->
-
-<!--        <item view="UserProductCategory.list"-->
-<!--              title="msg://com.company.warehousemanagement.view.userproductcategory/userProductCategoryListView.title"/>-->
-
-        <item view="ProductCategory.list"
-              title="msg://com.company.warehousemanagement.view.productcategory/productCategoryListView.title"/>
-
-        <item view="Product.list"
-              title="msg://com.company.warehousemanagement.view.product/productListView.title"/>
-
-        <item view="Unit.list"
-              title="msg://com.company.warehousemanagement.view.unit/unitListView.title"/>
-
-        <item view="Partner.list"
-              title="msg://com.company.warehousemanagement.view.partner/partnerListView.title"/>
-
-        <item view="Warehouse.list"
-              title="msg://com.company.warehousemanagement.view.warehouse/warehouseListView.title"/>
-
-        <!-- =========================
-             WAREHOUSE TRANSACTIONS
-             ========================= -->
-
-        <item view="ImportReceipt.list"
-              title="Phiếu nhập kho"/>
-
-        <item view="WarehouseTransaction.exportList"
-              title="Phiếu xuất kho"/>
-
-        <item view="WarehouseTransaction.transferList"
-              title="Phiếu chuyển kho"/>
-
-        <item view="WarehouseTransaction.adjustmentList"
-              title="Phiếu điều chỉnh kho"/>
-
-        <!-- =========================
-             INVENTORY
-             ========================= -->
-
-        <item view="Inventory.list"
-              id="inventoryList"
-              title="Tồn kho hiện tại"/>
-        <item view="Inventory.stockCard"
-              title="Thẻ kho"/>
-        <item view="Inventory.report"
-              title="Báo cáo tồn kho"/>
-
+    <menu id="warehouse" title="Quản lý kho" opened="true">
+        <item view="Warehouse.list" title="Kho"/>
+        <item view="Inventory.list" title="Tồn kho"/>
     </menu>
 
+    <menu id="products" title="Hàng hóa" opened="true">
+        <item view="Product.list" title="Sản phẩm"/>
+        <item view="ProductCategory.list" title="Nhóm sản phẩm"/>
+        <item view="Unit.list" title="Đơn vị tính"/>
+        <item view="Partner.list" title="Đối tác"/>
+    </menu>
+
+    <menu id="operations" title="Nghiệp vụ kho" opened="true">
+        <item view="ImportReceipt.list" title="Nhập kho"/>
+        <item view="WarehouseTransaction.exportList" title="Xuất kho"/>
+        <item view="WarehouseTransaction.transferList" title="Chuyển kho"/>
+        <item view="Stocktake.list" title="Kiểm kho"/>
+        <item view="WarehouseTransaction.adjustmentList" title="Điều chỉnh tồn"/>
+    </menu>
+
+    <menu id="reports" title="Báo cáo" opened="true">
+        <item view="Inventory.stockCard" title="Thẻ kho"/>
+        <item view="Inventory.report" title="Báo cáo tồn kho"/>
+    </menu>
+
+    <menu id="people" title="Nhân sự &amp; phân công" opened="false">
+        <item view="User.list" title="Người dùng"/>
+        <item view="employeeAssignment-list" title="Phân công kho cho người dùng"/>
+        <item view="UserWarehouse.list" title="Phân quyền kho"/>
+        <item view="UserProductCategory.list" title="Phân công nhóm sản phẩm"/>
+    </menu>
 </menu-config>

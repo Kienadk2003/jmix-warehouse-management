@@ -1,11 +1,8 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<view xmlns="http://jmix.io/schema/flowui/view"
-      title="msg://UserWarehouseListView.title"
-      focusComponent="userWarehousesDataGrid">
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" title="msg://UserWarehouseListView.title" focusComponent="userWarehousesDataGrid">
 
     <data>
-        <collection id="userWarehousesDc"
-                    class="com.company.warehousemanagement.entity.UserWarehouse">
+        <collection id="userWarehousesDc" class="com.company.warehousemanagement.entity.UserWarehouse">
             <fetchPlan extends="_base">
                 <property name="user" fetchPlan="_base"/>
                 <property name="warehouse" fetchPlan="_base"/>
@@ -13,11 +10,11 @@
 
             <loader id="userWarehousesDl" readOnly="true">
                 <query>
-                    <![CDATA[
+                    
                         select e
                         from UserWarehouse e
                         order by e.user.username, e.warehouse.code
-                    ]]>
+                    
                 </query>
             </loader>
         </collection>
@@ -35,50 +32,37 @@
         </urlQueryParameters>
     </facets>
 
-    <layout>
+    <layout classNames="warehouse-page-layout">
 
-        <hbox id="buttonsPanel"
-              width="100%"
-              wrap="true">
+        <hbox id="buttonsPanel" width="100%" wrap="true" classNames="warehouse-toolbar">
 
             <startSlot>
 
-                <button id="createButton"
-                        action="userWarehousesDataGrid.createAction"/>
+                <button id="createButton" action="userWarehousesDataGrid.createAction" text="Tạo mới" themeNames="primary"/>
 
-                <button id="editButton"
-                        action="userWarehousesDataGrid.editAction"/>
+                <button id="editButton" action="userWarehousesDataGrid.editAction" text="Chỉnh sửa"/>
 
-                <button id="removeButton"
-                        action="userWarehousesDataGrid.removeAction"/>
+                <button id="removeButton" action="userWarehousesDataGrid.removeAction" text="Xóa" themeNames="error"/>
 
             </startSlot>
 
             <endSlot>
 
-                <simplePagination id="pagination"
-                                  dataLoader="userWarehousesDl"/>
+                <simplePagination id="pagination" dataLoader="userWarehousesDl"/>
 
             </endSlot>
 
         </hbox>
 
-        <dataGrid id="userWarehousesDataGrid"
-                  width="100%"
-                  minHeight="20em"
-                  dataContainer="userWarehousesDc"
-                  columnReorderingAllowed="true">
+        <dataGrid id="userWarehousesDataGrid" width="100%" minHeight="20em" dataContainer="userWarehousesDc" columnReorderingAllowed="true" classNames="warehouse-data-grid">
 
             <actions>
 
-                <action id="createAction"
-                        type="list_create"/>
+                <action id="createAction" type="list_create"/>
 
-                <action id="editAction"
-                        type="list_edit"/>
+                <action id="editAction" type="list_edit"/>
 
-                <action id="removeAction"
-                        type="list_remove"/>
+                <action id="removeAction" type="list_remove"/>
 
             </actions>
 
@@ -92,14 +76,11 @@
 
         </dataGrid>
 
-        <hbox id="lookupActions"
-              visible="false">
+        <hbox id="lookupActions" visible="false">
 
-            <button id="selectButton"
-                    action="selectAction"/>
+            <button id="selectButton" action="selectAction" text="Chọn"/>
 
-            <button id="discardButton"
-                    action="discardAction"/>
+            <button id="discardButton" action="discardAction" text="Đóng"/>
 
         </hbox>
 

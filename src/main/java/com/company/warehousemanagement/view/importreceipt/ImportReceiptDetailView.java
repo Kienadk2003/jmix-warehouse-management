@@ -132,7 +132,13 @@ public class ImportReceiptDetailView extends StandardView
     private JmixButton removeItemButton;
 
     @ViewComponent
-    private JmixButton confirmButton;
+    private JmixButton submitButton;
+
+    @ViewComponent
+    private JmixButton approveButton;
+
+    @ViewComponent
+    private JmixButton rejectButton;
 
     @ViewComponent
     private JmixButton postButton;
@@ -313,11 +319,27 @@ public class ImportReceiptDetailView extends StandardView
         clearItemEditor();
     }
 
-    @Subscribe("confirmButton")
-    public void onConfirmButtonClick(ClickEvent<JmixButton> event) {
+    @Subscribe("submitButton")
+    public void onSubmitButtonClick(ClickEvent<JmixButton> event) {
         executeReceiptAction(
-                () -> importReceiptService.confirm(receiptId),
-                "Đã xác nhận phiếu nhập"
+                () -> importReceiptService.submit(receiptId),
+                "Đã gửi phiếu nhập để chờ duyệt"
+        );
+    }
+
+    @Subscribe("approveButton")
+    public void onApproveButtonClick(ClickEvent<JmixButton> event) {
+        executeReceiptAction(
+                () -> importReceiptService.approve(receiptId),
+                "Đã duyệt phiếu nhập. Bạn có thể nhập kho để cập nhật tồn."
+        );
+    }
+
+    @Subscribe("rejectButton")
+    public void onRejectButtonClick(ClickEvent<JmixButton> event) {
+        executeReceiptAction(
+                () -> importReceiptService.reject(receiptId),
+                "Đã từ chối phiếu nhập"
         );
     }
 
@@ -411,15 +433,24 @@ public class ImportReceiptDetailView extends StandardView
 
     private void updateActions() {
         boolean existing = receipt != null;
-        boolean draft = existing
-                && receipt.getStatus() == WarehouseTransactionStatus.DRAFT;
-        boolean confirmed = existing
-                && receipt.getStatus() == WarehouseTransactionStatus.CONFIRMED;
+        WarehouseTransactionStatus status = existing ? receipt.getStatus() : null;
+
+        boolean draft = status == WarehouseTransactionStatus.DRAFT;
+        boolean pendingApproval = status == WarehouseTransactionStatus.PENDING_APPROVAL;
+        boolean approved = status == WarehouseTransactionStatus.APPROVED;
+        boolean oldConfirmed = status == WarehouseTransactionStatus.CONFIRMED;
+
         boolean canEditDraft = authorizationService.isAllowed(
                 WarehousePermissions.EDIT_DRAFT
         );
-        boolean canConfirm = authorizationService.isAllowed(
-                WarehousePermissions.CONFIRM
+        boolean canSubmit = authorizationService.isAllowed(
+                WarehousePermissions.SUBMIT
+        );
+        boolean canApprove = authorizationService.isAllowed(
+                WarehousePermissions.APPROVE
+        );
+        boolean canReject = authorizationService.isAllowed(
+                WarehousePermissions.REJECT
         );
         boolean canPost = authorizationService.isAllowed(
                 WarehousePermissions.POST
@@ -429,6 +460,7 @@ public class ImportReceiptDetailView extends StandardView
         );
 
         createReceiptButton.setVisible(!existing && canEditDraft);
+
         productField.setReadOnly(!draft || !canEditDraft || editingItemId != null);
         quantityField.setReadOnly(!draft || !canEditDraft);
         itemNoteField.setReadOnly(!draft || !canEditDraft);
@@ -437,12 +469,21 @@ public class ImportReceiptDetailView extends StandardView
         editItemButton.setEnabled(draft && canEditDraft);
         updateItemButton.setEnabled(draft && canEditDraft && editingItemId != null);
         removeItemButton.setEnabled(draft && canEditDraft);
-        confirmButton.setVisible(canConfirm);
-        confirmButton.setEnabled(draft && canConfirm);
-        postButton.setVisible(canPost);
-        postButton.setEnabled(confirmed && canPost);
-        cancelButton.setVisible(canCancel);
-        cancelButton.setEnabled((draft || confirmed) && canCancel);
+
+        submitButton.setVisible(existing && draft && canSubmit);
+        submitButton.setEnabled(existing && draft && canSubmit);
+
+        approveButton.setVisible(existing && pendingApproval && canApprove);
+        approveButton.setEnabled(existing && pendingApproval && canApprove);
+
+        rejectButton.setVisible(existing && pendingApproval && canReject);
+        rejectButton.setEnabled(existing && pendingApproval && canReject);
+
+        postButton.setVisible(existing && approved && canPost);
+        postButton.setEnabled(existing && approved && canPost);
+
+        cancelButton.setVisible(existing && (draft || oldConfirmed) && canCancel);
+        cancelButton.setEnabled(existing && (draft || oldConfirmed) && canCancel);
     }
 
     private void setHeaderReadOnly(boolean readOnly) {

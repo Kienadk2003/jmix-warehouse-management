@@ -1,21 +1,18 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<view xmlns="http://jmix.io/schema/flowui/view"
-      title="Phiếu xuất kho"
-      focusComponent="exportIssuesDataGrid">
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" title="Phiếu xuất kho" focusComponent="exportIssuesDataGrid">
     <data>
-        <collection id="exportIssuesDc"
-                    class="com.company.warehousemanagement.entity.WarehouseTransaction">
+        <collection id="exportIssuesDc" class="com.company.warehousemanagement.entity.WarehouseTransaction">
             <fetchPlan extends="_base">
                 <property name="sourceWarehouse" fetchPlan="_base"/>
                 <property name="partner" fetchPlan="_base"/>
             </fetchPlan>
             <loader id="exportIssuesDl" readOnly="true">
                 <query>
-                    <![CDATA[
+                    
                         select e from WarehouseTransaction e
                         where e.type = 'EXPORT'
                         order by e.documentDate desc, e.documentNo desc
-                    ]]>
+                    
                 </query>
             </loader>
         </collection>
@@ -31,27 +28,23 @@
         <action id="selectAction" type="lookup_select"/>
         <action id="discardAction" type="lookup_discard"/>
     </actions>
-    <layout>
-        <genericFilter id="genericFilter" dataLoader="exportIssuesDl">
+    <layout classNames="warehouse-page-layout">
+        <genericFilter id="genericFilter" dataLoader="exportIssuesDl" classNames="warehouse-filter">
             <properties include=".*"/>
         </genericFilter>
 
-        <hbox id="buttonsPanel" wrap="true" width="100%">
+        <hbox id="buttonsPanel" wrap="true" width="100%" classNames="warehouse-toolbar">
             <startSlot>
-                <button id="createButton" action="exportIssuesDataGrid.createAction"/>
-                <button id="editButton" action="exportIssuesDataGrid.editAction"/>
-                <button id="readButton" action="exportIssuesDataGrid.readAction"/>
+                <button id="createButton" action="exportIssuesDataGrid.createAction" text="Tạo mới" themeNames="primary"/>
+                <button id="editButton" action="exportIssuesDataGrid.editAction" text="Chỉnh sửa"/>
+                <button id="readButton" action="exportIssuesDataGrid.readAction" text="Xem chi tiết"/>
             </startSlot>
             <endSlot>
                 <simplePagination id="pagination" dataLoader="exportIssuesDl"/>
             </endSlot>
         </hbox>
 
-        <dataGrid id="exportIssuesDataGrid"
-                  width="100%"
-                  minHeight="20em"
-                  dataContainer="exportIssuesDc"
-                  columnReorderingAllowed="true">
+        <dataGrid id="exportIssuesDataGrid" width="100%" minHeight="20em" dataContainer="exportIssuesDc" columnReorderingAllowed="true" classNames="warehouse-data-grid">
             <actions>
                 <action id="createAction" type="list_create">
                     <properties>
@@ -70,31 +63,21 @@
                 </action>
             </actions>
             <columns>
-                <column property="documentNo"
-                        header="Document No"
-                        sortable="true"/>
+                <column property="documentNo" header="Số phiếu" sortable="true"/>
 
-                <column property="sourceWarehouse"
-                        header="Source Warehouse"
-                        sortable="true"/>
+                <column property="sourceWarehouse" header="Kho xuất" sortable="true"/>
 
-                <column property="partner"
-                        header="Partner"
-                        sortable="true"/>
+                <column property="partner" header="Đối tác" sortable="true"/>
 
-                <column property="documentDate"
-                        header="Document Date"
-                        sortable="true"/>
+                <column property="documentDate" header="Ngày chứng từ" sortable="true"/>
 
-                <column property="status"
-                        header="Status"
-                        sortable="true"/>
+                <column property="status" header="Trạng thái" sortable="true"/>
             </columns>
         </dataGrid>
 
         <hbox id="lookupActions" visible="false">
-            <button id="selectButton" action="selectAction"/>
-            <button id="discardButton" action="discardAction"/>
+            <button id="selectButton" action="selectAction" text="Chọn"/>
+            <button id="discardButton" action="discardAction" text="Đóng"/>
         </hbox>
     </layout>
 </view>

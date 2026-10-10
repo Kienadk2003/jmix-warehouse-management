@@ -3,9 +3,15 @@ package com.company.warehousemanagement.entity;
 import io.jmix.core.metamodel.datatype.EnumClass;
 
 public enum WarehouseTransactionStatus implements EnumClass<String> {
+
     DRAFT("DRAFT"),
-    CONFIRMED("CONFIRMED"),
+    PENDING_APPROVAL("PENDING_APPROVAL"),
+    APPROVED("APPROVED"),
+    REJECTED("REJECTED"),
     POSTED("POSTED"),
+
+    // Retain legacy states so existing data and older workflows remain readable.
+    CONFIRMED("CONFIRMED"),
     CANCELLED("CANCELLED"),
     REVERSED("REVERSED");
 
@@ -21,6 +27,9 @@ public enum WarehouseTransactionStatus implements EnumClass<String> {
     }
 
     public static WarehouseTransactionStatus fromId(String id) {
+        if (id == null) {
+            return null;
+        }
         for (WarehouseTransactionStatus value : WarehouseTransactionStatus.values()) {
             if (value.getId().equals(id)) {
                 return value;
@@ -29,4 +38,3 @@ public enum WarehouseTransactionStatus implements EnumClass<String> {
         return null;
     }
 }
-

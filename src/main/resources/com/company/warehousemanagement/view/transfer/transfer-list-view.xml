@@ -1,30 +1,24 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<view xmlns="http://jmix.io/schema/flowui/view"
-      title="Transfer Issues"
-      focusComponent="transfersDataGrid">
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" title="Phiếu chuyển kho" focusComponent="transfersDataGrid">
 
     <data>
-        <collection id="transfersDc"
-                    class="com.company.warehousemanagement.entity.WarehouseTransaction">
+        <collection id="transfersDc" class="com.company.warehousemanagement.entity.WarehouseTransaction">
 
             <fetchPlan extends="_base">
-                <property name="sourceWarehouse"
-                          fetchPlan="_base"/>
-                <property name="destinationWarehouse"
-                          fetchPlan="_base"/>
-                <property name="items"
-                          fetchPlan="_base"/>
+                <property name="sourceWarehouse" fetchPlan="_base"/>
+                <property name="destinationWarehouse" fetchPlan="_base"/>
+                <property name="items" fetchPlan="_base"/>
             </fetchPlan>
 
             <loader id="transfersDl">
                 <query>
-                    <![CDATA[
+                    
                         select e
                         from WarehouseTransaction e
                         where e.type = 'TRANSFER'
                         order by e.documentDate desc,
                                  e.documentNo desc
-                    ]]>
+                    
                 </query>
             </loader>
 
@@ -36,89 +30,67 @@
         <urlQueryParameters/>
     </facets>
 
-    <layout>
+    <layout classNames="warehouse-page-layout">
 
         <!-- FILTER -->
-        <genericFilter id="genericFilter"
-                       dataLoader="transfersDl"/>
+        <genericFilter id="genericFilter" dataLoader="transfersDl" classNames="warehouse-filter"/>
 
         <!-- BUTTONS -->
-        <hbox id="buttonsPanel"
-              classNames="buttons-panel">
+        <hbox id="buttonsPanel" classNames="buttons-panel warehouse-toolbar">
 
-            <button id="createButton"
-                    action="transfersDataGrid.create"/>
+            <button id="createButton" action="transfersDataGrid.create" text="Tạo mới" themeNames="primary"/>
 
-            <button id="editButton"
-                    action="transfersDataGrid.edit"/>
+            <button id="editButton" action="transfersDataGrid.edit" text="Chỉnh sửa"/>
 
-            <button id="readButton"
-                    action="transfersDataGrid.read"/>
+            <button id="readButton" action="transfersDataGrid.read" text="Xem chi tiết"/>
 
-            <button id="removeButton"
-                    action="transfersDataGrid.remove"/>
+            <button id="removeButton" action="transfersDataGrid.remove" text="Xóa" themeNames="error"/>
 
         </hbox>
 
         <!-- GRID -->
-        <dataGrid id="transfersDataGrid"
-                  dataContainer="transfersDc"
-                  width="100%"
-                  minHeight="20em">
+        <dataGrid id="transfersDataGrid" dataContainer="transfersDc" width="100%" minHeight="20em" classNames="warehouse-data-grid">
 
             <actions>
 
-                <action id="create"
-                        type="list_create">
+                <action id="create" type="list_create">
                     <properties>
-                        <property name="viewId"
-                                  value="WarehouseTransaction.transferDetail"/>
+                        <property name="viewId" value="WarehouseTransaction.transferDetail"/>
                     </properties>
                 </action>
 
-                <action id="edit"
-                        type="list_edit">
+                <action id="edit" type="list_edit">
                     <properties>
-                        <property name="viewId"
-                                  value="WarehouseTransaction.transferDetail"/>
+                        <property name="viewId" value="WarehouseTransaction.transferDetail"/>
                     </properties>
                 </action>
 
-                <action id="read"
-                        type="list_read">
+                <action id="read" type="list_read">
                     <properties>
-                        <property name="viewId"
-                                  value="WarehouseTransaction.transferDetail"/>
+                        <property name="viewId" value="WarehouseTransaction.transferDetail"/>
                     </properties>
                 </action>
 
-                <action id="remove"
-                        type="list_remove"/>
+                <action id="remove" type="list_remove"/>
             </actions>
 
             <columns resizable="true">
 
-                <column property="documentNo"
-                        header="Document No"/>
+                <column property="documentNo" header="Số phiếu"/>
 
-                <column property="sourceWarehouse"
-                        header="Source Warehouse"/>
+                <column property="sourceWarehouse" header="Kho xuất"/>
 
-                <column property="destinationWarehouse"
-                        header="Destination Warehouse"/>
+                <column property="destinationWarehouse" header="Kho nhận"/>
 
-                <column property="documentDate"
-                        header="Document Date"/>
+                <column property="documentDate" header="Ngày chứng từ"/>
 
-                <column property="status"
-                        header="Status"/>
+                <column property="status" header="Trạng thái"/>
 
             </columns>
 
         </dataGrid>
 
-        <simplePagination id="pagination"
-                          dataLoader="transfersDl"/>
+        <simplePagination id="pagination" dataLoader="transfersDl"/>
 
     </layout>
 

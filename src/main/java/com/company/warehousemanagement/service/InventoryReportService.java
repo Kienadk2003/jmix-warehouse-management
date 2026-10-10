@@ -61,7 +61,7 @@ public class InventoryReportService {
         StringBuilder jpql = new StringBuilder("""
                 select e
                 from InventoryMovement e
-                where e.transaction.status = 'POSTED'
+                where e.transaction.status in ('POSTED', 'REVERSED')
                   and e.occurredAt < ?1
                 """);
 

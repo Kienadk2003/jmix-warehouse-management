@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" title="Stocktake" focusComponent="stocktakesDataGrid">
+    <data>
+        <collection id="stocktakesDc" class="com.company.warehousemanagement.entity.Stocktake">
+            <fetchPlan extends="_base">
+                <property name="warehouse" fetchPlan="_instance_name"/>
+            </fetchPlan>
+            <loader id="stocktakesDl" readOnly="true">
+                <query>
+                    select e from Stocktake e
+                    order by e.createdDate desc, e.documentNo desc
+                </query>
+            </loader>
+        </collection>
+    </data>
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+    </facets>
+    <layout classNames="warehouse-page-layout">
+        <hbox width="100%" wrap="true">
+            <startSlot>
+                <button id="createButton" action="stocktakesDataGrid.createAction" text="Tạo mới" themeNames="primary"/>
+                <button id="editButton" action="stocktakesDataGrid.editAction" text="Chỉnh sửa"/>
+            </startSlot>
+        </hbox>
+        <dataGrid id="stocktakesDataGrid" width="100%" minHeight="20em" dataContainer="stocktakesDc" classNames="warehouse-data-grid">
+            <actions>
+                <action id="createAction" type="list_create">
+                    <properties>
+                        <property name="viewId" value="Stocktake.detail"/>
+                    </properties>
+                </action>
+                <action id="editAction" type="list_edit">
+                    <properties>
+                        <property name="viewId" value="Stocktake.detail"/>
+                    </properties>
+                </action>
+            </actions>
+            <columns>
+                <column property="documentNo" header="Số phiếu"/>
+                <column property="warehouse" header="Kho"/>
+                <column property="status" header="Trạng thái"/>
+                <column property="snapshotAt" header="Snapshot At"/>
+                <column property="approvedAt" header="Approved At"/>
+            </columns>
+        </dataGrid>
+    </layout>
+</view>

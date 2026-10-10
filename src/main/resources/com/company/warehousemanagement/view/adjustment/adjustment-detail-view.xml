@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<view xmlns="http://jmix.io/schema/flowui/view"
-      title="Adjustment">
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" title="Adjustment">
 
     <data>
 
@@ -8,22 +7,17 @@
              MAIN TRANSACTION
              ========================= -->
 
-        <instance id="warehouseTransactionDc"
-                  class="com.company.warehousemanagement.entity.WarehouseTransaction">
+        <instance id="warehouseTransactionDc" class="com.company.warehousemanagement.entity.WarehouseTransaction">
 
             <fetchPlan extends="_base">
 
-                <property name="sourceWarehouse"
-                          fetchPlan="_instance_name"/>
+                <property name="sourceWarehouse" fetchPlan="_instance_name"/>
 
-                <property name="items"
-                          fetchPlan="_base">
+                <property name="items" fetchPlan="_base">
 
-                    <property name="product"
-                              fetchPlan="_instance_name"/>
+                    <property name="product" fetchPlan="_instance_name"/>
 
-                    <property name="unit"
-                              fetchPlan="_instance_name"/>
+                    <property name="unit" fetchPlan="_instance_name"/>
 
                 </property>
 
@@ -31,8 +25,7 @@
 
             <loader id="warehouseTransactionDl"/>
 
-            <collection id="itemsDc"
-                        property="items"/>
+            <collection id="itemsDc" property="items"/>
 
         </instance>
 
@@ -41,8 +34,7 @@
              WAREHOUSE
              ========================= -->
 
-        <collection id="warehousesDc"
-                    class="com.company.warehousemanagement.entity.Warehouse">
+        <collection id="warehousesDc" class="com.company.warehousemanagement.entity.Warehouse">
 
             <fetchPlan extends="_instance_name"/>
 
@@ -76,67 +68,33 @@
 
     <actions>
 
-        <action id="saveAction"
-                type="detail_save"/>
+        <action id="saveAction" type="detail_save"/>
 
-        <action id="closeAction"
-                type="detail_close"/>
+        <action id="closeAction" type="detail_close"/>
 
     </actions>
 
 
-    <layout
-            padding="true"
-            spacing="true">
+    <layout padding="true" spacing="true" classNames="warehouse-page-layout">
 
 
         <!-- =========================
              HEADER
              ========================= -->
 
-        <formLayout
-                id="headerForm"
-                dataContainer="warehouseTransactionDc">
+        <formLayout id="headerForm" dataContainer="warehouseTransactionDc" classNames="warehouse-form-layout">
 
-            <textField
-                    id="documentNoField"
-                    property="documentNo"
-                    label="Document No"
-                    readOnly="true"/>
+            <textField id="documentNoField" property="documentNo" label="Số phiếu" readOnly="true"/>
 
-            <entityComboBox
-                    id="warehouseField"
-                    property="sourceWarehouse"
-                    label="Warehouse"
-                    itemsContainer="warehousesDc"
-                    required="true"/>
+            <entityComboBox id="warehouseField" property="sourceWarehouse" label="Kho" itemsContainer="warehousesDc" required="true"/>
 
-            <comboBox
-                    id="adjustmentDirectionField"
-                    property="adjustmentDirection"
-                    label="Direction"
-                    itemsEnum="com.company.warehousemanagement.entity.AdjustmentDirection"
-                    required="true"
-                    placeholder="Select direction"/>
+            <comboBox id="adjustmentDirectionField" property="adjustmentDirection" label="Direction" itemsEnum="com.company.warehousemanagement.entity.AdjustmentDirection" required="true" placeholder="Select direction"/>
 
-            <datePicker
-                    id="documentDateField"
-                    property="documentDate"
-                    label="Document Date"
-                    required="true"/>
+            <datePicker id="documentDateField" property="documentDate" label="Ngày chứng từ" required="true"/>
 
-            <textField
-                    id="statusField"
-                    label="Status"
-                    readOnly="true"/>
+            <textField id="statusField" label="Trạng thái" readOnly="true"/>
 
-            <textArea
-                    id="reasonField"
-                    property="reason"
-                    label="Reason"
-                    required="true"
-                    maxLength="1000"
-                    width="100%"/>
+            <textArea id="reasonField" property="reason" label="Lý do" required="true" maxLength="1000" width="100%"/>
 
         </formLayout>
 
@@ -145,21 +103,13 @@
              ITEMS BUTTONS
              ========================= -->
 
-        <hbox
-                id="itemsButtonsPanel"
-                classNames="buttons-panel">
+        <hbox id="itemsButtonsPanel" classNames="buttons-panel">
 
-            <button
-                    id="addItemButton"
-                    text="Add Item"/>
+            <button id="addItemButton" text="Add Item"/>
 
-            <button
-                    id="editItemButton"
-                    text="Edit Item"/>
+            <button id="editItemButton" text="Edit Item"/>
 
-            <button
-                    id="removeItemButton"
-                    text="Remove Item"/>
+            <button id="removeItemButton" text="Remove Item"/>
 
         </hbox>
 
@@ -168,51 +118,27 @@
              ITEMS
              ========================= -->
 
-        <dataGrid
-                id="itemsDataGrid"
-                dataContainer="itemsDc"
-                width="100%"
-                minHeight="15em"
-                editorBuffered="true">
+        <dataGrid id="itemsDataGrid" dataContainer="itemsDc" width="100%" minHeight="15em" editorBuffered="true" classNames="warehouse-data-grid">
 
             <columns>
 
-                <column
-                        property="lineNo"
-                        header="Line"
-                        width="5em"/>
+                <column property="lineNo" header="Line" width="5em"/>
 
-                <column
-                        property="product"
-                        header="Product"
-                        editable="true"/>
+                <column property="product" header="Product" editable="true"/>
 
-                <column
-                        property="quantity"
-                        header="Quantity"
-                        editable="true"/>
+                <column property="quantity" header="Quantity" editable="true"/>
 
-                <column
-                        property="unit"
-                        header="Unit"
-                        editable="true"/>
+                <column property="unit" header="Unit" editable="true"/>
 
-                <column
-                        property="note"
-                        header="Note"
-                        editable="true"/>
+                <column property="note" header="Note" editable="true"/>
 
-                <editorActionsColumn
-                        key="editorActions">
+                <editorActionsColumn key="editorActions">
 
-                    <editButton
-                            icon="PENCIL"/>
+                    <editButton icon="PENCIL"/>
 
-                    <saveButton
-                            icon="CHECK"/>
+                    <saveButton icon="CHECK"/>
 
-                    <cancelButton
-                            icon="CLOSE"/>
+                    <cancelButton icon="CLOSE"/>
 
                 </editorActionsColumn>
 
@@ -225,23 +151,13 @@
              DETAIL ACTIONS
              ========================= -->
 
-        <hbox
-                id="detailActions"
-                classNames="buttons-panel">
+        <hbox id="detailActions" classNames="buttons-panel warehouse-detail-actions" width="100%" wrap="true">
 
-            <button
-                    id="saveAndCloseBtn"
-                    action="saveAction"
-                    text="Save Draft"/>
+            <button id="saveAndCloseBtn" action="saveAction" text="Lưu nháp"/>
 
-            <button
-                    id="closeBtn"
-                    action="closeAction"
-                    text="Close"/>
+            <button id="closeBtn" action="closeAction" text="Đóng"/>
 
-            <button
-                    id="postButton"
-                    text="POST"/>
+            <button id="submitButton" text="Gửi duyệt" themeNames="primary"/><button id="approveButton" text="Duyệt" themeNames="primary success"/><button id="rejectButton" text="Từ chối" themeNames="error"/><button id="postButton" text="Ghi sổ" themeNames="primary"/>
 
         </hbox>
 

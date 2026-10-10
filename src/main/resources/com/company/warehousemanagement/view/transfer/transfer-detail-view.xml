@@ -1,27 +1,20 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<view xmlns="http://jmix.io/schema/flowui/view"
-      title="Transfer Issue"
-      focusComponent="form">
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" title="Phiếu chuyển kho" focusComponent="form">
 
     <data>
 
-        <instance id="warehouseTransactionDc"
-                  class="com.company.warehousemanagement.entity.WarehouseTransaction">
+        <instance id="warehouseTransactionDc" class="com.company.warehousemanagement.entity.WarehouseTransaction">
 
             <fetchPlan extends="_base">
 
-                <property name="sourceWarehouse"
-                          fetchPlan="_base"/>
+                <property name="sourceWarehouse" fetchPlan="_base"/>
 
-                <property name="destinationWarehouse"
-                          fetchPlan="_base"/>
+                <property name="destinationWarehouse" fetchPlan="_base"/>
 
                 <property name="items">
                     <fetchPlan extends="_base">
-                        <property name="product"
-                                  fetchPlan="_base"/>
-                        <property name="unit"
-                                  fetchPlan="_base"/>
+                        <property name="product" fetchPlan="_base"/>
+                        <property name="unit" fetchPlan="_base"/>
                     </fetchPlan>
                 </property>
 
@@ -29,8 +22,7 @@
 
             <loader id="warehouseTransactionDl"/>
 
-            <collection id="itemsDc"
-                        property="items"/>
+            <collection id="itemsDc" property="items"/>
 
         </instance>
 
@@ -41,189 +33,137 @@
     </facets>
 
     <actions>
-        <action id="saveCloseAction"
-                type="detail_saveClose"/>
+        <action id="saveCloseAction" type="detail_saveClose"/>
 
-        <action id="closeAction"
-                type="detail_close"/>
+        <action id="closeAction" type="detail_close"/>
     </actions>
 
-    <layout>
+    <layout classNames="warehouse-page-layout">
 
-        <hbox id="statusBox"
-              width="100%"
-              alignItems="CENTER">
+        <hbox id="statusBox" width="100%" alignItems="CENTER" classNames="warehouse-status-bar">
 
-            <span text="Status:"/>
+            <span text="Trạng thái:"/>
 
-            <span id="statusLabel"
-                  themeNames="badge"/>
+            <span id="statusLabel" themeNames="badge"/>
 
         </hbox>
 
-        <formLayout id="form"
-                    dataContainer="warehouseTransactionDc">
+        <formLayout id="form" dataContainer="warehouseTransactionDc" classNames="warehouse-form-layout">
 
             <responsiveSteps>
 
-                <responsiveStep minWidth="0"
-                                columns="1"/>
+                <responsiveStep minWidth="0" columns="1"/>
 
-                <responsiveStep minWidth="40em"
-                                columns="2"/>
+                <responsiveStep minWidth="40em" columns="2"/>
 
             </responsiveSteps>
 
-            <textField id="documentNoField"
-                       property="documentNo"
-                       label="Document No"
-                       readOnly="true"/>
+            <textField id="documentNoField" property="documentNo" label="Số phiếu" readOnly="true"/>
 
-            <entityPicker id="sourceWarehouseField"
-                          property="sourceWarehouse"
-                          label="Source Warehouse"
-                          required="true"
-                          requiredMessage="Source warehouse is required">
+            <entityPicker id="sourceWarehouseField" property="sourceWarehouse" label="Kho xuất" required="true" requiredMessage="Source warehouse is required">
 
                 <actions>
 
-                    <action id="entityLookupAction"
-                            type="entity_lookup"/>
+                    <action id="entityLookupAction" type="entity_lookup"/>
 
-                    <action id="entityClearAction"
-                            type="entity_clear"/>
+                    <action id="entityClearAction" type="entity_clear"/>
 
                 </actions>
 
             </entityPicker>
 
-            <entityPicker id="destinationWarehouseField"
-                          property="destinationWarehouse"
-                          label="Destination Warehouse"
-                          required="true"
-                          requiredMessage="Destination warehouse is required">
+            <entityPicker id="destinationWarehouseField" property="destinationWarehouse" label="Kho nhận" required="true" requiredMessage="Destination warehouse is required">
 
                 <actions>
 
-                    <action id="entityLookupAction"
-                            type="entity_lookup"/>
+                    <action id="entityLookupAction" type="entity_lookup"/>
 
-                    <action id="entityClearAction"
-                            type="entity_clear"/>
+                    <action id="entityClearAction" type="entity_clear"/>
 
                 </actions>
 
             </entityPicker>
 
-            <datePicker id="documentDateField"
-                        property="documentDate"
-                        label="Document Date"
-                        dateFormat="dd/MM/yyyy"
-                        required="true"
-                        requiredMessage="Document date is required"/>
+            <datePicker id="documentDateField" property="documentDate" label="Ngày chứng từ" dateFormat="dd/MM/yyyy" required="true" requiredMessage="Document date is required"/>
 
-            <textArea id="reasonField"
-                      property="reason"
-                      label="Reason / Note"
-                      maxLength="1000"
-                      width="100%"
-                      colspan="2"
-                      minRows="2"
-                      maxRows="4"/>
+            <textArea id="reasonField" property="reason" label="Lý do / ghi chú" maxLength="1000" width="100%" colspan="2" minRows="2" maxRows="4"/>
 
         </formLayout>
 
-        <hbox id="itemsHeader"
-              width="100%"
-              alignItems="CENTER">
+        <hbox id="itemsHeader" width="100%" alignItems="CENTER">
 
-            <h3 text="Transfer Items"/>
+            <h3 text="Danh sách sản phẩm chuyển kho"/>
 
         </hbox>
 
-        <hbox id="itemsButtons"
-              classNames="buttons-panel">
+        <hbox id="itemsButtons" classNames="buttons-panel warehouse-toolbar">
 
-            <button id="addItemButton"
-                    action="itemsDataGrid.createAction"/>
+            <button id="addItemButton" action="itemsDataGrid.createAction" text="Thêm sản phẩm"/>
 
-            <button id="editItemButton"
-                    action="itemsDataGrid.editAction"/>
+            <button id="editItemButton" action="itemsDataGrid.editAction" text="Sửa dòng"/>
 
-            <button id="removeItemButton"
-                    action="itemsDataGrid.removeAction"/>
+            <button id="removeItemButton" action="itemsDataGrid.removeAction" text="Xóa dòng"/>
 
         </hbox>
 
-        <dataGrid id="itemsDataGrid"
-                  dataContainer="itemsDc"
-                  width="100%"
-                  minHeight="18em">
+        <dataGrid id="itemsDataGrid" dataContainer="itemsDc" width="100%" minHeight="18em" classNames="warehouse-data-grid">
 
             <actions>
 
-                <action id="createAction"
-                        type="list_create">
+                <action id="createAction" type="list_create">
 
                     <properties>
 
-                        <property name="openMode"
-                                  value="DIALOG"/>
+                        <property name="openMode" value="DIALOG"/>
 
                     </properties>
 
                 </action>
 
-                <action id="editAction"
-                        type="list_edit">
+                <action id="editAction" type="list_edit">
 
                     <properties>
 
-                        <property name="openMode"
-                                  value="DIALOG"/>
+                        <property name="openMode" value="DIALOG"/>
 
                     </properties>
 
                 </action>
 
-                <action id="removeAction"
-                        type="list_remove"/>
+                <action id="removeAction" type="list_remove"/>
 
             </actions>
 
             <columns resizable="true">
 
-                <column property="lineNo"
-                        header="No."/>
+                <column property="lineNo" header="No."/>
 
-                <column property="product"
-                        header="Product"/>
+                <column property="product" header="Sản phẩm"/>
 
-                <column property="quantity"
-                        header="Quantity"/>
+                <column property="quantity" header="Số lượng"/>
 
-                <column property="unit"
-                        header="Unit"/>
+                <column property="unit" header="Đơn vị"/>
 
-                <column property="note"
-                        header="Note"/>
+                <column property="note" header="Ghi chú"/>
 
             </columns>
 
         </dataGrid>
 
-        <hbox id="detailActions">
-            <button id="postButton"
-                    text="POST"
-                    themeNames="primary"/>
+        <hbox id="detailActions" width="100%" wrap="true" classNames="warehouse-detail-actions">
+            <button id="submitButton" text="Gửi duyệt" themeNames="primary"/>
 
-            <button id="saveAndCloseButton"
-                    action="saveCloseAction"/>
+            <button id="approveButton" text="Duyệt" themeNames="primary success"/>
 
-            <button id="closeButton"
-                    action="closeAction"/>
-            <button id="reverseButton"
-                    text="Reverse"/>
+            <button id="rejectButton" text="Từ chối" themeNames="error"/>
+
+            <button id="postButton" text="Ghi sổ" themeNames="primary"/>
+
+            <button id="saveAndCloseButton" action="saveCloseAction" text="Lưu và đóng"/>
+
+            <button id="closeButton" action="closeAction" text="Đóng"/>
+
+            <button id="reverseButton" text="Đảo phiếu"/>
         </hbox>
 
     </layout>

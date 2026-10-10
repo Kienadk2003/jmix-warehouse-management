@@ -1,10 +1,7 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<view xmlns="http://jmix.io/schema/flowui/view"
-      title="msg://importReceiptListView.title"
-      focusComponent="receiptsDataGrid">
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" title="msg://importReceiptListView.title" focusComponent="receiptsDataGrid">
     <data>
-        <collection id="receiptsDc"
-                    class="com.company.warehousemanagement.entity.WarehouseTransaction">
+        <collection id="receiptsDc" class="com.company.warehousemanagement.entity.WarehouseTransaction">
             <fetchPlan extends="_base">
                 <property name="destinationWarehouse" fetchPlan="_base"/>
                 <property name="partner" fetchPlan="_base"/>
@@ -25,12 +22,12 @@
             <pagination component="pagination"/>
         </urlQueryParameters>
     </facets>
-    <layout>
-        <genericFilter id="genericFilter" dataLoader="receiptsDl">
+    <layout classNames="warehouse-page-layout">
+        <genericFilter id="genericFilter" dataLoader="receiptsDl" classNames="warehouse-filter">
             <properties include=".*"/>
         </genericFilter>
 
-        <hbox id="buttonsPanel" width="100%" wrap="true">
+        <hbox id="buttonsPanel" width="100%" wrap="true" classNames="warehouse-toolbar">
             <startSlot>
                 <button id="createButton" text="Tạo phiếu nhập" themeNames="primary"/>
                 <button id="openButton" text="Xem chi tiết"/>
@@ -40,11 +37,7 @@
                 <simplePagination id="pagination" dataLoader="receiptsDl"/>
             </endSlot>
         </hbox>
-        <dataGrid id="receiptsDataGrid"
-                  width="100%"
-                  minHeight="25em"
-                  dataContainer="receiptsDc"
-                  columnReorderingAllowed="true">
+        <dataGrid id="receiptsDataGrid" width="100%" minHeight="25em" dataContainer="receiptsDc" columnReorderingAllowed="true" classNames="warehouse-data-grid">
             <columns resizable="true">
                 <column property="documentNo" header="Số phiếu"/>
                 <column property="documentDate" header="Ngày chứng từ"/>

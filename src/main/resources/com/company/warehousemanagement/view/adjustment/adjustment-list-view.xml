@@ -1,16 +1,13 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<view xmlns="http://jmix.io/schema/flowui/view"
-      title="Adjustment">
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" title="Adjustment">
 
     <data readOnly="true">
 
-        <collection id="adjustmentsDc"
-                    class="com.company.warehousemanagement.entity.WarehouseTransaction">
+        <collection id="adjustmentsDc" class="com.company.warehousemanagement.entity.WarehouseTransaction">
 
             <fetchPlan extends="_base">
 
-                <property name="sourceWarehouse"
-                          fetchPlan="_instance_name"/>
+                <property name="sourceWarehouse" fetchPlan="_instance_name"/>
 
             </fetchPlan>
 
@@ -35,84 +32,65 @@
         <dataLoadCoordinator auto="true"/>
     </facets>
 
-    <layout padding="true">
+    <layout padding="true" classNames="warehouse-page-layout">
 
-        <genericFilter id="genericFilter"
-                       dataLoader="adjustmentsDl">
+        <genericFilter id="genericFilter" dataLoader="adjustmentsDl" classNames="warehouse-filter">
 
             <properties include=".*"/>
 
         </genericFilter>
 
-        <hbox id="buttonsPanel"
-              classNames="buttons-panel">
+        <hbox id="buttonsPanel" classNames="buttons-panel warehouse-toolbar">
 
-            <button id="createButton"
-                    action="adjustmentsDataGrid.create"/>
+            <button id="createButton" action="adjustmentsDataGrid.create" themeNames="primary" text="Tạo mới"/>
 
-            <button id="editButton"
-                    action="adjustmentsDataGrid.edit"/>
+            <button id="editButton" action="adjustmentsDataGrid.edit" text="Chỉnh sửa"/>
 
-            <button id="readButton"
-                    action="adjustmentsDataGrid.read"/>
+            <button id="readButton" action="adjustmentsDataGrid.read" text="Xem chi tiết"/>
 
-            <button id="refreshButton"
-                    action="adjustmentsDataGrid.refresh"/>
+            <button id="refreshButton" action="adjustmentsDataGrid.refresh" text="Làm mới"/>
 
         </hbox>
 
-        <dataGrid id="adjustmentsDataGrid"
-                  dataContainer="adjustmentsDc"
-                  width="100%"
-                  minHeight="20em">
+        <dataGrid id="adjustmentsDataGrid" dataContainer="adjustmentsDc" width="100%" minHeight="20em" classNames="warehouse-data-grid">
 
             <actions>
 
                 <action id="create" type="list_create">
                     <properties>
-                        <property name="viewId"
-                                  value="WarehouseTransaction.adjustmentDetail"/>
+                        <property name="viewId" value="WarehouseTransaction.adjustmentDetail"/>
                     </properties>
                 </action>
 
                 <action id="edit" type="list_edit">
                     <properties>
-                        <property name="viewId"
-                                  value="WarehouseTransaction.adjustmentDetail"/>
+                        <property name="viewId" value="WarehouseTransaction.adjustmentDetail"/>
                     </properties>
                 </action>
 
                 <action id="read" type="list_read">
                     <properties>
-                        <property name="viewId"
-                                  value="WarehouseTransaction.adjustmentDetail"/>
+                        <property name="viewId" value="WarehouseTransaction.adjustmentDetail"/>
                     </properties>
                 </action>
 
-                <action id="refresh"
-                        type="list_refresh"/>
+                <action id="refresh" type="list_refresh"/>
 
             </actions>
 
             <columns>
 
-                <column property="documentNo"
-                        header="Document No"/>
+                <column property="documentNo" header="Document No"/>
 
-                <column property="sourceWarehouse"
-                        header="Warehouse"/>
+                <column property="sourceWarehouse" header="Warehouse"/>
 
-                <column property="adjustmentDirection"
-                        header="Direction"/>
+                <column property="adjustmentDirection" header="Direction"/>
 
-                <column property="documentDate"
-                        header="Document Date"/>
+                <column property="documentDate" header="Document Date"/>
 
-                <column property="status"
-                        header="Status"/>
+                <column property="status" header="Status"/>
 
-                <column property="reason"
-                        header="Reason"/>
+                <column property="reason" header="Reason"/>
 
             </columns>
 

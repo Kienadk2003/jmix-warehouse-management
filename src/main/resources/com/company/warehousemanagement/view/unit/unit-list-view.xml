@@ -1,11 +1,7 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<view xmlns="http://jmix.io/schema/flowui/view"
-      xmlns:c="http://jmix.io/schema/flowui/jpql-condition"
-      title="msg://unitListView.title"
-      focusComponent="unitsDataGrid">
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" xmlns:c="http://jmix.io/schema/flowui/jpql-condition" title="msg://unitListView.title" focusComponent="unitsDataGrid">
     <data>
-        <collection id="unitsDc"
-                    class="com.company.warehousemanagement.entity.Unit">
+        <collection id="unitsDc" class="com.company.warehousemanagement.entity.Unit">
             <fetchPlan extends="_base"/>
             <loader id="unitsDl" readOnly="true">
                 <query>
@@ -25,27 +21,22 @@
         <action id="selectAction" type="lookup_select"/>
         <action id="discardAction" type="lookup_discard"/>
     </actions>
-    <layout>
-        <genericFilter id="genericFilter"
-                       dataLoader="unitsDl">
+    <layout classNames="warehouse-page-layout">
+        <genericFilter id="genericFilter" dataLoader="unitsDl" classNames="warehouse-filter">
             <properties include=".*"/>
         </genericFilter>
-        <hbox id="buttonsPanel" wrap="true" width="100%">
+        <hbox id="buttonsPanel" wrap="true" width="100%" classNames="warehouse-toolbar">
             <startSlot>
-                <button id="createButton" action="unitsDataGrid.createAction"/>
-                <button id="editButton" action="unitsDataGrid.editAction"/>
-                <button id="readButton" action="unitsDataGrid.readAction"/>
-                <button id="removeButton" action="unitsDataGrid.removeAction"/>
+                <button id="createButton" action="unitsDataGrid.createAction" themeNames="primary" text="Tạo mới"/>
+                <button id="editButton" action="unitsDataGrid.editAction" text="Chỉnh sửa"/>
+                <button id="readButton" action="unitsDataGrid.readAction" text="Xem chi tiết"/>
+                <button id="removeButton" action="unitsDataGrid.removeAction" themeNames="error" text="Xóa"/>
             </startSlot>
             <endSlot>
                 <simplePagination id="pagination" dataLoader="unitsDl"/>
             </endSlot>
         </hbox>
-        <dataGrid id="unitsDataGrid"
-                  width="100%"
-                  minHeight="20em"
-                  dataContainer="unitsDc"
-                  columnReorderingAllowed="true">
+        <dataGrid id="unitsDataGrid" width="100%" minHeight="20em" dataContainer="unitsDc" columnReorderingAllowed="true" classNames="warehouse-data-grid">
             <actions>
                 <action id="createAction" type="list_create"/>
                 <action id="editAction" type="list_edit"/>
@@ -60,8 +51,8 @@
             </columns>
         </dataGrid>
         <hbox id="lookupActions" visible="false">
-            <button id="selectButton" action="selectAction"/>
-            <button id="discardButton" action="discardAction"/>
+            <button id="selectButton" action="selectAction" text="Chọn"/>
+            <button id="discardButton" action="discardAction" text="Đóng"/>
         </hbox>
     </layout>
 </view>

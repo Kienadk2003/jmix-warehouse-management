@@ -237,7 +237,7 @@ public class ExportPostingService {
         }
 
         if (transaction.getStatus()
-                != WarehouseTransactionStatus.DRAFT) {
+                != WarehouseTransactionStatus.APPROVED) {
 
             if (transaction.getStatus()
                     == WarehouseTransactionStatus.POSTED) {
@@ -248,7 +248,7 @@ public class ExportPostingService {
             }
 
             throw new WarehouseBusinessException(
-                    "Chỉ phiếu DRAFT mới được phép POST"
+                    "Chỉ phiếu APPROVED mới được phép POST"
             );
         }
 
@@ -334,6 +334,9 @@ public class ExportPostingService {
                                 + ": chưa có đơn vị tính"
                 );
             }
+            ProductUnitQuantityValidator.validate(
+                    dataManager, product, item.getUnit(),
+                    item.getQuantity(), item.getLineNo());
         }
     }
 

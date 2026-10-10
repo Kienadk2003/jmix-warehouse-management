@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<view xmlns="http://jmix.io/schema/flowui/view"
-      title="Báo cáo tồn kho">
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" title="Báo cáo tồn kho">
 
     <data>
 
@@ -8,8 +7,7 @@
              WAREHOUSE
              ========================= -->
 
-        <collection id="warehousesDc"
-                    class="com.company.warehousemanagement.entity.Warehouse">
+        <collection id="warehousesDc" class="com.company.warehousemanagement.entity.Warehouse">
 
             <fetchPlan extends="_instance_name"/>
 
@@ -32,8 +30,7 @@
              PRODUCT
              ========================= -->
 
-        <collection id="productsDc"
-                    class="com.company.warehousemanagement.entity.Product">
+        <collection id="productsDc" class="com.company.warehousemanagement.entity.Product">
 
             <fetchPlan extends="_instance_name"/>
 
@@ -60,37 +57,21 @@
 
             <properties>
 
-                <property
-                        name="warehouse"
-                        class="com.company.warehousemanagement.entity.Warehouse"/>
+                <property name="warehouse" class="com.company.warehousemanagement.entity.Warehouse"/>
 
-                <property
-                        name="product"
-                        class="com.company.warehousemanagement.entity.Product"/>
+                <property name="product" class="com.company.warehousemanagement.entity.Product"/>
 
-                <property
-                        name="opening"
-                        datatype="decimal"/>
+                <property name="opening" datatype="decimal"/>
 
-                <property
-                        name="inbound"
-                        datatype="decimal"/>
+                <property name="inbound" datatype="decimal"/>
 
-                <property
-                        name="outbound"
-                        datatype="decimal"/>
+                <property name="outbound" datatype="decimal"/>
 
-                <property
-                        name="adjustmentIn"
-                        datatype="decimal"/>
+                <property name="adjustmentIn" datatype="decimal"/>
 
-                <property
-                        name="adjustmentOut"
-                        datatype="decimal"/>
+                <property name="adjustmentOut" datatype="decimal"/>
 
-                <property
-                        name="closing"
-                        datatype="decimal"/>
+                <property name="closing" datatype="decimal"/>
 
             </properties>
 
@@ -106,52 +87,31 @@
     </facets>
 
 
-    <layout
-            padding="true"
-            spacing="true">
+    <layout padding="true" spacing="true" classNames="warehouse-page-layout">
 
 
         <!-- =========================
              FILTER
              ========================= -->
 
-        <formLayout id="filterForm">
+        <formLayout id="filterForm" classNames="warehouse-form-layout">
 
-            <entityComboBox
-                    id="warehouseField"
-                    metaClass="Warehouse"
-                    itemsContainer="warehousesDc"
-                    label="Kho"/>
+            <entityComboBox id="warehouseField" metaClass="Warehouse" itemsContainer="warehousesDc" label="Kho"/>
 
-            <entityComboBox
-                    id="productField"
-                    metaClass="Product"
-                    itemsContainer="productsDc"
-                    label="Sản phẩm"/>
+            <entityComboBox id="productField" metaClass="Product" itemsContainer="productsDc" label="Sản phẩm"/>
 
-            <datePicker
-                    id="fromDateField"
-                    datatype="localDate"
-                    label="Từ ngày"
-                    required="true"/>
+            <datePicker id="fromDateField" datatype="localDate" label="Từ ngày" required="true"/>
 
-            <datePicker
-                    id="toDateField"
-                    datatype="localDate"
-                    label="Đến ngày"
-                    required="true"/>
+            <datePicker id="toDateField" datatype="localDate" label="Đến ngày" required="true"/>
 
         </formLayout>
 
 
-        <hbox id="buttonsPanel"
-              classNames="buttons-panel">
+        <hbox id="buttonsPanel" classNames="buttons-panel warehouse-toolbar">
 
-            <button id="searchButton"
-                    text="Tìm kiếm"/>
+            <button id="searchButton" text="Search"/>
 
-            <button id="excelExportButton"
-                    action="reportDataGrid.excelExport"/>
+            <button id="excelExportButton" action="reportDataGrid.excelExport" text="Xuất Excel"/>
 
         </hbox>
 
@@ -160,57 +120,30 @@
              REPORT TABLE
              ========================= -->
 
-        <dataGrid
-                id="reportDataGrid"
-                dataContainer="reportDc"
-                width="100%"
-                minHeight="25em">
+        <dataGrid id="reportDataGrid" dataContainer="reportDc" width="100%" minHeight="25em" classNames="warehouse-data-grid">
             <actions>
 
-                <action id="excelExport"
-                        type="grdexp_excelExport"/>
+                <action id="excelExport" type="grdexp_excelExport"/>
 
             </actions>
 
             <columns>
 
-                <column
-                        property="warehouse"
-                        header="Kho"/>
+                <column property="warehouse" header="Kho"/>
 
-                <column
-                        property="product"
-                        header="Sản phẩm"/>
+                <column property="product" header="Sản phẩm"/>
 
-                <column
-                        property="opening"
-                        header="Tồn đầu kỳ"
-                        textAlign="END"/>
+                <column property="opening" header="Tồn đầu kỳ" textAlign="END"/>
 
-                <column
-                        property="inbound"
-                        header="Nhập trong kỳ"
-                        textAlign="END"/>
+                <column property="inbound" header="Nhập trong kỳ" textAlign="END"/>
 
-                <column
-                        property="outbound"
-                        header="Xuất trong kỳ"
-                        textAlign="END"/>
+                <column property="outbound" header="Xuất trong kỳ" textAlign="END"/>
 
-                <column
-                        property="adjustmentIn"
-                        header="Điều chỉnh tăng"
-                        textAlign="END"/>
+                <column property="adjustmentIn" header="Điều chỉnh tăng" textAlign="END"/>
 
-                <column
-                        property="adjustmentOut"
-                        header="Điều chỉnh giảm"
-                        textAlign="END"/>
+                <column property="adjustmentOut" header="Điều chỉnh giảm" textAlign="END"/>
 
-                <column
-                        property="closing"
-                        header="Tồn cuối kỳ"
-                        textAlign="END"/>
+                <column property="closing" header="Tồn cuối kỳ" textAlign="END"/>
 
             </columns>
 

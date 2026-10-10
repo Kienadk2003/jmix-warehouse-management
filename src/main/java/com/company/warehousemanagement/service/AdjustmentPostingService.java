@@ -71,10 +71,17 @@ public class AdjustmentPostingService {
         }
 
         if (transaction.getStatus()
-                != WarehouseTransactionStatus.DRAFT) {
+                != WarehouseTransactionStatus.APPROVED) {
+
+            if (transaction.getStatus()
+                    == WarehouseTransactionStatus.POSTED) {
+                throw new WarehouseBusinessException(
+                        "Phiếu điều chỉnh đã được POSTED, không thể POST lần nữa"
+                );
+            }
 
             throw new WarehouseBusinessException(
-                    "Chỉ phiếu DRAFT mới được POST"
+                    "Chỉ phiếu APPROVED mới được phép POST"
             );
         }
 
@@ -144,6 +151,10 @@ public class AdjustmentPostingService {
                         "Quantity phải lớn hơn 0"
                 );
             }
+
+            ProductUnitQuantityValidator.validate(
+                    dataManager, item.getProduct(), item.getUnit(),
+                    quantity, item.getLineNo());
 
             UUID warehouseId =
                     transaction

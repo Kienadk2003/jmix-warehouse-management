@@ -4,56 +4,171 @@
     <actions>
         <action id="logoutAction" text="msg:///actions.logout.text" type="logout"/>
     </actions>
-    <appLayout classNames="jmix-main-view-app-layout">
+    <appLayout classNames="jmix-main-view-app-layout warehouse-app-layout">
         <navigationBar>
-            <header id="header" classNames="jmix-main-view-header">
+            <header id="header" classNames="jmix-main-view-header warehouse-main-header">
                 <drawerToggle id="drawerToggle"
                               classNames="jmix-main-view-drawer-toggle"
                               ariaLabel="msg://drawerToggle.ariaLabel"/>
-                <h1 id="viewTitle" classNames="jmix-main-view-title"/>
-
+                <h1 id="viewTitle" classNames="jmix-main-view-title warehouse-current-view-title"/>
                 <userMenu id="userMenu"
-                          themeNames="tertiary" classNames="jmix-main-view-user-menu">
+                          themeNames="tertiary"
+                          classNames="jmix-main-view-user-menu warehouse-user-menu">
                     <items>
                         <separator/>
-                        <actionItem id="substituteUserMenuItem"
-                                    themeNames="non-checkable">
+                        <actionItem id="substituteUserMenuItem" themeNames="non-checkable">
                             <action id="substituteUserAction" type="sec_userMenuSubstituteUser"/>
                         </actionItem>
                         <separator/>
-                        <actionItem id="logoutMenuItem" ref="logoutAction"
-                                    themeNames="non-checkable"/>
+                        <actionItem id="logoutMenuItem" ref="logoutAction" themeNames="non-checkable"/>
                     </items>
                 </userMenu>
             </header>
         </navigationBar>
         <drawerLayout>
-            <section id="section" classNames="jmix-main-view-section">
-                <h2 id="applicationTitle"
-                    classNames="jmix-main-view-application-title">
+            <section id="section" classNames="jmix-main-view-section warehouse-sidebar">
+                <h2 id="applicationTitle" classNames="jmix-main-view-application-title warehouse-brand">
+                    <image resource="public/images/logo.png" classNames="warehouse-brand-logo"/>
                     <anchor id="baseLink"
                             href="."
                             text="msg://applicationTitle.text"
-                            classNames="jmix-main-view-application-title-base-link"/>
+                            classNames="jmix-main-view-application-title-base-link warehouse-brand-link"/>
                 </h2>
                 <nav id="navigation"
-                     classNames="jmix-main-view-navigation"
+                     classNames="jmix-main-view-navigation warehouse-navigation"
                      ariaLabel="msg://navigation.ariaLabel">
                     <listMenu id="menu" themeNames="toggle-reverse"/>
                 </nav>
+                <div classNames="warehouse-sidebar-footer">
+                    <span text="WAREHOUSE MANAGEMENT" classNames="warehouse-sidebar-footer-label"/>
+                    <span text="© 2026 KhoFlow" classNames="warehouse-sidebar-footer-copyright"/>
+                </div>
             </section>
         </drawerLayout>
-        <initialLayout id="initialLayout" classNames="jmix-initial-layout">
-            <div classNames="jmix-initial-layout-content">
-                <h1 text="msg://applicationTitle.text"
-                    classNames="jmix-initial-layout-title"/>
-                <image resource="public/images/logo.png"
-                       classNames="jmix-initial-layout-logo"/>
-            </div>
-            <!--
-                This is the work area - central part of the view.
-                Put your components here.
-            -->
+        <initialLayout id="initialLayout" classNames="jmix-initial-layout warehouse-initial-layout">
+            <vbox id="warehouseDashboard" classNames="warehouse-dashboard" width="100%" padding="false" spacing="false">
+                <hbox id="dashboardHeading" classNames="warehouse-dashboard-heading" width="100%" alignItems="CENTER">
+                    <vbox classNames="warehouse-dashboard-heading-copy" spacing="false">
+                        <span text="TỔNG QUAN HỆ THỐNG" classNames="warehouse-eyebrow"/>
+                        <h2 text="Tổng quan kho" classNames="warehouse-dashboard-title"/>
+                        <span text="Theo dõi tình hình tồn kho và các nghiệp vụ đang diễn ra." classNames="warehouse-dashboard-subtitle"/>
+                    </vbox>
+                    <hbox classNames="warehouse-dashboard-heading-actions" alignItems="CENTER">
+                        <button id="refreshDashboardButton" text="Làm mới số liệu"/>
+                        <span text="KHO FLOW  /  DASHBOARD" classNames="warehouse-dashboard-mark"/>
+                    </hbox>
+                </hbox>
+
+                <hbox id="dashboardHeroMetrics" classNames="warehouse-dashboard-hero-grid" width="100%" wrap="true">
+                    <vbox classNames="warehouse-hero-card warehouse-hero-card-teal" width="49%" spacing="false">
+                        <hbox classNames="warehouse-hero-card-top" width="100%" alignItems="CENTER">
+                            <span text="Tồn kho đang theo dõi" classNames="warehouse-hero-label"/>
+                            <span text="01" classNames="warehouse-hero-icon"/>
+                        </hbox>
+                        <span id="dashboardInventoryCount" text="0" classNames="warehouse-hero-value"/>
+                        <span text="Số dòng tồn kho hiện có số lượng lớn hơn 0" classNames="warehouse-hero-note"/>
+                    </vbox>
+                    <vbox classNames="warehouse-hero-card warehouse-hero-card-amber" width="49%" spacing="false">
+                        <hbox classNames="warehouse-hero-card-top" width="100%" alignItems="CENTER">
+                            <span text="Phiếu chờ duyệt" classNames="warehouse-hero-label"/>
+                            <span text="02" classNames="warehouse-hero-icon"/>
+                        </hbox>
+                        <span id="dashboardPendingCount" text="0" classNames="warehouse-hero-value"/>
+                        <span text="Phiếu đang ở trạng thái chờ phê duyệt" classNames="warehouse-hero-note"/>
+                    </vbox>
+                </hbox>
+
+                <vbox classNames="warehouse-dashboard-panel warehouse-transaction-summary" width="100%" spacing="false">
+                    <hbox classNames="warehouse-panel-heading" width="100%" alignItems="CENTER">
+                        <vbox spacing="false">
+                            <h3 text="Tình hình nghiệp vụ kho" classNames="warehouse-panel-title"/>
+                            <span text="Số lượng phiếu theo loại nghiệp vụ" classNames="warehouse-panel-subtitle"/>
+                        </vbox>
+                    </hbox>
+                    <hbox id="dashboardTransactionMetrics" classNames="warehouse-dashboard-stat-grid" width="100%" wrap="true">
+                        <vbox classNames="warehouse-stat-card" width="32%" spacing="false">
+                            <span text="Phiếu nhập kho" classNames="warehouse-stat-label"/>
+                            <span id="dashboardImportCount" text="0" classNames="warehouse-stat-value"/>
+                            <span text="Tất cả phiếu nhập" classNames="warehouse-stat-footnote"/>
+                        </vbox>
+                        <vbox classNames="warehouse-stat-card" width="32%" spacing="false">
+                            <span text="Phiếu xuất kho" classNames="warehouse-stat-label"/>
+                            <span id="dashboardExportCount" text="0" classNames="warehouse-stat-value"/>
+                            <span text="Tất cả phiếu xuất" classNames="warehouse-stat-footnote"/>
+                        </vbox>
+                        <vbox classNames="warehouse-stat-card" width="32%" spacing="false">
+                            <span text="Phiếu chuyển kho" classNames="warehouse-stat-label"/>
+                            <span id="dashboardTransferCount" text="0" classNames="warehouse-stat-value"/>
+                            <span text="Tất cả phiếu chuyển" classNames="warehouse-stat-footnote"/>
+                        </vbox>
+                        <vbox classNames="warehouse-stat-card" width="32%" spacing="false">
+                            <span text="Phiếu điều chỉnh" classNames="warehouse-stat-label"/>
+                            <span id="dashboardAdjustmentCount" text="0" classNames="warehouse-stat-value"/>
+                            <span text="Tất cả phiếu điều chỉnh" classNames="warehouse-stat-footnote"/>
+                        </vbox>
+                        <vbox classNames="warehouse-stat-card" width="32%" spacing="false">
+                            <span text="Phiếu kiểm kho" classNames="warehouse-stat-label"/>
+                            <span id="dashboardStocktakeCount" text="0" classNames="warehouse-stat-value"/>
+                            <span text="Tất cả phiếu kiểm kho" classNames="warehouse-stat-footnote"/>
+                        </vbox>
+                        <vbox classNames="warehouse-stat-card" width="32%" spacing="false">
+                            <span text="Sản phẩm / Kho" classNames="warehouse-stat-label"/>
+                            <hbox classNames="warehouse-stat-combined" alignItems="BASELINE">
+                                <span id="dashboardProductCount" text="0" classNames="warehouse-stat-value"/>
+                                <span text="sản phẩm" classNames="warehouse-stat-footnote"/>
+                                <span classNames="warehouse-stat-divider"/>
+                                <span id="dashboardWarehouseCount" text="0" classNames="warehouse-stat-value"/>
+                                <span text="kho" classNames="warehouse-stat-footnote"/>
+                            </hbox>
+                            <span text="Dữ liệu danh mục đang quản lý" classNames="warehouse-stat-footnote"/>
+                        </vbox>
+                    </hbox>
+                </vbox>
+
+                <hbox classNames="warehouse-dashboard-bottom-grid" width="100%" wrap="true">
+                    <vbox classNames="warehouse-dashboard-panel warehouse-quick-access" width="49%" spacing="false">
+                        <h3 text="Truy cập nhanh" classNames="warehouse-panel-title"/>
+                        <span text="Mở nhanh màn hình nghiệp vụ thường dùng." classNames="warehouse-panel-subtitle"/>
+                        <hbox classNames="warehouse-quick-actions" width="100%" wrap="true">
+                            <button id="openImportButton" text="Phiếu nhập kho" themeNames="primary"/>
+                            <button id="openExportButton" text="Phiếu xuất kho"/>
+                            <button id="openTransferButton" text="Chuyển kho"/>
+                            <button id="openStocktakeButton" text="Kiểm kho"/>
+                            <button id="openAdjustmentButton" text="Điều chỉnh tồn"/>
+                        </hbox>
+                    </vbox>
+                    <vbox classNames="warehouse-dashboard-panel warehouse-workflow-panel" width="49%" spacing="false">
+                        <h3 text="Quy trình nghiệp vụ" classNames="warehouse-panel-title"/>
+                        <span text="Tồn kho chỉ được ghi nhận theo đúng luồng xử lý phiếu." classNames="warehouse-panel-subtitle"/>
+                        <hbox classNames="warehouse-workflow-strip" width="100%" wrap="true">
+                            <vbox classNames="warehouse-workflow-step" spacing="false">
+                                <span text="01" classNames="warehouse-workflow-number"/>
+                                <span text="Nháp" classNames="warehouse-workflow-label"/>
+                            </vbox>
+                            <span text="›" classNames="warehouse-workflow-arrow"/>
+                            <vbox classNames="warehouse-workflow-step" spacing="false">
+                                <span text="02" classNames="warehouse-workflow-number"/>
+                                <span text="Chờ duyệt" classNames="warehouse-workflow-label"/>
+                            </vbox>
+                            <span text="›" classNames="warehouse-workflow-arrow"/>
+                            <vbox classNames="warehouse-workflow-step" spacing="false">
+                                <span text="03" classNames="warehouse-workflow-number"/>
+                                <span text="Đã duyệt" classNames="warehouse-workflow-label"/>
+                            </vbox>
+                            <span text="›" classNames="warehouse-workflow-arrow"/>
+                            <vbox classNames="warehouse-workflow-step" spacing="false">
+                                <span text="04" classNames="warehouse-workflow-number"/>
+                                <span text="Đã ghi sổ" classNames="warehouse-workflow-label"/>
+                            </vbox>
+                        </hbox>
+                        <hbox classNames="warehouse-dashboard-report-actions" width="100%" wrap="true">
+                            <button id="openInventoryButton" text="Xem tồn kho"/>
+                            <button id="openStockCardButton" text="Thẻ kho"/>
+                            <button id="openReportButton" text="Báo cáo tồn kho"/>
+                        </hbox>
+                    </vbox>
+                </hbox>
+            </vbox>
         </initialLayout>
     </appLayout>
 </mainView>

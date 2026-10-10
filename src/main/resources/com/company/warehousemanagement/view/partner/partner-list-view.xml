@@ -1,11 +1,7 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<view xmlns="http://jmix.io/schema/flowui/view"
-      xmlns:c="http://jmix.io/schema/flowui/jpql-condition"
-      title="msg://partnerListView.title"
-      focusComponent="partnersDataGrid">
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" xmlns:c="http://jmix.io/schema/flowui/jpql-condition" title="msg://partnerListView.title" focusComponent="partnersDataGrid">
     <data>
-        <collection id="partnersDc"
-                    class="com.company.warehousemanagement.entity.Partner">
+        <collection id="partnersDc" class="com.company.warehousemanagement.entity.Partner">
             <fetchPlan extends="_base"/>
             <loader id="partnersDl" readOnly="true">
                 <query>
@@ -25,27 +21,22 @@
         <action id="selectAction" type="lookup_select"/>
         <action id="discardAction" type="lookup_discard"/>
     </actions>
-    <layout>
-        <genericFilter id="genericFilter"
-                       dataLoader="partnersDl">
+    <layout classNames="warehouse-page-layout">
+        <genericFilter id="genericFilter" dataLoader="partnersDl" classNames="warehouse-filter">
             <properties include=".*"/>
         </genericFilter>
-        <hbox id="buttonsPanel" wrap="true" width="100%">
+        <hbox id="buttonsPanel" wrap="true" width="100%" classNames="warehouse-toolbar">
             <startSlot>
-                <button id="createButton" action="partnersDataGrid.createAction"/>
-                <button id="editButton" action="partnersDataGrid.editAction"/>
-                <button id="readButton" action="partnersDataGrid.readAction"/>
-                <button id="removeButton" action="partnersDataGrid.removeAction"/>
+                <button id="createButton" action="partnersDataGrid.createAction" themeNames="primary" text="Tạo mới"/>
+                <button id="editButton" action="partnersDataGrid.editAction" text="Chỉnh sửa"/>
+                <button id="readButton" action="partnersDataGrid.readAction" text="Xem chi tiết"/>
+                <button id="removeButton" action="partnersDataGrid.removeAction" themeNames="error" text="Xóa"/>
             </startSlot>
             <endSlot>
                 <simplePagination id="pagination" dataLoader="partnersDl"/>
             </endSlot>
         </hbox>
-        <dataGrid id="partnersDataGrid"
-                  width="100%"
-                  minHeight="20em"
-                  dataContainer="partnersDc"
-                  columnReorderingAllowed="true">
+        <dataGrid id="partnersDataGrid" width="100%" minHeight="20em" dataContainer="partnersDc" columnReorderingAllowed="true" classNames="warehouse-data-grid">
             <actions>
                 <action id="createAction" type="list_create"/>
                 <action id="editAction" type="list_edit"/>
@@ -61,8 +52,8 @@
             </columns>
         </dataGrid>
         <hbox id="lookupActions" visible="false">
-            <button id="selectButton" action="selectAction"/>
-            <button id="discardButton" action="discardAction"/>
+            <button id="selectButton" action="selectAction" text="Chọn"/>
+            <button id="discardButton" action="discardAction" text="Đóng"/>
         </hbox>
     </layout>
 </view>

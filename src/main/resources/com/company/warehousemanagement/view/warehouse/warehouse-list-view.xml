@@ -1,11 +1,7 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<view xmlns="http://jmix.io/schema/flowui/view"
-      xmlns:c="http://jmix.io/schema/flowui/jpql-condition"
-      title="msg://warehouseListView.title"
-      focusComponent="warehousesDataGrid">
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" xmlns:c="http://jmix.io/schema/flowui/jpql-condition" title="msg://warehouseListView.title" focusComponent="warehousesDataGrid">
     <data>
-        <collection id="warehousesDc"
-                    class="com.company.warehousemanagement.entity.Warehouse">
+        <collection id="warehousesDc" class="com.company.warehousemanagement.entity.Warehouse">
             <fetchPlan extends="_base"/>
             <loader id="warehousesDl" readOnly="true">
                 <query>
@@ -25,27 +21,22 @@
         <action id="selectAction" type="lookup_select"/>
         <action id="discardAction" type="lookup_discard"/>
     </actions>
-    <layout>
-        <genericFilter id="genericFilter"
-                       dataLoader="warehousesDl">
+    <layout classNames="warehouse-page-layout">
+        <genericFilter id="genericFilter" dataLoader="warehousesDl" classNames="warehouse-filter">
             <properties include=".*"/>
         </genericFilter>
-        <hbox id="buttonsPanel" wrap="true" width="100%">
+        <hbox id="buttonsPanel" wrap="true" width="100%" classNames="warehouse-toolbar">
             <startSlot>
-                <button id="createButton" action="warehousesDataGrid.createAction"/>
-                <button id="editButton" action="warehousesDataGrid.editAction"/>
-                <button id="readButton" action="warehousesDataGrid.readAction"/>
-                <button id="removeButton" action="warehousesDataGrid.removeAction"/>
+                <button id="createButton" action="warehousesDataGrid.createAction" themeNames="primary" text="Tạo mới"/>
+                <button id="editButton" action="warehousesDataGrid.editAction" text="Chỉnh sửa"/>
+                <button id="readButton" action="warehousesDataGrid.readAction" text="Xem chi tiết"/>
+                <button id="removeButton" action="warehousesDataGrid.removeAction" themeNames="error" text="Xóa"/>
             </startSlot>
             <endSlot>
                 <simplePagination id="pagination" dataLoader="warehousesDl"/>
             </endSlot>
         </hbox>
-        <dataGrid id="warehousesDataGrid"
-                  width="100%"
-                  minHeight="20em"
-                  dataContainer="warehousesDc"
-                  columnReorderingAllowed="true">
+        <dataGrid id="warehousesDataGrid" width="100%" minHeight="20em" dataContainer="warehousesDc" columnReorderingAllowed="true" classNames="warehouse-data-grid">
             <actions>
                 <action id="createAction" type="list_create"/>
                 <action id="editAction" type="list_edit"/>
@@ -60,8 +51,8 @@
             </columns>
         </dataGrid>
         <hbox id="lookupActions" visible="false">
-            <button id="selectButton" action="selectAction"/>
-            <button id="discardButton" action="discardAction"/>
+            <button id="selectButton" action="selectAction" text="Chọn"/>
+            <button id="discardButton" action="discardAction" text="Đóng"/>
         </hbox>
     </layout>
 </view>

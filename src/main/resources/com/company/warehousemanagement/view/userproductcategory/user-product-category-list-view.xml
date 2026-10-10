@@ -1,11 +1,7 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<view xmlns="http://jmix.io/schema/flowui/view"
-      xmlns:c="http://jmix.io/schema/flowui/jpql-condition"
-      title="msg://userProductCategoryListView.title"
-      focusComponent="userProductCategoriesDataGrid">
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" xmlns:c="http://jmix.io/schema/flowui/jpql-condition" title="msg://userProductCategoryListView.title" focusComponent="userProductCategoriesDataGrid">
     <data>
-        <collection id="userProductCategoriesDc"
-                    class="com.company.warehousemanagement.entity.UserProductCategory">
+        <collection id="userProductCategoriesDc" class="com.company.warehousemanagement.entity.UserProductCategory">
             <fetchPlan extends="_base">
                 <property name="user" fetchPlan="_base"/>
                 <property name="productCategory" fetchPlan="_base"/>
@@ -28,28 +24,23 @@
         <action id="selectAction" type="lookup_select"/>
         <action id="discardAction" type="lookup_discard"/>
     </actions>
-    <layout>
-        <genericFilter id="genericFilter"
-                       dataLoader="userProductCategoriesDl">
+    <layout classNames="warehouse-page-layout">
+        <genericFilter id="genericFilter" dataLoader="userProductCategoriesDl" classNames="warehouse-filter">
             <properties include=".*"/>
         </genericFilter>
-        <hbox id="buttonsPanel" wrap="true" width="100%">
+        <hbox id="buttonsPanel" wrap="true" width="100%" classNames="warehouse-toolbar">
             <startSlot>
-                <button id="addButton" action="userProductCategoriesDataGrid.addAction"/>
-                <button id="createButton" action="userProductCategoriesDataGrid.createAction"/>
-                <button id="editButton" action="userProductCategoriesDataGrid.editAction"/>
-                <button id="readButton" action="userProductCategoriesDataGrid.readAction"/>
-                <button id="removeButton" action="userProductCategoriesDataGrid.removeAction"/>
+                <button id="addButton" action="userProductCategoriesDataGrid.addAction" text="Thêm phân công"/>
+                <button id="createButton" action="userProductCategoriesDataGrid.createAction" themeNames="primary" text="Tạo mới"/>
+                <button id="editButton" action="userProductCategoriesDataGrid.editAction" text="Chỉnh sửa"/>
+                <button id="readButton" action="userProductCategoriesDataGrid.readAction" text="Xem chi tiết"/>
+                <button id="removeButton" action="userProductCategoriesDataGrid.removeAction" themeNames="error" text="Xóa"/>
             </startSlot>
             <endSlot>
                 <simplePagination id="pagination" dataLoader="userProductCategoriesDl"/>
             </endSlot>
         </hbox>
-        <dataGrid id="userProductCategoriesDataGrid"
-                  width="100%"
-                  minHeight="20em"
-                  dataContainer="userProductCategoriesDc"
-                  columnReorderingAllowed="true">
+        <dataGrid id="userProductCategoriesDataGrid" width="100%" minHeight="20em" dataContainer="userProductCategoriesDc" columnReorderingAllowed="true" classNames="warehouse-data-grid">
             <actions>
                 <action id="addAction" type="list_add"/>
                 <action id="createAction" type="list_create"/>
@@ -63,8 +54,8 @@
             </columns>
         </dataGrid>
         <hbox id="lookupActions" visible="false">
-            <button id="selectButton" action="selectAction"/>
-            <button id="discardButton" action="discardAction"/>
+            <button id="selectButton" action="selectAction" text="Chọn"/>
+            <button id="discardButton" action="discardAction" text="Đóng"/>
         </hbox>
     </layout>
 </view>

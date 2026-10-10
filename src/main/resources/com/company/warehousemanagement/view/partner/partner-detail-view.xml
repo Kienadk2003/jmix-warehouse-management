@@ -1,11 +1,8 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<view xmlns="http://jmix.io/schema/flowui/view"
-      title="msg://partnerDetailView.title"
-      focusComponent="form">
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" title="msg://partnerDetailView.title" focusComponent="form">
 
     <data>
-        <instance id="partnerDc"
-                  class="com.company.warehousemanagement.entity.Partner">
+        <instance id="partnerDc" class="com.company.warehousemanagement.entity.Partner">
             <fetchPlan extends="_base"/>
             <loader id="partnerDl"/>
         </instance>
@@ -20,9 +17,9 @@
         <action id="closeAction" type="detail_close"/>
     </actions>
 
-    <layout>
+    <layout classNames="warehouse-page-layout">
 
-        <formLayout id="form" dataContainer="partnerDc">
+        <formLayout id="form" dataContainer="partnerDc" classNames="warehouse-form-layout">
 
             <responsiveSteps>
                 <responsiveStep minWidth="0" columns="1"/>
@@ -41,9 +38,9 @@
 
         </formLayout>
 
-        <hbox id="detailActions">
-            <button id="saveAndCloseButton" action="saveCloseAction"/>
-            <button id="closeButton" action="closeAction"/>
+        <hbox id="detailActions" classNames="warehouse-detail-actions">
+            <button id="saveAndCloseButton" action="saveCloseAction" text="Lưu và đóng"/>
+            <button id="closeButton" action="closeAction" text="Đóng"/>
         </hbox>
 
     </layout>

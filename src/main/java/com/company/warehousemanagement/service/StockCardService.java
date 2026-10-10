@@ -62,7 +62,7 @@ public class StockCardService {
                                 from InventoryMovement e
                                 where e.warehouse.id = :warehouseId
                                   and e.product.id = :productId
-                                  and e.transaction.status = 'POSTED'
+                                  and e.transaction.status in ('POSTED', 'REVERSED')
                                   and e.occurredAt < :startAt
                                 """,
                                 BigDecimal.class
@@ -97,7 +97,7 @@ public class StockCardService {
                                 from InventoryMovement e
                                 where e.warehouse.id = ?1
                                   and e.product.id = ?2
-                                  and e.transaction.status = 'POSTED'
+                                  and e.transaction.status in ('POSTED', 'REVERSED')
                                   and e.occurredAt >= ?3
                                   and e.occurredAt < ?4
                                 order by e.occurredAt asc,

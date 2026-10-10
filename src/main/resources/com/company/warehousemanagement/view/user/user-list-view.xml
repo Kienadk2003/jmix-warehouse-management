@@ -1,10 +1,7 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<view xmlns="http://jmix.io/schema/flowui/view"
-      title="msg://UserListView.title"
-      focusComponent="usersDataGrid">
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" title="msg://UserListView.title" focusComponent="usersDataGrid">
     <data>
-        <collection id="usersDc"
-                    class="com.company.warehousemanagement.entity.User">
+        <collection id="usersDc" class="com.company.warehousemanagement.entity.User">
             <fetchPlan extends="_base"/>
             <loader id="usersDl" readOnly="true">
                 <query>
@@ -24,17 +21,16 @@
             <pagination component="pagination"/>
         </urlQueryParameters>
     </facets>
-    <layout>
-        <genericFilter id="genericFilter"
-                       dataLoader="usersDl">
+    <layout classNames="warehouse-page-layout">
+        <genericFilter id="genericFilter" dataLoader="usersDl" classNames="warehouse-filter">
             <properties include=".*"/>
         </genericFilter>
-        <hbox id="buttonsPanel" wrap="true" width="100%">
+        <hbox id="buttonsPanel" wrap="true" width="100%" classNames="warehouse-toolbar">
             <startSlot>
-                <button id="createButton" action="usersDataGrid.createAction"/>
-                <button id="editButton" action="usersDataGrid.editAction"/>
-                <button id="removeButton" action="usersDataGrid.removeAction"/>
-                <button id="showRoleAssignmentsButton" action="usersDataGrid.showRoleAssignmentsAction"/>
+                <button id="createButton" action="usersDataGrid.createAction" themeNames="primary" text="Tạo mới"/>
+                <button id="editButton" action="usersDataGrid.editAction" text="Chỉnh sửa"/>
+                <button id="removeButton" action="usersDataGrid.removeAction" themeNames="error" text="Xóa"/>
+                <button id="showRoleAssignmentsButton" action="usersDataGrid.showRoleAssignmentsAction" text="Phân quyền"/>
                 <dropdownButton id="additionalButton" text="msg://additionalMenu" icon="COG">
                     <items>
                         <actionItem id="changePasswordItem" ref="usersDataGrid.changePasswordAction"/>
@@ -47,11 +43,7 @@
                 <simplePagination id="pagination" dataLoader="usersDl"/>
             </endSlot>
         </hbox>
-        <dataGrid id="usersDataGrid"
-                  width="100%"
-                  columnReorderingAllowed="true"
-                  minHeight="20em"
-                  dataContainer="usersDc">
+        <dataGrid id="usersDataGrid" width="100%" columnReorderingAllowed="true" minHeight="20em" dataContainer="usersDc" classNames="warehouse-data-grid">
             <actions>
                 <action id="createAction" type="list_create"/>
                 <action id="editAction" type="list_edit"/>
@@ -71,8 +63,8 @@
             </columns>
         </dataGrid>
         <hbox id="lookupActions" visible="false">
-            <button id="selectButton" action="selectAction"/>
-            <button id="discardButton" action="discardAction"/>
+            <button id="selectButton" action="selectAction" text="Chọn"/>
+            <button id="discardButton" action="discardAction" text="Đóng"/>
         </hbox>
     </layout>
 </view>

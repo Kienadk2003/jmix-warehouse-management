@@ -502,18 +502,16 @@ public class TransferPostingService {
         WarehouseTransactionStatus status =
                 transaction.getStatus();
 
-        if (status != WarehouseTransactionStatus.DRAFT) {
+        if (status != WarehouseTransactionStatus.APPROVED) {
 
-            if (status
-                    == WarehouseTransactionStatus.POSTED) {
-
+            if (status == WarehouseTransactionStatus.POSTED) {
                 throw new WarehouseBusinessException(
                         "Phiếu chuyển kho đã được POSTED, không thể POST lần nữa"
                 );
             }
 
             throw new WarehouseBusinessException(
-                    "Chỉ phiếu DRAFT mới được phép POST"
+                    "Chỉ phiếu APPROVED mới được phép POST"
             );
         }
 
@@ -726,6 +724,8 @@ public class TransferPostingService {
                             + ": chưa có đơn vị tính"
             );
         }
+        ProductUnitQuantityValidator.validate(
+                dataManager, product, item.getUnit(), quantity, item.getLineNo());
     }
 
     /**

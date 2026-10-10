@@ -1,19 +1,15 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<view xmlns="http://jmix.io/schema/flowui/view"
-      title="Tồn kho">
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" title="Tồn kho">
 
     <data readOnly="true">
 
-        <collection id="inventoryDc"
-                    class="com.company.warehousemanagement.entity.Inventory">
+        <collection id="inventoryDc" class="com.company.warehousemanagement.entity.Inventory">
 
             <fetchPlan extends="_base">
 
-                <property name="warehouse"
-                          fetchPlan="_instance_name"/>
+                <property name="warehouse" fetchPlan="_instance_name"/>
 
-                <property name="product"
-                          fetchPlan="_instance_name"/>
+                <property name="product" fetchPlan="_instance_name"/>
 
             </fetchPlan>
 
@@ -35,31 +31,25 @@
 
     <facets>
 
-        <dataLoadCoordinator
-                auto="true"/>
+        <dataLoadCoordinator auto="true"/>
 
     </facets>
 
-    <layout
-            padding="true">
+    <layout padding="true" classNames="warehouse-page-layout">
 
-        <genericFilter id="genericFilter"
-                       dataLoader="inventoryDl">
+        <genericFilter id="genericFilter" dataLoader="inventoryDl" classNames="warehouse-filter">
 
             <properties include=".*"/>
 
         </genericFilter>
 
 
-        <hbox id="buttonsPanel" classNames="buttons-panel">
-            <button id="refreshButton" action="inventoryDataGrid.refresh"/>
+        <hbox id="buttonsPanel" classNames="buttons-panel warehouse-toolbar">
+            <button id="refreshButton" action="inventoryDataGrid.refresh" text="Làm mới"/>
         </hbox>
 
 
-        <dataGrid id="inventoryDataGrid"
-                  dataContainer="inventoryDc"
-                  width="100%"
-                  minHeight="20em">
+        <dataGrid id="inventoryDataGrid" dataContainer="inventoryDc" width="100%" minHeight="20em" classNames="warehouse-data-grid">
 
             <actions>
                 <action id="refresh" type="list_refresh"/>
@@ -67,22 +57,15 @@
 
             <columns>
 
-                <column property="warehouse"
-                        header="Warehouse"/>
+                <column property="warehouse" header="Warehouse"/>
 
-                <column property="product"
-                        header="Product"/>
+                <column property="product" header="Product"/>
 
-                <column property="quantity"
-                        header="On Hand"
-                        textAlign="END"/>
+                <column property="quantity" header="On Hand" textAlign="END"/>
 
-                <column property="reservedQuantity"
-                        header="Reserved"
-                        textAlign="END"/>
+                <column property="reservedQuantity" header="Reserved" textAlign="END"/>
 
-                <column property="updatedAt"
-                        header="Updated At"/>
+                <column property="updatedAt" header="Updated At"/>
 
             </columns>
 

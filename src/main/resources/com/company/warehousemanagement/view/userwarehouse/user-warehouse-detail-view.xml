@@ -1,11 +1,9 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<view xmlns="http://jmix.io/schema/flowui/view"
-      title="msg://UserWarehouseDetailView.title">
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" title="msg://UserWarehouseDetailView.title">
 
     <data>
 
-        <instance id="userWarehouseDc"
-                  class="com.company.warehousemanagement.entity.UserWarehouse">
+        <instance id="userWarehouseDc" class="com.company.warehousemanagement.entity.UserWarehouse">
 
             <fetchPlan extends="_base">
                 <property name="user" fetchPlan="_base"/>
@@ -16,36 +14,34 @@
 
         </instance>
 
-        <collection id="usersDc"
-                    class="com.company.warehousemanagement.entity.User">
+        <collection id="usersDc" class="com.company.warehousemanagement.entity.User">
 
             <fetchPlan extends="_base"/>
 
             <loader id="usersDl">
                 <query>
-                    <![CDATA[
+                    
                         select e
                         from User e
                         order by e.username
-                    ]]>
+                    
                 </query>
             </loader>
 
         </collection>
 
-        <collection id="warehousesDc"
-                    class="com.company.warehousemanagement.entity.Warehouse">
+        <collection id="warehousesDc" class="com.company.warehousemanagement.entity.Warehouse">
 
             <fetchPlan extends="_base"/>
 
             <loader id="warehousesDl">
                 <query>
-                    <![CDATA[
+                    
                         select e
                         from Warehouse e
                         where e.active = true
                         order by e.code
-                    ]]>
+                    
                 </query>
             </loader>
 
@@ -53,8 +49,7 @@
 
         <!-- PRODUCT CATEGORIES -->
 
-        <collection id="productCategoriesDc"
-                    class="com.company.warehousemanagement.entity.ProductCategory">
+        <collection id="productCategoriesDc" class="com.company.warehousemanagement.entity.ProductCategory">
 
             <fetchPlan extends="_base"/>
 
@@ -79,53 +74,29 @@
 
     <actions>
 
-        <action id="saveAction"
-                type="detail_saveClose"/>
+        <action id="saveAction" type="detail_saveClose"/>
 
-        <action id="closeAction"
-                type="detail_close"/>
+        <action id="closeAction" type="detail_close"/>
 
     </actions>
 
-    <layout>
+    <layout classNames="warehouse-page-layout">
 
-        <formLayout width="100%">
+        <formLayout width="100%" classNames="warehouse-form-layout">
 
-            <entityComboBox id="userField"
-                            dataContainer="userWarehouseDc"
-                            property="user"
-                            itemsContainer="usersDc"
-                            label="User"
-                            width="100%"
-                            required="true"/>
+            <entityComboBox id="userField" dataContainer="userWarehouseDc" property="user" itemsContainer="usersDc" label="Người dùng" width="100%" required="true"/>
 
-            <entityComboBox id="warehouseField"
-                            dataContainer="userWarehouseDc"
-                            property="warehouse"
-                            itemsContainer="warehousesDc"
-                            label="Warehouse"
-                            width="100%"
-                            required="true"/>
+            <entityComboBox id="warehouseField" dataContainer="userWarehouseDc" property="warehouse" itemsContainer="warehousesDc" label="Kho" width="100%" required="true"/>
 
-            <entityComboBox id="productCategoryField"
-                            dataContainer="userWarehouseDc"
-                            property="productCategory"
-                            itemsContainer="productCategoriesDc"
-                            label="Product Category"
-                            width="100%"
-                            required="true"/>
+            <entityComboBox id="productCategoryField" dataContainer="userWarehouseDc" property="productCategory" itemsContainer="productCategoriesDc" label="Nhóm sản phẩm" width="100%" required="true"/>
 
         </formLayout>
 
-        <hbox id="detailActions"
-              justifyContent="END"
-              width="100%">
+        <hbox id="detailActions" justifyContent="END" width="100%" classNames="warehouse-detail-actions">
 
-            <button id="closeButton"
-                    action="closeAction"/>
+            <button id="closeButton" action="closeAction" text="Đóng"/>
 
-            <button id="saveButton"
-                    action="saveAction"/>
+            <button id="saveButton" action="saveAction"/>
 
         </hbox>
 

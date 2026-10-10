@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" title="Stocktake" focusComponent="warehouseField">
+    <data>
+        <instance id="stocktakeDc" class="com.company.warehousemanagement.entity.Stocktake">
+            <fetchPlan extends="_base">
+                <property name="warehouse" fetchPlan="_instance_name"/>
+                <property name="items" fetchPlan="_base">
+                    <property name="product" fetchPlan="_instance_name"/>
+                </property>
+            </fetchPlan>
+            <loader id="stocktakeDl"/>
+            <collection id="itemsDc" property="items"/>
+        </instance>
+        <collection id="warehousesDc" class="com.company.warehousemanagement.entity.Warehouse">
+            <fetchPlan extends="_instance_name"/>
+            <loader id="warehousesDl">
+                <query>
+                    select e from Warehouse e
+                    where e.active = true
+                    order by e.name
+                </query>
+            </loader>
+        </collection>
+    </data>
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+    </facets>
+    <actions>
+        <action id="saveAction" type="detail_save"/>
+        <action id="closeAction" type="detail_close"/>
+    </actions>
+    <layout padding="true" spacing="true" classNames="warehouse-page-layout">
+        <formLayout id="headerForm" dataContainer="stocktakeDc" classNames="warehouse-form-layout">
+            <textField id="documentNoField" property="documentNo" label="Số phiếu" readOnly="true"/>
+            <entityComboBox id="warehouseField" property="warehouse" label="Kho" itemsContainer="warehousesDc" required="true"/>
+            <textField id="statusField" label="Trạng thái" readOnly="true"/>
+            <textField id="snapshotAtField" label="Snapshot At" readOnly="true"/>
+        </formLayout>
+        <hbox width="100%" wrap="true">
+            <button id="saveButton" action="saveAction" text="Save"/>
+            <button id="snapshotButton" text="Capture Snapshot"/>
+            <button id="submitButton" text="Gửi duyệt" themeNames="primary"/>
+            <button id="approveButton" text="Duyệt và cập nhật tồn" themeNames="primary success"/>
+            <button id="rejectButton" text="Từ chối" themeNames="error"/>
+            <button id="closeButton" action="closeAction" text="Đóng"/>
+        </hbox>
+        <dataGrid id="itemsDataGrid" dataContainer="itemsDc" width="100%" minHeight="20em" editorBuffered="true" classNames="warehouse-data-grid">
+            <columns>
+                <column property="product.code" header="Product Code"/>
+                <column property="product.name" header="Sản phẩm"/>
+                <column property="bookQuantity" header="Book Quantity"/>
+                <column property="countedQuantity" header="Counted Quantity" editable="true"/>
+                <column property="varianceQuantity" header="Variance"/>
+                <editorActionsColumn key="editorActions">
+                    <editButton icon="PENCIL"/>
+                    <saveButton icon="CHECK"/>
+                    <cancelButton icon="CLOSE"/>
+                </editorActionsColumn>
+            </columns>
+        </dataGrid>
+    </layout>
+</view>

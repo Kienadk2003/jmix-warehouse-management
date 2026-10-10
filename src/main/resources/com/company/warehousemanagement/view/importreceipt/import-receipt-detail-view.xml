@@ -1,10 +1,7 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<view xmlns="http://jmix.io/schema/flowui/view"
-      title="msg://importReceiptDetailView.title"
-      focusComponent="documentDateField">
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" title="msg://importReceiptDetailView.title" focusComponent="documentDateField">
     <data>
-        <collection id="warehousesDc"
-                    class="com.company.warehousemanagement.entity.Warehouse">
+        <collection id="warehousesDc" class="com.company.warehousemanagement.entity.Warehouse">
             <fetchPlan extends="_base"/>
             <loader id="warehousesDl" readOnly="true">
                 <query><![CDATA[
@@ -14,8 +11,7 @@
                 ]]></query>
             </loader>
         </collection>
-        <collection id="partnersDc"
-                    class="com.company.warehousemanagement.entity.Partner">
+        <collection id="partnersDc" class="com.company.warehousemanagement.entity.Partner">
             <fetchPlan extends="_base"/>
             <loader id="partnersDl" readOnly="true">
                 <query><![CDATA[
@@ -26,8 +22,7 @@
                 ]]></query>
             </loader>
         </collection>
-        <collection id="productsDc"
-                    class="com.company.warehousemanagement.entity.Product">
+        <collection id="productsDc" class="com.company.warehousemanagement.entity.Product">
             <fetchPlan extends="_base">
                 <property name="baseUnit" fetchPlan="_base"/>
             </fetchPlan>
@@ -39,46 +34,31 @@
                 ]]></query>
             </loader>
         </collection>
-        <collection id="itemsDc"
-                    class="com.company.warehousemanagement.entity.TransactionItem">
+        <collection id="itemsDc" class="com.company.warehousemanagement.entity.TransactionItem">
             <fetchPlan extends="_base">
                 <property name="product" fetchPlan="_base"/>
                 <property name="unit" fetchPlan="_base"/>
             </fetchPlan>
         </collection>
     </data>
-    <layout>
+    <layout classNames="warehouse-page-layout">
         <h3 text="Thông tin phiếu nhập"/>
-        <formLayout id="headerForm">
+        <formLayout id="headerForm" classNames="warehouse-form-layout">
             <responsiveSteps>
                 <responsiveStep minWidth="0" columns="1"/>
                 <responsiveStep minWidth="45em" columns="2"/>
             </responsiveSteps>
             <textField id="documentNoField" label="Số phiếu" readOnly="true"/>
-            <datePicker id="documentDateField"
-                        label="Ngày chứng từ"
-                        datatype="localDate"
-                        required="true"/>
-            <entityComboBox id="warehouseField"
-                            label="Kho nhận"
-                            metaClass="Warehouse"
-                            itemsContainer="warehousesDc"
-                            required="true"/>
-            <entityComboBox id="partnerField"
-                            label="Nhà cung cấp"
-                            metaClass="Partner"
-                            itemsContainer="partnersDc"
-                            required="true"/>
+            <datePicker id="documentDateField" label="Ngày chứng từ" datatype="localDate" required="true"/>
+            <entityComboBox id="warehouseField" label="Kho nhận" metaClass="Warehouse" itemsContainer="warehousesDc" required="true"/>
+            <entityComboBox id="partnerField" label="Nhà cung cấp" metaClass="Partner" itemsContainer="partnersDc" required="true"/>
             <textField id="statusField" label="Trạng thái" readOnly="true"/>
             <textArea id="reasonField" label="Lý do/Ghi chú" maxLength="1000"/>
         </formLayout>
         <hbox width="100%" wrap="true">
             <startSlot>
-                <button id="createReceiptButton"
-                        text="Tạo phiếu nháp"
-                        themeNames="primary"/>
-                <button id="confirmButton" text="Xác nhận"/>
-                <button id="postButton" text="Nhập kho" themeNames="primary success"/>
+                <button id="createReceiptButton" text="Tạo phiếu nháp" themeNames="primary"/>
+                <button id="submitButton" text="Gửi duyệt" themeNames="primary"/><button id="approveButton" text="Duyệt phiếu" themeNames="primary success"/><button id="rejectButton" text="Từ chối" themeNames="error"/><button id="postButton" text="Nhập kho" themeNames="primary success"/>
                 <button id="cancelButton" text="Hủy phiếu" themeNames="error"/>
             </startSlot>
             <endSlot>
@@ -88,15 +68,12 @@
 
         <vbox id="itemsPanel" width="100%" visible="false">
             <h3 text="Sản phẩm nhập kho"/>
-            <formLayout id="itemEditorForm">
+            <formLayout id="itemEditorForm" classNames="warehouse-form-layout">
                 <responsiveSteps>
                     <responsiveStep minWidth="0" columns="1"/>
                     <responsiveStep minWidth="45em" columns="3"/>
                 </responsiveSteps>
-                <entityComboBox id="productField"
-                                label="Sản phẩm"
-                                metaClass="Product"
-                                itemsContainer="productsDc"/>
+                <entityComboBox id="productField" label="Sản phẩm" metaClass="Product" itemsContainer="productsDc"/>
                 <bigDecimalField id="quantityField" label="Số lượng"/>
                 <textField id="itemNoteField" label="Ghi chú" maxLength="1000"/>
             </formLayout>
@@ -107,10 +84,7 @@
                 <button id="removeItemButton" text="Xóa dòng" themeNames="error"/>
                 <button id="clearItemButton" text="Nhập lại"/>
             </hbox>
-            <dataGrid id="itemsDataGrid"
-                      width="100%"
-                      minHeight="18em"
-                      dataContainer="itemsDc">
+            <dataGrid id="itemsDataGrid" width="100%" minHeight="18em" dataContainer="itemsDc" classNames="warehouse-data-grid">
                 <columns resizable="true">
                     <column property="lineNo" header="STT"/>
                     <column property="product.code" header="Mã sản phẩm"/>
