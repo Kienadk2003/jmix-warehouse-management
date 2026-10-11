@@ -2,6 +2,8 @@ package com.company.warehousemanagement.security;
 
 import com.company.warehousemanagement.entity.Inventory;
 import com.company.warehousemanagement.entity.InventoryMovement;
+import com.company.warehousemanagement.entity.Stocktake;
+import com.company.warehousemanagement.entity.StocktakeItem;
 import com.company.warehousemanagement.entity.TransactionItem;
 import com.company.warehousemanagement.entity.User;
 import com.company.warehousemanagement.entity.UserWarehouse;
@@ -177,4 +179,37 @@ public interface WarehouseScopeRowLevelRole {
                     """
     )
     void userWarehouse();
+
+    /*
+     * =========================
+     * STOCKTAKE
+     * =========================
+     * Phiếu kiểm kê chỉ thuộc phạm vi kho được gán cho user.
+     */
+    @JpqlRowLevelPolicy(
+            entityClass = Stocktake.class,
+            where = """
+                    exists (
+                        select uw.id
+                        from UserWarehouse uw
+                        where uw.warehouse = {E}.warehouse
+                          and uw.user.id = :current_user_id
+                    )
+                    """
+    )
+    void stocktake();
+
+    @JpqlRowLevelPolicy(
+            entityClass = StocktakeItem.class,
+            where = """
+                    exists (
+                        select uw.id
+                        from UserWarehouse uw
+                        where uw.warehouse = {E}.stocktake.warehouse
+                          and uw.user.id = :current_user_id
+                    )
+                    """
+    )
+    void stocktakeItem();
+
 }

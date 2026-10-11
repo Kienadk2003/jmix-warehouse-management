@@ -102,6 +102,8 @@ public class InventoryReportService {
                         .fetchPlanProperties(
                                 "warehouse",
                                 "product",
+                                "product.code",
+                                "product.name",
                                 "occurredAt",
                                 "signedQuantity",
                                 "movementType"

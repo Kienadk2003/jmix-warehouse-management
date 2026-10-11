@@ -59,7 +59,7 @@
 
                 <property name="warehouse" class="com.company.warehousemanagement.entity.Warehouse"/>
 
-                <property name="product" class="com.company.warehousemanagement.entity.Product"/>
+                <property name="product" datatype="string"/>
 
                 <property name="opening" datatype="decimal"/>
 

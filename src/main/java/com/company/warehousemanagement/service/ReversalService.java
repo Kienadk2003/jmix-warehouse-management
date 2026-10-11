@@ -13,6 +13,7 @@ import com.company.warehousemanagement.exception.WarehouseBusinessException;
 import com.company.warehousemanagement.security.WarehouseAuthorizationService;
 import com.company.warehousemanagement.security.WarehousePermissions;
 import io.jmix.core.DataManager;
+import io.jmix.core.UnconstrainedDataManager;
 import io.jmix.core.FetchPlan;
 import io.jmix.core.security.CurrentAuthentication;
 import org.springframework.stereotype.Service;
@@ -32,15 +33,18 @@ import java.util.UUID;
 public class ReversalService {
 
     private final DataManager dataManager;
+    private final UnconstrainedDataManager unconstrainedDataManager;
     private final CurrentAuthentication currentAuthentication;
     private final AvailableStockService availableStockService;
     private final WarehouseAuthorizationService authorizationService;
 
     public ReversalService(DataManager dataManager,
+                           UnconstrainedDataManager unconstrainedDataManager,
                            CurrentAuthentication currentAuthentication,
                            AvailableStockService availableStockService,
                            WarehouseAuthorizationService authorizationService) {
         this.dataManager = dataManager;
+        this.unconstrainedDataManager = unconstrainedDataManager;
         this.currentAuthentication = currentAuthentication;
         this.availableStockService = availableStockService;
         this.authorizationService = authorizationService;
@@ -177,7 +181,11 @@ public class ReversalService {
         /*
          * Save transaction reversal + composition items.
          */
-        reversal = dataManager.save(reversal);
+        // Reverse is an explicitly authorized internal workflow. The generated
+        // reversal transaction and its composition items are persisted through
+        // UnconstrainedDataManager so Manager does not need generic CREATE rights
+        // on WarehouseTransaction or TransactionItem.
+        reversal = unconstrainedDataManager.save(reversal);
 
         /*
          * Xử lý inventory.

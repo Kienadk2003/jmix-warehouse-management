@@ -119,10 +119,24 @@ public class InventoryReportView extends StandardView {
                         row.warehouse()
                 );
 
-                entity.setValue(
-                        "product",
-                        row.product()
-                );
+                Product reportProduct = row.product();
+                String productLabel = "";
+
+                if (reportProduct != null) {
+                    String code = reportProduct.getCode();
+                    String name = reportProduct.getName();
+
+                    if (code != null && !code.isBlank()
+                            && name != null && !name.isBlank()) {
+                        productLabel = code + " - " + name;
+                    } else if (name != null && !name.isBlank()) {
+                        productLabel = name;
+                    } else if (code != null && !code.isBlank()) {
+                        productLabel = code;
+                    }
+                }
+
+                entity.setValue("product", productLabel);
 
                 entity.setValue(
                         "opening",

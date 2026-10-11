@@ -11,6 +11,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
+import io.jmix.core.metamodel.annotation.DependsOnProperties;
+import io.jmix.core.metamodel.annotation.InstanceName;
+
 @JmixEntity
 @Table(name = "PRODUCT", uniqueConstraints = {
         @UniqueConstraint(name = "IDX_PRODUCT_UNQ_CODE", columnNames = "CODE")
@@ -23,7 +26,6 @@ public class Product extends AuditedEntity {
     @Column(name = "CODE", nullable = false, length = 50)
     private String code;
 
-    @InstanceName
     @Column(name = "NAME", nullable = false)
     private String name;
 
@@ -76,5 +78,18 @@ public class Product extends AuditedEntity {
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+    @InstanceName
+    @DependsOnProperties({"code", "name"})
+    public String getInstanceName() {
+        if (name == null || name.isBlank()) {
+            return code == null ? "" : code;
+        }
+
+        if (code == null || code.isBlank()) {
+            return name;
+        }
+
+        return code + " - " + name;
     }
 }

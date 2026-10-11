@@ -1,9 +1,12 @@
 package com.company.warehousemanagement.security;
 
-import com.company.warehousemanagement.entity.User;
-import com.company.warehousemanagement.entity.UserWarehouse;
 import com.company.warehousemanagement.entity.Inventory;
 import com.company.warehousemanagement.entity.InventoryMovement;
+import com.company.warehousemanagement.entity.Stocktake;
+import com.company.warehousemanagement.entity.TransactionItem;
+import com.company.warehousemanagement.entity.User;
+import com.company.warehousemanagement.entity.UserWarehouse;
+import com.company.warehousemanagement.entity.WarehouseTransaction;
 import io.jmix.security.model.EntityAttributePolicyAction;
 import io.jmix.security.model.EntityPolicyAction;
 import io.jmix.security.model.SecurityScope;
@@ -11,6 +14,7 @@ import io.jmix.security.role.annotation.EntityAttributePolicy;
 import io.jmix.security.role.annotation.EntityPolicy;
 import io.jmix.security.role.annotation.ResourceRole;
 import io.jmix.security.role.annotation.SpecificPolicy;
+import io.jmix.securityflowui.role.annotation.MenuPolicy;
 import io.jmix.securityflowui.role.annotation.ViewPolicy;
 
 @ResourceRole(
@@ -18,15 +22,14 @@ import io.jmix.securityflowui.role.annotation.ViewPolicy;
         code = WarehouseManagerRole.CODE,
         scope = SecurityScope.UI
 )
-public interface WarehouseManagerRole extends WarehouseStaffRole {
+public interface WarehouseManagerRole extends ViewerRole {
 
     String CODE = "warehouse-manager";
 
     /*
-     * Manager dùng cùng các view với Staff,
-     * nhưng Manager có quyền nghiệp vụ cao hơn ở service layer.
+     * Manager xem và xử lý phiếu đã gửi; không kế thừa quyền
+     * EDIT_DRAFT, SUBMIT hoặc COUNT_STOCK của WarehouseStaffRole.
      */
-
     @ViewPolicy(viewIds = {
             "ImportReceipt.list",
             "ImportReceipt.detail",
@@ -36,8 +39,8 @@ public interface WarehouseManagerRole extends WarehouseStaffRole {
             "WarehouseTransaction.transferDetail",
             "WarehouseTransaction.adjustmentList",
             "WarehouseTransaction.adjustmentDetail",
-
-            // Quản lý Employee
+            "Stocktake.list",
+            "Stocktake.detail",
             "User.list",
             "User.detail",
             "UserWarehouse.list",
@@ -45,10 +48,15 @@ public interface WarehouseManagerRole extends WarehouseStaffRole {
     })
     void managerViews();
 
+    @MenuPolicy(menuIds = {
+            "Stocktake.list",
+            "User.list",
+            "UserWarehouse.list"
+    })
+    void managerMenus();
+
     @SpecificPolicy(resources = {
-            WarehousePermissions.CONFIRM,
             WarehousePermissions.POST,
-            WarehousePermissions.CANCEL,
             WarehousePermissions.REVERSE,
             WarehousePermissions.APPROVE,
             WarehousePermissions.REJECT,
@@ -58,9 +66,8 @@ public interface WarehouseManagerRole extends WarehouseStaffRole {
     void managerOperations();
 
     /*
-     * POST/REVERSE cập nhật tồn kho và tạo bút toán kho.
-     * Chỉ Manager có quyền ghi hai entity kỹ thuật này;
-     * Staff vẫn kế thừa quyền READ từ ViewerRole.
+     * Dữ liệu tồn chỉ được ghi qua các service nghiệp vụ POST/REVERSE.
+     * Manager không có quyền DELETE Inventory hoặc sửa trực tiếp ledger.
      */
     @EntityPolicy(
             entityClass = Inventory.class,
@@ -72,7 +79,7 @@ public interface WarehouseManagerRole extends WarehouseStaffRole {
     )
     @EntityAttributePolicy(
             entityClass = Inventory.class,
-            attributes = "*",
+            attributes = {"warehouse", "product", "quantity", "reservedQuantity", "updatedAt"},
             action = EntityAttributePolicyAction.MODIFY
     )
     void inventoryForPosting();
@@ -86,17 +93,57 @@ public interface WarehouseManagerRole extends WarehouseStaffRole {
     )
     @EntityAttributePolicy(
             entityClass = InventoryMovement.class,
-            attributes = "*",
+            attributes = {"transaction", "item", "warehouse", "product", "occurredAt", "signedQuantity", "movementType", "sequenceNo"},
             action = EntityAttributePolicyAction.MODIFY
     )
     void inventoryMovementForPosting();
 
     /*
-     * Manager quản lý Employee.
-     *
-     * Row-level scope sẽ được xử lý riêng trong
-     * WarehouseScopeRowLevelRole để Manager chỉ
-     * nhìn thấy Employee thuộc kho của mình.
+     * Manager chỉ được cập nhật các trường workflow; không có CREATE
+     * WarehouseTransaction ở entity policy để không tạo phiếu nháp.
+     * ReversalService lưu phiếu reversal nội bộ sau khi kiểm tra REVERSE.
+     */
+    @EntityPolicy(
+            entityClass = WarehouseTransaction.class,
+            actions = {EntityPolicyAction.READ, EntityPolicyAction.UPDATE}
+    )
+    @EntityAttributePolicy(
+            entityClass = WarehouseTransaction.class,
+            attributes = {"status", "reason", "postedAt", "postedBy"},
+            action = EntityAttributePolicyAction.MODIFY
+    )
+    void transactionWorkflow();
+
+    /*
+     * Khi Jmix lưu WarehouseTransaction dạng composition, quá trình lưu có
+     * thể kiểm tra quyền UPDATE của các TransactionItem hiện có. Chỉ cấp
+     * quyền entity UPDATE để hỗ trợ lưu workflow; không cấp quyền MODIFY
+     * thuộc tính ở đây và không cấp CREATE/DELETE TransactionItem.
+     */
+    @EntityPolicy(
+            entityClass = TransactionItem.class,
+            actions = {EntityPolicyAction.UPDATE}
+    )
+    void transactionItemUpdateForWorkflow();
+
+    /*
+     * Manager chỉ cập nhật trạng thái/thời điểm duyệt kiểm kê.
+     * Việc ghi Inventory/Movement do StocktakeService kiểm soát.
+     */
+    @EntityPolicy(
+            entityClass = Stocktake.class,
+            actions = {EntityPolicyAction.READ, EntityPolicyAction.UPDATE}
+    )
+    @EntityAttributePolicy(
+            entityClass = Stocktake.class,
+            attributes = {"status", "approvedAt"},
+            action = EntityAttributePolicyAction.MODIFY
+    )
+    void stocktakeApproval();
+
+    /*
+     * Quản lý hồ sơ nhân viên. Thuộc tính password là trường system/secret;
+     * không cấp quyền thay đổi thuộc tính liên quan đến phân quyền.
      */
     @EntityPolicy(
             entityClass = User.class,
@@ -108,14 +155,11 @@ public interface WarehouseManagerRole extends WarehouseStaffRole {
     )
     @EntityAttributePolicy(
             entityClass = User.class,
-            attributes = "*",
+            attributes = {"username", "password", "firstName", "lastName", "email", "active", "timeZoneId"},
             action = EntityAttributePolicyAction.MODIFY
     )
     void employeeManagement();
 
-    /*
-     * Manager quản lý việc phân công Employee vào Warehouse.
-     */
     @EntityPolicy(
             entityClass = UserWarehouse.class,
             actions = {
@@ -127,7 +171,7 @@ public interface WarehouseManagerRole extends WarehouseStaffRole {
     )
     @EntityAttributePolicy(
             entityClass = UserWarehouse.class,
-            attributes = "*",
+            attributes = {"user", "warehouse", "productCategories", "productCategory"},
             action = EntityAttributePolicyAction.MODIFY
     )
     void employeeWarehouseAssignment();

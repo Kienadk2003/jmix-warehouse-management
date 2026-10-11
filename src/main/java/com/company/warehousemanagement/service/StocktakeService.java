@@ -55,6 +55,13 @@ public class StocktakeService {
     }
 
     public void prepareDraft(Stocktake stocktake) {
+        checkPermission(
+                WarehousePermissions.COUNT_STOCK,
+                "Bạn không có quyền tạo phiếu kiểm kê"
+        );
+        if (stocktake == null) {
+            throw new WarehouseBusinessException("Không thể khởi tạo phiếu kiểm kê rỗng");
+        }
         stocktake.setDocumentNo(
                 "STK-" + LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE)
                         + "-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase()

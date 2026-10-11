@@ -35,6 +35,8 @@ public interface WarehouseStaffRole extends ViewerRole {
             "WarehouseTransaction.transferDetail",
             "WarehouseTransaction.adjustmentList",
             "WarehouseTransaction.adjustmentDetail",
+            "Stocktake.list",
+            "Stocktake.detail",
             "TransactionItem.detail",
             "Warehouse.list",
             "Partner.list",
@@ -45,7 +47,8 @@ public interface WarehouseStaffRole extends ViewerRole {
             "ImportReceipt.list",
             "WarehouseTransaction.exportList",
             "WarehouseTransaction.transferList",
-            "WarehouseTransaction.adjustmentList"
+            "WarehouseTransaction.adjustmentList",
+            "Stocktake.list"
     })
     void transactionViews();
 
@@ -141,7 +144,8 @@ public interface WarehouseStaffRole extends ViewerRole {
 
     @SpecificPolicy(resources = {
             WarehousePermissions.EDIT_DRAFT,
-            WarehousePermissions.COUNT_STOCK
+            WarehousePermissions.COUNT_STOCK,
+            WarehousePermissions.SUBMIT
     })
     void staffOperations();
 }

@@ -3,21 +3,21 @@ package com.company.warehousemanagement.view.export;
 import com.company.warehousemanagement.entity.WarehouseTransaction;
 import com.company.warehousemanagement.entity.WarehouseTransactionStatus;
 import com.company.warehousemanagement.exception.WarehouseBusinessException;
+import com.company.warehousemanagement.security.WarehouseAuthorizationService;
+import com.company.warehousemanagement.security.WarehousePermissions;
 import com.company.warehousemanagement.service.ExportIssueService;
 import com.company.warehousemanagement.service.ExportPostingService;
 import com.company.warehousemanagement.service.ReversalService;
 import com.company.warehousemanagement.service.WarehouseTransactionWorkflowService;
-import com.company.warehousemanagement.security.WarehouseAuthorizationService;
-import com.company.warehousemanagement.security.WarehousePermissions;
 import com.company.warehousemanagement.view.main.MainView;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.router.Route;
 import io.jmix.core.EntityStates;
 import io.jmix.flowui.component.textfield.TypedTextField;
@@ -32,15 +32,17 @@ import io.jmix.flowui.view.View.BeforeShowEvent;
 import io.jmix.flowui.view.ViewComponent;
 import io.jmix.flowui.view.ViewController;
 import io.jmix.flowui.view.ViewDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 
 @Route(value = "export-issues/:id", layout = MainView.class)
 @ViewController(id = "WarehouseTransaction.exportDetail")
 @ViewDescriptor(path = "export-detail-view.xml")
 @EditedEntityContainer("warehouseTransactionDc")
-public class ExportDetailView
-        extends StandardDetailView<WarehouseTransaction> {
+public class ExportDetailView extends StandardDetailView<WarehouseTransaction> {
+
+    private static final Logger log = LoggerFactory.getLogger(ExportDetailView.class);
 
     @Autowired
     private ExportIssueService exportIssueService;
@@ -59,6 +61,7 @@ public class ExportDetailView
 
     @Autowired
     private WarehouseAuthorizationService authorizationService;
+
     @ViewComponent
     private JmixButton reverseButton;
 
@@ -90,62 +93,34 @@ public class ExportDetailView
     private JmixButton rejectButton;
 
     @Subscribe
-    public void onInitEntity(
-            final InitEntityEvent<WarehouseTransaction> event) {
-
+    public void onInitEntity(final InitEntityEvent<WarehouseTransaction> event) {
         exportIssueService.prepareNewDraft(event.getEntity());
     }
-    @Subscribe(id = "reverseButton", subject = "clickListener")
-    public void onReverseButtonClick(
-            ClickEvent<JmixButton> event) {
 
-        WarehouseTransaction current =
-                getEditedEntity();
+    @Subscribe(id = "reverseButton", subject = "clickListener")
+    public void onReverseButtonClick(ClickEvent<JmixButton> event) {
+        WarehouseTransaction current = getEditedEntity();
 
         if (current == null) {
-            Notification.show(
-                    "Không tìm thấy phiếu xuất",
-                    5000,
-                    Position.TOP_END
-            );
+            Notification.show("Không tìm thấy phiếu xuất", 5000, Position.TOP_END);
             return;
         }
 
-        if (current.getId() == null
-                || entityStates.isNew(current)) {
-
-            Notification.show(
-                    "Phiếu chưa được lưu",
-                    5000,
-                    Position.TOP_END
-            );
+        if (current.getId() == null || entityStates.isNew(current)) {
+            Notification.show("Phiếu chưa được lưu", 5000, Position.TOP_END);
             return;
         }
 
-        if (current.getStatus()
-                != WarehouseTransactionStatus.POSTED) {
-
-            Notification.show(
-                    "Chỉ phiếu POSTED mới được phép Reverse",
-                    5000,
-                    Position.TOP_END
-            );
+        if (current.getStatus() != WarehouseTransactionStatus.POSTED) {
+            Notification.show("Chỉ phiếu POSTED mới được phép Reverse", 5000, Position.TOP_END);
             return;
         }
 
         try {
+            WarehouseTransaction reversal = reversalService.reverse(current.getId());
 
-            WarehouseTransaction reversal =
-                    reversalService.reverse(
-                            current.getId()
-                    );
-
-            current.setStatus(
-                    WarehouseTransactionStatus.REVERSED
-            );
-
+            current.setStatus(WarehouseTransactionStatus.REVERSED);
             updateStatusLabel(current);
-
             setReadOnly(true);
 
             addItemButton.setVisible(false);
@@ -155,22 +130,19 @@ public class ExportDetailView
             reverseButton.setVisible(false);
 
             Notification.show(
-                    "Reverse phiếu xuất thành công. "
-                            + "Phiếu reversal: "
-                            + reversal.getDocumentNo(),
+                    "Reverse phiếu xuất thành công. Phiếu reversal: " + reversal.getDocumentNo(),
                     5000,
                     Position.TOP_END
             );
-
         } catch (WarehouseBusinessException e) {
-
-            Notification.show(
-                    e.getMessage(),
-                    5000,
-                    Position.TOP_END
-            );
+            log.warn("Business error while reversing export transaction id={}", current.getId(), e);
+            Notification.show(e.getMessage(), 5000, Position.TOP_END);
+        } catch (Exception e) {
+            log.error("Unexpected error while reversing export transaction id={}", current.getId(), e);
+            Notification.show("Không thể reverse phiếu. Hãy kiểm tra log ứng dụng.", 5000, Position.TOP_END);
         }
     }
+
     @Subscribe
     public void onBeforeShow(final BeforeShowEvent event) {
         WarehouseTransaction transaction = getEditedEntity();
@@ -182,16 +154,10 @@ public class ExportDetailView
 
     @Subscribe
     public void onValidation(final ValidationEvent event) {
-
         try {
-            exportIssueService.validateDraft(
-                    getEditedEntity()
-            );
+            exportIssueService.validateDraft(getEditedEntity());
         } catch (WarehouseBusinessException e) {
-
-            event.getErrors().add(
-                    e.getMessage()
-            );
+            event.getErrors().add(e.getMessage());
         }
     }
 
@@ -242,8 +208,13 @@ public class ExportDetailView
             Notification.show("Đã gửi phiếu xuất để Manager duyệt", 3000, Position.TOP_END);
             getUI().ifPresent(ui -> ui.navigate(ExportListView.class));
         } catch (WarehouseBusinessException e) {
+            log.warn("Business error while submitting export transaction id={}", current.getId(), e);
             submitButton.setEnabled(true);
             Notification.show(e.getMessage(), 5000, Position.TOP_END);
+        } catch (Exception e) {
+            log.error("Unexpected error while submitting export transaction id={}", current.getId(), e);
+            submitButton.setEnabled(true);
+            Notification.show("Không thể gửi duyệt phiếu. Hãy kiểm tra log ứng dụng.", 5000, Position.TOP_END);
         }
     }
 
@@ -255,12 +226,25 @@ public class ExportDetailView
             return;
         }
 
+        log.info("Approve clicked for export transaction id={}, documentNo={}, status={}",
+                current.getId(), current.getDocumentNo(), current.getStatus());
+
         try {
+            boolean approveAllowed = authorizationService.isAllowed(WarehousePermissions.APPROVE);
+            log.info("Permission check: warehouse.transaction.approve allowed={}", approveAllowed);
+
             workflowService.approve(current.getId());
+
+            log.info("Approve completed successfully for export transaction id={}", current.getId());
             Notification.show("Đã duyệt phiếu xuất. Hãy mở lại phiếu để ghi sổ", 4000, Position.TOP_END);
             getUI().ifPresent(ui -> ui.navigate(ExportListView.class));
         } catch (WarehouseBusinessException e) {
+            log.error("Business error while approving export transaction id={}", current.getId(), e);
             Notification.show(e.getMessage(), 5000, Position.TOP_END);
+        } catch (Exception e) {
+            log.error("Unexpected/access-control error while approving export transaction id={}",
+                    current.getId(), e);
+            Notification.show("Duyệt phiếu thất bại. Hãy kiểm tra log ứng dụng.", 5000, Position.TOP_END);
         }
     }
 
@@ -295,7 +279,11 @@ public class ExportDetailView
                 Notification.show("Đã từ chối phiếu xuất", 3000, Position.TOP_END);
                 getUI().ifPresent(ui -> ui.navigate(ExportListView.class));
             } catch (WarehouseBusinessException e) {
+                log.warn("Business error while rejecting export transaction id={}", current.getId(), e);
                 Notification.show(e.getMessage(), 5000, Position.TOP_END);
+            } catch (Exception e) {
+                log.error("Unexpected error while rejecting export transaction id={}", current.getId(), e);
+                Notification.show("Không thể từ chối phiếu. Hãy kiểm tra log ứng dụng.", 5000, Position.TOP_END);
             }
         });
 
@@ -306,33 +294,16 @@ public class ExportDetailView
     }
 
     @Subscribe("postButton")
-    public void onPostButtonClick(
-            final ClickEvent<JmixButton> event) {
-
-        WarehouseTransaction current =
-                getEditedEntity();
+    public void onPostButtonClick(final ClickEvent<JmixButton> event) {
+        WarehouseTransaction current = getEditedEntity();
 
         if (current == null) {
-
-            Notification.show(
-                    "Không tìm thấy phiếu xuất",
-                    5000,
-                    Position.TOP_END
-            );
-
+            Notification.show("Không tìm thấy phiếu xuất", 5000, Position.TOP_END);
             return;
         }
 
-
-        if (current.getStatus()
-                != WarehouseTransactionStatus.APPROVED) {
-
-            Notification.show(
-                    "Chỉ phiếu APPROVED mới được phép POST",
-                    5000,
-                    Position.TOP_END
-            );
-
+        if (current.getStatus() != WarehouseTransactionStatus.APPROVED) {
+            Notification.show("Chỉ phiếu APPROVED mới được phép POST", 5000, Position.TOP_END);
             return;
         }
 
@@ -347,40 +318,22 @@ public class ExportDetailView
 
         if (current == null || current.getId() == null) {
             postButton.setEnabled(true);
-            Notification.show(
-                    "Không thể lưu phiếu xuất trước khi POST",
-                    5000,
-                    Position.TOP_END
-            );
+            Notification.show("Không thể lưu phiếu xuất trước khi POST", 5000, Position.TOP_END);
             return;
         }
 
         try {
+            WarehouseTransaction posted = exportPostingService.postExport(current.getId());
 
-            WarehouseTransaction posted =
-                    exportPostingService.postExport(
-                            current.getId()
-                    );
-
-            current.setStatus(
-                    WarehouseTransactionStatus.POSTED
-            );
-
+            current.setStatus(WarehouseTransactionStatus.POSTED);
             if (posted.getPostedAt() != null) {
-                current.setPostedAt(
-                        posted.getPostedAt()
-                );
+                current.setPostedAt(posted.getPostedAt());
             }
-
             if (posted.getPostedBy() != null) {
-                current.setPostedBy(
-                        posted.getPostedBy()
-                );
+                current.setPostedBy(posted.getPostedBy());
             }
 
             updateStatusLabel(current);
-
-
             setReadOnly(true);
 
             addItemButton.setVisible(false);
@@ -388,25 +341,16 @@ public class ExportDetailView
             removeItemButton.setVisible(false);
             postButton.setVisible(false);
 
-            Notification.show(
-                    "POST phiếu xuất thành công",
-                    3000,
-                    Position.TOP_END
-            );
-
-            getUI().ifPresent(ui ->
-                    ui.navigate(ExportListView.class)
-            );
-
+            Notification.show("POST phiếu xuất thành công", 3000, Position.TOP_END);
+            getUI().ifPresent(ui -> ui.navigate(ExportListView.class));
         } catch (WarehouseBusinessException e) {
-
+            log.warn("Business error while posting export transaction id={}", current.getId(), e);
             postButton.setEnabled(true);
-
-            Notification.show(
-                    e.getMessage(),
-                    5000,
-                    Position.TOP_END
-            );
+            Notification.show(e.getMessage(), 5000, Position.TOP_END);
+        } catch (Exception e) {
+            log.error("Unexpected error while posting export transaction id={}", current.getId(), e);
+            postButton.setEnabled(true);
+            Notification.show("Không thể ghi sổ phiếu xuất. Hãy kiểm tra log ứng dụng.", 5000, Position.TOP_END);
         }
     }
 
@@ -448,16 +392,8 @@ public class ExportDetailView
         reverseButton.setVisible(canReverse);
     }
 
-    private void updateStatusLabel(
-            WarehouseTransaction transaction) {
-
-        WarehouseTransactionStatus status =
-                transaction.getStatus();
-
-        statusLabel.setText(
-                status != null
-                        ? status.getId()
-                        : "-"
-        );
+    private void updateStatusLabel(WarehouseTransaction transaction) {
+        WarehouseTransactionStatus status = transaction.getStatus();
+        statusLabel.setText(status != null ? status.getId() : "-");
     }
 }
