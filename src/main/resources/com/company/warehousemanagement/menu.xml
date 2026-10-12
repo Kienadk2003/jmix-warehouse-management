@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <menu-config xmlns="http://jmix.io/schema/flowui/menu">
+    <item view="MainView" title="Trang chủ"/>
+
     <menu id="warehouse" title="Quản lý kho" opened="true">
         <item view="Warehouse.list" title="Kho"/>
         <item view="Inventory.list" title="Tồn kho"/>
@@ -21,6 +23,7 @@
     </menu>
 
     <menu id="reports" title="Báo cáo" opened="true">
+        <item view="Warehouse.reports" title="Tổng quan &amp; báo cáo kho"/>
         <item view="Inventory.stockCard" title="Thẻ kho"/>
         <item view="Inventory.report" title="Báo cáo tồn kho"/>
     </menu>

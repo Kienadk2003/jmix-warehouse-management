@@ -22,6 +22,9 @@ public class InventoryReportService {
 
     private final DataManager dataManager;
 
+    @org.springframework.beans.factory.annotation.Value("${warehouse.reporting-zone:Asia/Ho_Chi_Minh}")
+    private String reportingZone = "Asia/Ho_Chi_Minh";
+
     public InventoryReportService(DataManager dataManager) {
         this.dataManager = dataManager;
     }
@@ -37,7 +40,7 @@ public class InventoryReportService {
                 toDate
         );
 
-        ZoneId zoneId = ZoneId.systemDefault();
+        ZoneId zoneId = ZoneId.of(reportingZone);
 
         OffsetDateTime startAt =
                 fromDate
@@ -99,15 +102,12 @@ public class InventoryReportService {
                                 jpql.toString(),
                                 parameters.toArray()
                         )
-                        .fetchPlanProperties(
-                                "warehouse",
-                                "product",
-                                "product.code",
-                                "product.name",
-                                "occurredAt",
-                                "signedQuantity",
-                                "movementType"
-                        )
+                        .fetchPlan(plan -> plan
+                                .addFetchPlan(io.jmix.core.FetchPlan.BASE)
+                                .add("warehouse", io.jmix.core.FetchPlan.BASE)
+                                .add("product", productPlan -> productPlan
+                                        .addFetchPlan(io.jmix.core.FetchPlan.BASE)
+                                        .add("baseUnit", io.jmix.core.FetchPlan.BASE)))
                         .list();
 
         Map<ReportKey, MutableReportRow> grouped =

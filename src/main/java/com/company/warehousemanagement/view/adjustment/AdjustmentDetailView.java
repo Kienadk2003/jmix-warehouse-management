@@ -43,6 +43,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class AdjustmentDetailView extends StandardDetailView<WarehouseTransaction> {
 
     @Autowired
+    private com.company.warehousemanagement.view.document.TransactionDocumentsPanel documentsPanel;
+    @ViewComponent
+    private com.vaadin.flow.component.orderedlayout.VerticalLayout documentsHost;
+
+    @Autowired
     private AdjustmentIssueService adjustmentIssueService;
 
     @Autowired
@@ -324,6 +329,7 @@ public class AdjustmentDetailView extends StandardDetailView<WarehouseTransactio
     }
 
     private void refreshActions() {
+        documentsPanel.show(documentsHost, getEditedEntity());
         WarehouseTransaction transaction = getEditedEntity();
         if (transaction == null) {
             return;

@@ -22,8 +22,6 @@ import io.jmix.core.FetchPlan;
 import io.jmix.core.UnconstrainedDataManager;
 import io.jmix.core.security.CurrentAuthentication;
 import jakarta.persistence.LockModeType;
-import com.company.warehousemanagement.event.WarehouseTransactionPostedEvent;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,7 +40,6 @@ public class ImportReceiptService {
     private final DataManager dataManager;
     private final UnconstrainedDataManager unconstrainedDataManager;
     private final CurrentAuthentication currentAuthentication;
-    private final ApplicationEventPublisher eventPublisher;
     private final WarehouseAuthorizationService authorizationService;
     private final WarehouseTransactionWorkflowService workflowService;
 
@@ -51,14 +48,12 @@ public class ImportReceiptService {
             DataManager dataManager,
             UnconstrainedDataManager unconstrainedDataManager,
             CurrentAuthentication currentAuthentication,
-            ApplicationEventPublisher eventPublisher,
             WarehouseTransactionWorkflowService workflowService,
             WarehouseAuthorizationService authorizationService) {
 
         this.dataManager = dataManager;
         this.unconstrainedDataManager = unconstrainedDataManager;
         this.currentAuthentication = currentAuthentication;
-        this.eventPublisher = eventPublisher;
         this.workflowService = workflowService;
         this.authorizationService = authorizationService;
     }
@@ -304,12 +299,6 @@ public class ImportReceiptService {
 
         WarehouseTransaction postedReceipt =
                 dataManager.save(receipt);
-
-        eventPublisher.publishEvent(
-                new WarehouseTransactionPostedEvent(
-                        postedReceipt.getId()
-                )
-        );
 
         return postedReceipt;
     }

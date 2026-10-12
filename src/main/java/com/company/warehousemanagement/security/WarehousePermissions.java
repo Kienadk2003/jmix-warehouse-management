@@ -14,6 +14,8 @@ public final class WarehousePermissions {
     public static final String APPROVE_STOCKTAKE = "warehouse.stocktake.approve";
     public static final String REJECT_STOCKTAKE = "warehouse.stocktake.reject";
 
+    public static final String VIEW_DOCUMENTS = "warehouse.document.view";
+
     private WarehousePermissions() {
     }
 }

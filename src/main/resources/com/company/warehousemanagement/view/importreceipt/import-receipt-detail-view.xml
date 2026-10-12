@@ -95,5 +95,6 @@
                 </columns>
             </dataGrid>
         </vbox>
+        <vbox id="documentsHost" width="100%" padding="false"/>
     </layout>
 </view>

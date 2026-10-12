@@ -17,8 +17,6 @@ import io.jmix.core.FetchPlan;
 import io.jmix.core.security.CurrentAuthentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.company.warehousemanagement.event.WarehouseTransactionPostedEvent;
-import org.springframework.context.ApplicationEventPublisher;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -32,20 +30,17 @@ public class ExportPostingService {
     private final DataManager dataManager;
     private final CurrentAuthentication currentAuthentication;
     private final AvailableStockService availableStockService;
-    private final ApplicationEventPublisher eventPublisher;
     private final WarehouseAuthorizationService authorizationService;
 
     public ExportPostingService(
             DataManager dataManager,
             CurrentAuthentication currentAuthentication,
             AvailableStockService availableStockService,
-            ApplicationEventPublisher eventPublisher,
             WarehouseAuthorizationService authorizationService) {
 
         this.dataManager = dataManager;
         this.currentAuthentication = currentAuthentication;
         this.availableStockService = availableStockService;
-        this.eventPublisher = eventPublisher;
         this.authorizationService = authorizationService;
     }
 
@@ -166,12 +161,6 @@ public class ExportPostingService {
 
         WarehouseTransaction postedTransaction =
                 dataManager.save(transaction);
-
-        eventPublisher.publishEvent(
-                new WarehouseTransactionPostedEvent(
-                        postedTransaction.getId()
-                )
-        );
 
         return postedTransaction;
     }

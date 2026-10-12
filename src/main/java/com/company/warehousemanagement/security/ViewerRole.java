@@ -61,6 +61,15 @@ public interface ViewerRole extends UiMinimalRole {
     })
     void views();
 
+    @ViewPolicy(viewIds = {"Warehouse.reports", "Stocktake.list", "Stocktake.detail"})
+    @MenuPolicy(menuIds = {"Warehouse.reports", "Stocktake.list"})
+    void reports();
+
+    @io.jmix.security.role.annotation.SpecificPolicy(resources = WarehousePermissions.VIEW_DOCUMENTS)
+    @EntityPolicy(entityClass = com.company.warehousemanagement.entity.TransactionDocument.class, actions = EntityPolicyAction.READ)
+    @EntityAttributePolicy(entityClass = com.company.warehousemanagement.entity.TransactionDocument.class, attributes = "*", action = EntityAttributePolicyAction.VIEW)
+    void documents();
+
     /*
      * =========================
      * MASTER DATA - READ ONLY

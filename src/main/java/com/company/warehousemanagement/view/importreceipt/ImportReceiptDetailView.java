@@ -11,6 +11,7 @@ import com.company.warehousemanagement.entity.WarehouseTransaction;
 import com.company.warehousemanagement.entity.WarehouseTransactionStatus;
 import com.company.warehousemanagement.exception.WarehouseBusinessException;
 import com.company.warehousemanagement.service.ImportReceiptService;
+import com.company.warehousemanagement.service.WarehouseTransactionEmailService;
 import com.company.warehousemanagement.security.WarehouseAuthorizationService;
 import com.company.warehousemanagement.security.WarehousePermissions;
 import com.company.warehousemanagement.view.main.MainView;
@@ -51,10 +52,18 @@ public class ImportReceiptDetailView extends StandardView
         implements BeforeEnterObserver, AfterNavigationObserver {
 
     @Autowired
+    private com.company.warehousemanagement.view.document.TransactionDocumentsPanel documentsPanel;
+    @ViewComponent
+    private com.vaadin.flow.component.orderedlayout.VerticalLayout documentsHost;
+
+    @Autowired
     private DataManager dataManager;
 
     @Autowired
     private ImportReceiptService importReceiptService;
+
+    @Autowired
+    private WarehouseTransactionEmailService emailService;
 
     @Autowired
     private Notifications notifications;
@@ -347,7 +356,8 @@ public class ImportReceiptDetailView extends StandardView
     public void onPostButtonClick(ClickEvent<JmixButton> event) {
         executeReceiptAction(
                 () -> importReceiptService.post(receiptId),
-                "Đã nhập kho và cập nhật tồn kho"
+                "Đã nhập kho và cập nhật tồn kho",
+                true
         );
     }
 
@@ -432,6 +442,7 @@ public class ImportReceiptDetailView extends StandardView
     }
 
     private void updateActions() {
+        documentsPanel.show(documentsHost, receipt);
         boolean existing = receipt != null;
         WarehouseTransactionStatus status = existing ? receipt.getStatus() : null;
 
@@ -494,9 +505,17 @@ public class ImportReceiptDetailView extends StandardView
     }
 
     private void executeReceiptAction(ReceiptAction action, String successMessage) {
+        executeReceiptAction(action, successMessage, false);
+    }
+
+    private void executeReceiptAction(ReceiptAction action, String successMessage, boolean notifyByEmail) {
         try {
-            action.execute();
-            notifications.show(successMessage);
+            WarehouseTransaction result = action.execute();
+            String message = successMessage;
+            if (notifyByEmail) {
+                message += ". " + emailService.sendPostedNotification(result.getId()).message();
+            }
+            notifications.show(message);
             clearItemEditor();
             reloadReceipt();
             reloadItems();

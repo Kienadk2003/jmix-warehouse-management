@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="20261011-documents" author="codex">
+        <createTable tableName="TRANSACTION_DOCUMENT">
+            <column name="ID" type="UUID"><constraints primaryKey="true" nullable="false"/></column>
+            <column name="VERSION" type="INT"><constraints nullable="false"/></column>
+            <column name="CREATED_BY" type="VARCHAR(255)"/>
+            <column name="CREATED_DATE" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="LAST_MODIFIED_BY" type="VARCHAR(255)"/>
+            <column name="LAST_MODIFIED_DATE" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="TRANSACTION_ID" type="UUID"><constraints nullable="false"/></column>
+            <column name="FILE_NAME" type="VARCHAR(255)"><constraints nullable="false"/></column>
+            <column name="CONTENT_TYPE" type="VARCHAR(100)"><constraints nullable="false"/></column>
+            <column name="FILE_SIZE" type="BIGINT"><constraints nullable="false"/></column>
+            <column name="FILE_REF" type="VARCHAR(1024)"><constraints nullable="false"/></column>
+        </createTable>
+        <createIndex tableName="TRANSACTION_DOCUMENT" indexName="IDX_DOCUMENT_TRANSACTION"><column name="TRANSACTION_ID"/></createIndex>
+        <addForeignKeyConstraint baseTableName="TRANSACTION_DOCUMENT" baseColumnNames="TRANSACTION_ID" referencedTableName="WAREHOUSE_TRANSACTION" referencedColumnNames="ID" constraintName="FK_DOCUMENT_TRANSACTION"/>
+    </changeSet>
+</databaseChangeLog>

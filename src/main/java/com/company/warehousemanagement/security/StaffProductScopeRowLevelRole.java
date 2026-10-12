@@ -50,4 +50,20 @@ public interface StaffProductScopeRowLevelRole {
                     """
     )
     void userProductCategory();
+
+    @JpqlRowLevelPolicy(entityClass = com.company.warehousemanagement.entity.Inventory.class,
+            where = "exists (select upc.id from UserProductCategory upc where upc.productCategory = {E}.product.category and upc.user.id = :current_user_id)")
+    void inventory();
+
+    @JpqlRowLevelPolicy(entityClass = com.company.warehousemanagement.entity.InventoryMovement.class,
+            where = "exists (select upc.id from UserProductCategory upc where upc.productCategory = {E}.product.category and upc.user.id = :current_user_id)")
+    void inventoryMovement();
+
+    @JpqlRowLevelPolicy(entityClass = com.company.warehousemanagement.entity.TransactionItem.class,
+            where = "exists (select upc.id from UserProductCategory upc where upc.productCategory = {E}.product.category and upc.user.id = :current_user_id)")
+    void transactionItem();
+
+    @JpqlRowLevelPolicy(entityClass = com.company.warehousemanagement.entity.StocktakeItem.class,
+            where = "exists (select upc.id from UserProductCategory upc where upc.productCategory = {E}.product.category and upc.user.id = :current_user_id)")
+    void stocktakeItem();
 }

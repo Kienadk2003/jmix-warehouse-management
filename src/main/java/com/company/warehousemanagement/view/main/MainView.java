@@ -91,7 +91,7 @@ public class MainView extends StandardMainView {
         openAdjustmentButton.addClickListener(click -> navigateTo("adjustments"));
         openInventoryButton.addClickListener(click -> navigateTo("inventory"));
         openStockCardButton.addClickListener(click -> navigateTo("stock-card"));
-        openReportButton.addClickListener(click -> navigateTo("inventory-report"));
+        openReportButton.addClickListener(click -> navigateTo("warehouse-reports"));
     }
 
     private void refreshDashboardCounts() {
@@ -99,7 +99,7 @@ public class MainView extends StandardMainView {
                 "select count(e) from Inventory e where e.quantity > 0");
         setCombinedCount(dashboardPendingCount,
                 "select count(e) from WarehouseTransaction e where e.status = 'PENDING_APPROVAL'",
-                "select count(e) from Stocktake e where e.status = 'PENDING_APPROVAL'");
+                "select count(e) from Stocktake e where e.status in ('PENDING_APPROVAL', 'REVIEWING')");
         setCount(dashboardImportCount,
                 "select count(e) from WarehouseTransaction e where e.type = 'IMPORT'");
         setCount(dashboardExportCount,
@@ -118,7 +118,7 @@ public class MainView extends StandardMainView {
 
     private void setCount(Span target, String query) {
         try {
-            Long result = dataManager.loadValue(query, Long.class).one();
+            Long result = scopedCount(query);
             target.setText(Long.toString(result == null ? 0L : result));
         } catch (RuntimeException exception) {
             // Keep the dashboard usable even if a role is not allowed to count a particular entity.
@@ -131,7 +131,7 @@ public class MainView extends StandardMainView {
         long total = 0;
         for (String query : queries) {
             try {
-                Long result = dataManager.loadValue(query, Long.class).one();
+                Long result = scopedCount(query);
                 total += result == null ? 0L : result;
             } catch (RuntimeException exception) {
                 // Avoid showing a misleading partial value if one of the counts cannot be loaded.
@@ -141,6 +141,21 @@ public class MainView extends StandardMainView {
             }
         }
         target.setText(Long.toString(total));
+    }
+
+    private long scopedCount(String query) {
+        String entity = query.substring(query.indexOf(" from ") + 6).split(" ")[0];
+        Class<?> type = switch (entity) {
+            case "Inventory" -> com.company.warehousemanagement.entity.Inventory.class;
+            case "WarehouseTransaction" -> com.company.warehousemanagement.entity.WarehouseTransaction.class;
+            case "Stocktake" -> com.company.warehousemanagement.entity.Stocktake.class;
+            case "Product" -> com.company.warehousemanagement.entity.Product.class;
+            case "Warehouse" -> com.company.warehousemanagement.entity.Warehouse.class;
+            default -> throw new IllegalArgumentException("Unknown metric entity");
+        };
+        // Entity loads enforce row-level scope; scalar aggregate queries do not enforce it reliably.
+        return dataManager.load(type).query(query.replace("select count(e)", "select e"))
+                .fetchPlanProperties("id").list().size();
     }
 
     private void navigateTo(String route) {

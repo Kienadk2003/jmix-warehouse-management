@@ -105,5 +105,6 @@
             <button id="closeButton" action="closeAction" text="Đóng"/>
             <button id="reverseButton" text="Reverse"/>
         </hbox>
+        <vbox id="documentsHost" width="100%" padding="false"/>
     </layout>
 </view>

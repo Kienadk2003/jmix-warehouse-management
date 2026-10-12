@@ -164,7 +164,7 @@
                         <hbox classNames="warehouse-dashboard-report-actions" width="100%" wrap="true">
                             <button id="openInventoryButton" text="Xem tồn kho"/>
                             <button id="openStockCardButton" text="Thẻ kho"/>
-                            <button id="openReportButton" text="Báo cáo tồn kho"/>
+                            <button id="openReportButton" text="Tổng quan &amp; báo cáo kho"/>
                         </hbox>
                     </vbox>
                 </hbox>

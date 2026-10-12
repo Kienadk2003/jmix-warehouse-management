@@ -8,6 +8,7 @@ import com.company.warehousemanagement.security.WarehousePermissions;
 import com.company.warehousemanagement.service.ExportIssueService;
 import com.company.warehousemanagement.service.ExportPostingService;
 import com.company.warehousemanagement.service.ReversalService;
+import com.company.warehousemanagement.service.WarehouseTransactionEmailService;
 import com.company.warehousemanagement.service.WarehouseTransactionWorkflowService;
 import com.company.warehousemanagement.view.main.MainView;
 import com.vaadin.flow.component.ClickEvent;
@@ -45,10 +46,18 @@ public class ExportDetailView extends StandardDetailView<WarehouseTransaction> {
     private static final Logger log = LoggerFactory.getLogger(ExportDetailView.class);
 
     @Autowired
+    private com.company.warehousemanagement.view.document.TransactionDocumentsPanel documentsPanel;
+    @ViewComponent
+    private com.vaadin.flow.component.orderedlayout.VerticalLayout documentsHost;
+
+    @Autowired
     private ExportIssueService exportIssueService;
 
     @Autowired
     private ExportPostingService exportPostingService;
+
+    @Autowired
+    private WarehouseTransactionEmailService emailService;
 
     @Autowired
     private ReversalService reversalService;
@@ -341,8 +350,16 @@ public class ExportDetailView extends StandardDetailView<WarehouseTransaction> {
             removeItemButton.setVisible(false);
             postButton.setVisible(false);
 
-            Notification.show("POST phiếu xuất thành công", 3000, Position.TOP_END);
-            getUI().ifPresent(ui -> ui.navigate(ExportListView.class));
+            Notification.show(
+                    "POST phiếu xuất thành công. "
+                            + emailService.sendPostedNotification(posted.getId()).message(),
+                    5000,
+                    Position.TOP_END
+            );
+
+            getUI().ifPresent(ui ->
+                    ui.navigate(ExportListView.class)
+            );
         } catch (WarehouseBusinessException e) {
             log.warn("Business error while posting export transaction id={}", current.getId(), e);
             postButton.setEnabled(true);
@@ -355,6 +372,7 @@ public class ExportDetailView extends StandardDetailView<WarehouseTransaction> {
     }
 
     private void updateActionVisibility(WarehouseTransaction transaction) {
+        documentsPanel.show(documentsHost, transaction);
         updateStatusLabel(transaction);
 
         boolean saved = !entityStates.isNew(transaction);

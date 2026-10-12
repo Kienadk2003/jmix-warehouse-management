@@ -19,6 +19,12 @@ import io.jmix.security.role.annotation.RowLevelRole;
 public interface WarehouseScopeRowLevelRole {
 
     String CODE = "warehouse-scope";
+    // Keep nullable warehouse joins inside independent subqueries. Correlated warehouse
+    // paths can be rewritten as inner joins on the outer query by the JPQL transformer.
+    String SOURCE_TRANSACTIONS = "select scoped.id from WarehouseTransaction scoped, UserWarehouse assignment "
+            + "where scoped.sourceWarehouse = assignment.warehouse and assignment.user.id = :current_user_id";
+    String DESTINATION_TRANSACTIONS = "select scoped.id from WarehouseTransaction scoped, UserWarehouse assignment "
+            + "where scoped.destinationWarehouse = assignment.warehouse and assignment.user.id = :current_user_id";
 
     /*
      * =========================
@@ -88,24 +94,8 @@ public interface WarehouseScopeRowLevelRole {
      * OR
      * destination warehouse thuộc scope
      */
-    @JpqlRowLevelPolicy(
-            entityClass = WarehouseTransaction.class,
-            where = """
-                    exists (
-                        select uw.id
-                        from UserWarehouse uw
-                        where uw.warehouse = {E}.sourceWarehouse
-                          and uw.user.id = :current_user_id
-                    )
-                    or
-                    exists (
-                        select uw2.id
-                        from UserWarehouse uw2
-                        where uw2.warehouse = {E}.destinationWarehouse
-                          and uw2.user.id = :current_user_id
-                    )
-                    """
-    )
+    @JpqlRowLevelPolicy(entityClass = WarehouseTransaction.class,
+            where = "{E}.id in (" + SOURCE_TRANSACTIONS + ") or {E}.id in (" + DESTINATION_TRANSACTIONS + ")")
     void warehouseTransaction();
 
     /*
@@ -116,21 +106,8 @@ public interface WarehouseScopeRowLevelRole {
      * Item không có Warehouse trực tiếp,
      * nên đi qua transaction.
      */
-    @JpqlRowLevelPolicy(
-            entityClass = TransactionItem.class,
-            where = """
-                    exists (
-                        select uw.id
-                        from UserWarehouse uw
-                        where (
-                            uw.warehouse = {E}.transaction.sourceWarehouse
-                            or
-                            uw.warehouse = {E}.transaction.destinationWarehouse
-                        )
-                        and uw.user.id = :current_user_id
-                    )
-                    """
-    )
+    @JpqlRowLevelPolicy(entityClass = TransactionItem.class,
+            where = "{E}.transaction.id in (" + SOURCE_TRANSACTIONS + ") or {E}.transaction.id in (" + DESTINATION_TRANSACTIONS + ")")
     void transactionItem();
 
     /*
@@ -212,4 +189,7 @@ public interface WarehouseScopeRowLevelRole {
     )
     void stocktakeItem();
 
+    @JpqlRowLevelPolicy(entityClass = com.company.warehousemanagement.entity.TransactionDocument.class,
+            where = "{E}.transaction.id in (" + SOURCE_TRANSACTIONS + ") or {E}.transaction.id in (" + DESTINATION_TRANSACTIONS + ")")
+    void document();
 }

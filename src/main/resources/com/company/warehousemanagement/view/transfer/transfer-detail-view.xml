@@ -166,6 +166,7 @@
             <button id="reverseButton" text="Đảo phiếu"/>
         </hbox>
 
+        <vbox id="documentsHost" width="100%" padding="false"/>
     </layout>
 
 </view>

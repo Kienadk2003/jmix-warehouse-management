@@ -48,6 +48,11 @@ public class TransferDetailView
         extends StandardDetailView<WarehouseTransaction> {
 
     @Autowired
+    private com.company.warehousemanagement.view.document.TransactionDocumentsPanel documentsPanel;
+    @ViewComponent
+    private com.vaadin.flow.component.orderedlayout.VerticalLayout documentsHost;
+
+    @Autowired
     private TransferIssueService transferIssueService;
 
     @Autowired
@@ -499,6 +504,7 @@ public class TransferDetailView
      */
 
     private void refreshActions() {
+        documentsPanel.show(documentsHost, getEditedEntity());
         WarehouseTransaction transaction = getEditedEntity();
         if (transaction == null) {
             return;
