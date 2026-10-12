@@ -3,7 +3,6 @@ package com.company.warehousemanagement.security;
 import com.company.warehousemanagement.entity.Inventory;
 import com.company.warehousemanagement.entity.InventoryMovement;
 import com.company.warehousemanagement.entity.Stocktake;
-import com.company.warehousemanagement.entity.TransactionItem;
 import com.company.warehousemanagement.entity.User;
 import com.company.warehousemanagement.entity.UserWarehouse;
 import com.company.warehousemanagement.entity.WarehouseTransaction;
@@ -39,6 +38,9 @@ public interface WarehouseManagerRole extends ViewerRole {
             "WarehouseTransaction.transferDetail",
             "WarehouseTransaction.adjustmentList",
             "WarehouseTransaction.adjustmentDetail",
+            "WarehouseTransaction.importExportList",
+            "WarehouseTransaction.stocktakeAdjustmentList",
+            "WarehouseTransaction.pendingApprovals",
             "Stocktake.list",
             "Stocktake.detail",
             "User.list",
@@ -49,6 +51,9 @@ public interface WarehouseManagerRole extends ViewerRole {
     void managerViews();
 
     @MenuPolicy(menuIds = {
+            "WarehouseTransaction.importExportList",
+            "WarehouseTransaction.stocktakeAdjustmentList",
+            "WarehouseTransaction.pendingApprovals",
             "Stocktake.list",
             "User.list",
             "UserWarehouse.list"
@@ -113,18 +118,6 @@ public interface WarehouseManagerRole extends ViewerRole {
             action = EntityAttributePolicyAction.MODIFY
     )
     void transactionWorkflow();
-
-    /*
-     * Khi Jmix lưu WarehouseTransaction dạng composition, quá trình lưu có
-     * thể kiểm tra quyền UPDATE của các TransactionItem hiện có. Chỉ cấp
-     * quyền entity UPDATE để hỗ trợ lưu workflow; không cấp quyền MODIFY
-     * thuộc tính ở đây và không cấp CREATE/DELETE TransactionItem.
-     */
-    @EntityPolicy(
-            entityClass = TransactionItem.class,
-            actions = {EntityPolicyAction.UPDATE}
-    )
-    void transactionItemUpdateForWorkflow();
 
     /*
      * Manager chỉ cập nhật trạng thái/thời điểm duyệt kiểm kê.

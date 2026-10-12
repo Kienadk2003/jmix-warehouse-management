@@ -2,25 +2,26 @@
 <menu-config xmlns="http://jmix.io/schema/flowui/menu">
     <item view="MainView" title="Trang chủ"/>
 
-    <menu id="warehouse" title="Quản lý kho" opened="true">
+    <menu id="warehouse" title="Quản lý kho" >
         <item view="Warehouse.list" title="Kho"/>
         <item view="Inventory.list" title="Tồn kho"/>
     </menu>
 
-    <menu id="products" title="Hàng hóa" opened="true">
+    <menu id="products" title="Hàng hóa" >
         <item view="Product.list" title="Sản phẩm"/>
         <item view="ProductCategory.list" title="Nhóm sản phẩm"/>
         <item view="Unit.list" title="Đơn vị tính"/>
         <item view="Partner.list" title="Đối tác"/>
     </menu>
 
-    <menu id="operations" title="Nghiệp vụ kho" opened="true">
+    <menu id="operations" title="Nghiệp vụ kho" >
         <item view="WarehouseTransaction.importExportList" title="Nhập – Xuất kho"/>
+        <item view="WarehouseTransaction.pendingApprovals" title="Danh sách chờ duyệt"/>
         <item view="WarehouseTransaction.transferList" title="Chuyển kho"/>
         <item view="WarehouseTransaction.stocktakeAdjustmentList" title="Kiểm kê &amp; điều chỉnh"/>
     </menu>
 
-    <menu id="reports" title="Báo cáo" opened="true">
+    <menu id="reports" title="Báo cáo" >
         <item view="Warehouse.reports" title="Tổng quan &amp; báo cáo kho"/>
         <item view="Inventory.stockCard" title="Thẻ kho"/>
         <item view="Inventory.report" title="Báo cáo tồn kho"/>
@@ -29,7 +30,7 @@
     <menu id="people" title="Nhân sự &amp; phân công" opened="false">
         <item view="User.list" title="Người dùng"/>
         <item view="employeeAssignment-list" title="Phân công kho cho người dùng"/>
-        <item view="UserWarehouse.list" title="Phân quyền kho"/>
-        <item view="UserProductCategory.list" title="Phân công nhóm sản phẩm"/>
+<!--        <item view="UserWarehouse.list" title="Phân quyền kho"/>-->
+<!--        <item view="UserProductCategory.list" title="Phân công nhóm sản phẩm"/>-->
     </menu>
 </menu-config>

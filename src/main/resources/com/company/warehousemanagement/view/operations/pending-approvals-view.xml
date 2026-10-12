@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="Danh sách chờ duyệt">
+    <layout classNames="warehouse-page-layout">
+        <vbox width="100%" spacing="true">
+            <span text="Tổng hợp các phiếu nhập, xuất, chuyển kho, điều chỉnh tồn và kiểm kê đang chờ Manager duyệt." />
+            <hbox id="toolbar" width="100%" wrap="true" classNames="warehouse-toolbar">
+                <startSlot>
+                    <button id="openSelectedButton" text="Mở phiếu để duyệt" themeNames="primary"/>
+                    <button id="refreshButton" text="Làm mới"/>
+                </startSlot>
+            </hbox>
+            <vbox id="pendingApprovalsGridHost" width="100%"/>
+        </vbox>
+    </layout>
+</view>

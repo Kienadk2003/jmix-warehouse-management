@@ -60,7 +60,7 @@
                 </hbox>
 
                 <hbox id="dashboardHeroMetrics" classNames="warehouse-dashboard-hero-grid" width="100%" wrap="true">
-                    <vbox classNames="warehouse-hero-card warehouse-hero-card-teal" width="49%" spacing="false">
+                    <vbox id="dashboardInventoryCard" classNames="warehouse-hero-card warehouse-hero-card-teal" width="49%" spacing="false">
                         <hbox classNames="warehouse-hero-card-top" width="100%" alignItems="CENTER">
                             <span text="Tồn kho đang theo dõi" classNames="warehouse-hero-label"/>
                             <span text="01" classNames="warehouse-hero-icon"/>
@@ -68,7 +68,7 @@
                         <span id="dashboardInventoryCount" text="0" classNames="warehouse-hero-value"/>
                         <span text="Số dòng tồn kho hiện có số lượng lớn hơn 0" classNames="warehouse-hero-note"/>
                     </vbox>
-                    <vbox classNames="warehouse-hero-card warehouse-hero-card-amber" width="49%" spacing="false">
+                    <vbox id="dashboardPendingCard" classNames="warehouse-hero-card warehouse-hero-card-amber" width="49%" spacing="false">
                         <hbox classNames="warehouse-hero-card-top" width="100%" alignItems="CENTER">
                             <span text="Phiếu chờ duyệt" classNames="warehouse-hero-label"/>
                             <span text="02" classNames="warehouse-hero-icon"/>
@@ -82,45 +82,43 @@
                     <hbox classNames="warehouse-panel-heading" width="100%" alignItems="CENTER">
                         <vbox spacing="false">
                             <h3 text="Tình hình nghiệp vụ kho" classNames="warehouse-panel-title"/>
-                            <span text="Số lượng phiếu theo loại nghiệp vụ" classNames="warehouse-panel-subtitle"/>
                         </vbox>
                     </hbox>
                     <hbox id="dashboardTransactionMetrics" classNames="warehouse-dashboard-stat-grid" width="100%" wrap="true">
-                        <vbox classNames="warehouse-stat-card" width="32%" spacing="false">
+                        <vbox id="dashboardImportCard" classNames="warehouse-stat-card" width="32%" spacing="false">
                             <span text="Phiếu nhập kho" classNames="warehouse-stat-label"/>
                             <span id="dashboardImportCount" text="0" classNames="warehouse-stat-value"/>
                             <span text="Tất cả phiếu nhập" classNames="warehouse-stat-footnote"/>
                         </vbox>
-                        <vbox classNames="warehouse-stat-card" width="32%" spacing="false">
+                        <vbox id="dashboardExportCard" classNames="warehouse-stat-card" width="32%" spacing="false">
                             <span text="Phiếu xuất kho" classNames="warehouse-stat-label"/>
                             <span id="dashboardExportCount" text="0" classNames="warehouse-stat-value"/>
                             <span text="Tất cả phiếu xuất" classNames="warehouse-stat-footnote"/>
                         </vbox>
-                        <vbox classNames="warehouse-stat-card" width="32%" spacing="false">
+                        <vbox id="dashboardTransferCard" classNames="warehouse-stat-card" width="32%" spacing="false">
                             <span text="Phiếu chuyển kho" classNames="warehouse-stat-label"/>
                             <span id="dashboardTransferCount" text="0" classNames="warehouse-stat-value"/>
                             <span text="Tất cả phiếu chuyển" classNames="warehouse-stat-footnote"/>
                         </vbox>
-                        <vbox classNames="warehouse-stat-card" width="32%" spacing="false">
+                        <vbox id="dashboardAdjustmentCard" classNames="warehouse-stat-card" width="32%" spacing="false">
                             <span text="Phiếu điều chỉnh" classNames="warehouse-stat-label"/>
                             <span id="dashboardAdjustmentCount" text="0" classNames="warehouse-stat-value"/>
                             <span text="Tất cả phiếu điều chỉnh" classNames="warehouse-stat-footnote"/>
                         </vbox>
-                        <vbox classNames="warehouse-stat-card" width="32%" spacing="false">
+                        <vbox id="dashboardStocktakeCard" classNames="warehouse-stat-card" width="32%" spacing="false">
                             <span text="Phiếu kiểm kho" classNames="warehouse-stat-label"/>
                             <span id="dashboardStocktakeCount" text="0" classNames="warehouse-stat-value"/>
                             <span text="Tất cả phiếu kiểm kho" classNames="warehouse-stat-footnote"/>
                         </vbox>
-                        <vbox classNames="warehouse-stat-card" width="32%" spacing="false">
-                            <span text="Sản phẩm / Kho" classNames="warehouse-stat-label"/>
-                            <hbox classNames="warehouse-stat-combined" alignItems="BASELINE">
-                                <span id="dashboardProductCount" text="0" classNames="warehouse-stat-value"/>
-                                <span text="sản phẩm" classNames="warehouse-stat-footnote"/>
-                                <span classNames="warehouse-stat-divider"/>
-                                <span id="dashboardWarehouseCount" text="0" classNames="warehouse-stat-value"/>
-                                <span text="kho" classNames="warehouse-stat-footnote"/>
-                            </hbox>
-                            <span text="Dữ liệu danh mục đang quản lý" classNames="warehouse-stat-footnote"/>
+                        <vbox id="dashboardProductCard" classNames="warehouse-stat-card" width="32%" spacing="false">
+                            <span text="Sản phẩm" classNames="warehouse-stat-label"/>
+                            <span id="dashboardProductCount" text="0" classNames="warehouse-stat-value"/>
+                            <span text="Danh mục sản phẩm đang quản lý" classNames="warehouse-stat-footnote"/>
+                        </vbox>
+                        <vbox id="dashboardWarehouseCard" classNames="warehouse-stat-card" width="32%" spacing="false">
+                            <span text="Kho" classNames="warehouse-stat-label"/>
+                            <span id="dashboardWarehouseCount" text="0" classNames="warehouse-stat-value"/>
+                            <span text="Kho đang quản lý" classNames="warehouse-stat-footnote"/>
                         </vbox>
                     </hbox>
                 </vbox>
