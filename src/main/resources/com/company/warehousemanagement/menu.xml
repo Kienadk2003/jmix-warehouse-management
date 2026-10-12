@@ -16,9 +16,9 @@
 
     <menu id="operations" title="Nghiệp vụ kho" >
         <item view="WarehouseTransaction.importExportList" title="Nhập – Xuất kho"/>
-        <item view="WarehouseTransaction.pendingApprovals" title="Danh sách chờ duyệt"/>
         <item view="WarehouseTransaction.transferList" title="Chuyển kho"/>
         <item view="WarehouseTransaction.stocktakeAdjustmentList" title="Kiểm kê &amp; điều chỉnh"/>
+        <item view="WarehouseTransaction.pendingApprovals" title="Danh sách chờ duyệt"/>
     </menu>
 
     <menu id="reports" title="Báo cáo" >
