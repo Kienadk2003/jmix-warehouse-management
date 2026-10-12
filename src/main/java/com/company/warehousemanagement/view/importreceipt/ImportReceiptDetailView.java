@@ -15,6 +15,7 @@ import com.company.warehousemanagement.service.WarehouseTransactionEmailService;
 import com.company.warehousemanagement.security.WarehouseAuthorizationService;
 import com.company.warehousemanagement.security.WarehousePermissions;
 import com.company.warehousemanagement.view.main.MainView;
+import com.company.warehousemanagement.view.operations.ImportExportListView;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -176,7 +177,7 @@ public class ImportReceiptDetailView extends StandardView
             receiptId = UUID.fromString(idValue);
         } catch (IllegalArgumentException exception) {
             invalidRoute = true;
-            event.forwardTo(ImportReceiptListView.class);
+            event.forwardTo(ImportExportListView.class);
         }
     }
 
@@ -371,7 +372,7 @@ public class ImportReceiptDetailView extends StandardView
 
     @Subscribe("backButton")
     public void onBackButtonClick(ClickEvent<JmixButton> event) {
-        getUI().ifPresent(ui -> ui.navigate(ImportReceiptListView.class));
+        getUI().ifPresent(ui -> ui.navigate(ImportExportListView.class));
     }
 
     private void initializeNewReceipt() {
@@ -397,7 +398,7 @@ public class ImportReceiptDetailView extends StandardView
 
         if (receipt == null) {
             notifications.show("Không tìm thấy phiếu nhập");
-            getUI().ifPresent(ui -> ui.navigate(ImportReceiptListView.class));
+            getUI().ifPresent(ui -> ui.navigate(ImportExportListView.class));
             return;
         }
 

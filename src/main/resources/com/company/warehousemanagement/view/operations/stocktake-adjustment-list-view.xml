@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="Kiểm kê &amp; điều chỉnh"
+      focusComponent="stocktakesDataGrid">
+    <data>
+        <collection id="stocktakesDc" class="com.company.warehousemanagement.entity.Stocktake">
+            <fetchPlan extends="_base">
+                <property name="warehouse" fetchPlan="_instance_name"/>
+            </fetchPlan>
+            <loader id="stocktakesDl" readOnly="true">
+                <query><![CDATA[
+                    select e from Stocktake e
+                    order by e.createdDate desc, e.documentNo desc
+                ]]></query>
+            </loader>
+        </collection>
+        <collection id="adjustmentsDc" class="com.company.warehousemanagement.entity.WarehouseTransaction">
+            <fetchPlan extends="_base">
+                <property name="sourceWarehouse" fetchPlan="_instance_name"/>
+            </fetchPlan>
+            <loader id="adjustmentsDl" readOnly="true">
+                <query><![CDATA[
+                    select e from WarehouseTransaction e
+                    where e.type = 'ADJUSTMENT'
+                    order by e.documentDate desc, e.documentNo desc
+                ]]></query>
+            </loader>
+        </collection>
+    </data>
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+    </facets>
+    <layout classNames="warehouse-page-layout">
+        <tabSheet id="stocktakeTabs" width="100%">
+            <tab id="stocktakeTab" label="Phiếu kiểm kê">
+                <vbox width="100%">
+                    <genericFilter id="stocktakesFilter" dataLoader="stocktakesDl" classNames="warehouse-filter">
+                        <properties include=".*"/>
+                    </genericFilter>
+                    <hbox id="stocktakeButtonsPanel" width="100%" wrap="true" classNames="warehouse-toolbar">
+                        <startSlot>
+                            <button id="createStocktakeButton" action="stocktakesDataGrid.createAction"
+                                    text="Tạo phiếu kiểm kê" themeNames="primary"/>
+                            <button id="editStocktakeButton" action="stocktakesDataGrid.editAction" text="Chỉnh sửa"/>
+                            <button id="readStocktakeButton" action="stocktakesDataGrid.readAction" text="Xem chi tiết"/>
+                            <button id="refreshStocktakeButton" action="stocktakesDataGrid.refreshAction" text="Làm mới"/>
+                        </startSlot>
+                        <endSlot>
+                            <simplePagination id="stocktakesPagination" dataLoader="stocktakesDl"/>
+                        </endSlot>
+                    </hbox>
+                    <dataGrid id="stocktakesDataGrid" width="100%" minHeight="25em"
+                              dataContainer="stocktakesDc" columnReorderingAllowed="true"
+                              classNames="warehouse-data-grid">
+                        <actions>
+                            <action id="createAction" type="list_create">
+                                <properties>
+                                    <property name="viewId" value="Stocktake.detail"/>
+                                </properties>
+                            </action>
+                            <action id="editAction" type="list_edit">
+                                <properties>
+                                    <property name="viewId" value="Stocktake.detail"/>
+                                </properties>
+                            </action>
+                            <action id="readAction" type="list_read">
+                                <properties>
+                                    <property name="viewId" value="Stocktake.detail"/>
+                                </properties>
+                            </action>
+                            <action id="refreshAction" type="list_refresh"/>
+                        </actions>
+                        <columns resizable="true">
+                            <column property="documentNo" header="Số phiếu" sortable="true"/>
+                            <column property="warehouse" header="Kho" sortable="true"/>
+                            <column property="status" header="Trạng thái" sortable="true"/>
+                            <column property="snapshotAt" header="Thời điểm chụp tồn" sortable="true"/>
+                            <column property="approvedAt" header="Thời điểm duyệt" sortable="true"/>
+                        </columns>
+                    </dataGrid>
+                </vbox>
+            </tab>
+            <tab id="adjustmentTab" label="Phiếu điều chỉnh">
+                <vbox width="100%">
+                    <genericFilter id="adjustmentsFilter" dataLoader="adjustmentsDl" classNames="warehouse-filter">
+                        <properties include=".*"/>
+                    </genericFilter>
+                    <hbox id="adjustmentButtonsPanel" width="100%" wrap="true" classNames="warehouse-toolbar">
+                        <startSlot>
+                            <button id="createAdjustmentButton" action="adjustmentsDataGrid.createAction"
+                                    text="Tạo phiếu điều chỉnh" themeNames="primary"/>
+                            <button id="editAdjustmentButton" action="adjustmentsDataGrid.editAction" text="Chỉnh sửa"/>
+                            <button id="readAdjustmentButton" action="adjustmentsDataGrid.readAction" text="Xem chi tiết"/>
+                            <button id="refreshAdjustmentButton" action="adjustmentsDataGrid.refreshAction" text="Làm mới"/>
+                        </startSlot>
+                        <endSlot>
+                            <simplePagination id="adjustmentsPagination" dataLoader="adjustmentsDl"/>
+                        </endSlot>
+                    </hbox>
+                    <dataGrid id="adjustmentsDataGrid" width="100%" minHeight="25em"
+                              dataContainer="adjustmentsDc" columnReorderingAllowed="true"
+                              classNames="warehouse-data-grid">
+                        <actions>
+                            <action id="createAction" type="list_create">
+                                <properties>
+                                    <property name="viewId" value="WarehouseTransaction.adjustmentDetail"/>
+                                </properties>
+                            </action>
+                            <action id="editAction" type="list_edit">
+                                <properties>
+                                    <property name="viewId" value="WarehouseTransaction.adjustmentDetail"/>
+                                </properties>
+                            </action>
+                            <action id="readAction" type="list_read">
+                                <properties>
+                                    <property name="viewId" value="WarehouseTransaction.adjustmentDetail"/>
+                                </properties>
+                            </action>
+                            <action id="refreshAction" type="list_refresh"/>
+                        </actions>
+                        <columns resizable="true">
+                            <column property="documentNo" header="Số phiếu" sortable="true"/>
+                            <column property="sourceWarehouse" header="Kho" sortable="true"/>
+                            <column property="adjustmentDirection" header="Chiều điều chỉnh" sortable="true"/>
+                            <column property="documentDate" header="Ngày chứng từ" sortable="true"/>
+                            <column property="status" header="Trạng thái" sortable="true"/>
+                            <column property="reason" header="Lý do"/>
+                        </columns>
+                    </dataGrid>
+                </vbox>
+            </tab>
+        </tabSheet>
+    </layout>
+</view>

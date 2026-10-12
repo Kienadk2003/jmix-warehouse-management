@@ -15,11 +15,9 @@
     </menu>
 
     <menu id="operations" title="Nghiệp vụ kho" opened="true">
-        <item view="ImportReceipt.list" title="Nhập kho"/>
-        <item view="WarehouseTransaction.exportList" title="Xuất kho"/>
+        <item view="WarehouseTransaction.importExportList" title="Nhập – Xuất kho"/>
         <item view="WarehouseTransaction.transferList" title="Chuyển kho"/>
-        <item view="Stocktake.list" title="Kiểm kho"/>
-        <item view="WarehouseTransaction.adjustmentList" title="Điều chỉnh tồn"/>
+        <item view="WarehouseTransaction.stocktakeAdjustmentList" title="Kiểm kê &amp; điều chỉnh"/>
     </menu>
 
     <menu id="reports" title="Báo cáo" opened="true">
