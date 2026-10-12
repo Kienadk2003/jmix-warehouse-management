@@ -3,20 +3,20 @@ package com.company.warehousemanagement.view.transfer;
 import com.company.warehousemanagement.entity.WarehouseTransaction;
 import com.company.warehousemanagement.entity.WarehouseTransactionStatus;
 import com.company.warehousemanagement.exception.WarehouseBusinessException;
+import com.company.warehousemanagement.security.WarehouseAuthorizationService;
+import com.company.warehousemanagement.security.WarehousePermissions;
 import com.company.warehousemanagement.service.ReversalService;
 import com.company.warehousemanagement.service.TransferIssueService;
 import com.company.warehousemanagement.service.TransferPostingService;
 import com.company.warehousemanagement.service.WarehouseTransactionWorkflowService;
-import com.company.warehousemanagement.security.WarehouseAuthorizationService;
-import com.company.warehousemanagement.security.WarehousePermissions;
 import com.company.warehousemanagement.view.main.MainView;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.router.Route;
 import io.jmix.core.EntityStates;
 import io.jmix.flowui.component.textfield.TypedTextField;
@@ -31,21 +31,17 @@ import io.jmix.flowui.view.View.BeforeShowEvent;
 import io.jmix.flowui.view.ViewComponent;
 import io.jmix.flowui.view.ViewController;
 import io.jmix.flowui.view.ViewDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Route(
-        value = "transfers/:id",
-        layout = MainView.class
-)
-@ViewController(
-        id = "WarehouseTransaction.transferDetail"
-)
-@ViewDescriptor(
-        path = "transfer-detail-view.xml"
-)
+@Route(value = "transfers/:id", layout = MainView.class)
+@ViewController(id = "WarehouseTransaction.transferDetail")
+@ViewDescriptor(path = "transfer-detail-view.xml")
 @EditedEntityContainer("warehouseTransactionDc")
-public class TransferDetailView
-        extends StandardDetailView<WarehouseTransaction> {
+public class TransferDetailView extends StandardDetailView<WarehouseTransaction> {
+
+    private static final Logger log = LoggerFactory.getLogger(TransferDetailView.class);
 
     @Autowired
     private com.company.warehousemanagement.view.document.TransactionDocumentsPanel documentsPanel;
@@ -71,6 +67,9 @@ public class TransferDetailView
     private WarehouseAuthorizationService authorizationService;
 
     @ViewComponent
+    private JmixButton saveDraftButton;
+
+    @ViewComponent
     private JmixButton submitButton;
 
     @ViewComponent
@@ -81,8 +80,6 @@ public class TransferDetailView
 
     @ViewComponent
     private JmixButton postButton;
-
-    private boolean workflowActionInProgress;
 
     @ViewComponent
     private JmixButton reverseButton;
@@ -102,49 +99,22 @@ public class TransferDetailView
     @ViewComponent
     private JmixButton removeItemButton;
 
-
-    /*
-     * ============================================================
-     * INIT ENTITY
-     * ============================================================
-     */
+    private boolean workflowActionInProgress;
 
     @Subscribe
-    public void onInitEntity(
-            final InitEntityEvent<WarehouseTransaction> event) {
-
-        transferIssueService.prepareNewDraft(
-                event.getEntity()
-        );
+    public void onInitEntity(InitEntityEvent<WarehouseTransaction> event) {
+        transferIssueService.prepareNewDraft(event.getEntity());
     }
 
-
-    /*
-     * ============================================================
-     * BEFORE SHOW
-     * ============================================================
-     */
-
     @Subscribe
-    public void onBeforeShow(
-            final BeforeShowEvent event) {
+    public void onBeforeShow(BeforeShowEvent event) {
         refreshActions();
     }
 
-
-    /*
-     * ============================================================
-     * VALIDATION
-     * ============================================================
-     */
-
     @Subscribe
-    public void onValidation(
-            final ValidationEvent event) {
-
+    public void onValidation(ValidationEvent event) {
         WarehouseTransaction transaction = getEditedEntity();
-        if (transaction == null
-                || transaction.getStatus() != WarehouseTransactionStatus.DRAFT) {
+        if (transaction == null || transaction.getStatus() != WarehouseTransactionStatus.DRAFT) {
             return;
         }
 
@@ -155,31 +125,46 @@ public class TransferDetailView
         }
     }
 
-
-    /*
-     * ============================================================
-     * SUBMIT / APPROVE / REJECT
-     * ============================================================
-     */
-
-    @Subscribe(
-            id = "submitButton",
-            subject = "clickListener"
-    )
-    public void onSubmitButtonClick(ClickEvent<JmixButton> event) {
+    /** Save a draft and remain on this screen. */
+    @Subscribe("saveDraftButton")
+    public void onSaveDraftButtonClick(ClickEvent<JmixButton> event) {
         WarehouseTransaction current = getEditedEntity();
-        if (current == null || entityStates.isNew(current) || current.getId() == null) {
-            Notification.show("LÃ†Â°u phiÃ¡ÂºÂ¿u chuyÃ¡Â»Æ’n kho trÃ†Â°Ã¡Â»â€ºc khi gÃ¡Â»Â­i duyÃ¡Â»â€¡t", 4500, Position.TOP_END);
+        if (current == null || current.getStatus() != WarehouseTransactionStatus.DRAFT) {
+            showError("Chỉ có thể lưu nháp khi phiếu ở trạng thái DRAFT.");
             return;
         }
-        if (current.getStatus() != WarehouseTransactionStatus.DRAFT) {
-            Notification.show("ChÃ¡Â»â€° phiÃ¡ÂºÂ¿u DRAFT mÃ¡Â»â€ºi Ã„â€˜Ã†Â°Ã¡Â»Â£c gÃ¡Â»Â­i duyÃ¡Â»â€¡t", 4500, Position.TOP_END);
+
+        workflowActionInProgress = true;
+        saveDraftButton.setEnabled(false);
+        setShowSaveNotification(false);
+
+        save()
+                .then(() -> {
+                    setShowSaveNotification(true);
+                    workflowActionInProgress = false;
+                    refreshActions();
+                    Notification.show("Đã lưu nháp phiếu chuyển kho", 2500, Position.TOP_END);
+                })
+                .otherwise(() -> {
+                    setShowSaveNotification(true);
+                    workflowActionInProgress = false;
+                    refreshActions();
+                });
+    }
+
+    @Subscribe(id = "submitButton", subject = "clickListener")
+    public void onSubmitButtonClick(ClickEvent<JmixButton> event) {
+        WarehouseTransaction current = getEditedEntity();
+        if (current == null || current.getStatus() != WarehouseTransactionStatus.DRAFT) {
+            showError("Chỉ phiếu DRAFT mới được gửi duyệt.");
             return;
         }
 
         workflowActionInProgress = true;
         submitButton.setEnabled(false);
         setShowSaveNotification(false);
+
+        // Persist edits first; save() keeps the current detail view open.
         save()
                 .then(() -> {
                     setShowSaveNotification(true);
@@ -188,7 +173,7 @@ public class TransferDetailView
                 .otherwise(() -> {
                     workflowActionInProgress = false;
                     setShowSaveNotification(true);
-                    submitButton.setEnabled(true);
+                    refreshActions();
                 });
     }
 
@@ -196,95 +181,110 @@ public class TransferDetailView
         WarehouseTransaction current = getEditedEntity();
         if (current == null || current.getId() == null) {
             workflowActionInProgress = false;
-            submitButton.setEnabled(true);
-            Notification.show("KhÃƒÂ´ng tÃƒÂ¬m thÃ¡ÂºÂ¥y phiÃ¡ÂºÂ¿u chuyÃ¡Â»Æ’n kho Ã„â€˜ÃƒÂ£ lÃ†Â°u", 4500, Position.TOP_END);
+            refreshActions();
+            showError("Không tìm thấy phiếu chuyển kho đã lưu.");
             return;
         }
 
         try {
             WarehouseTransaction submitted = workflowService.submit(current.getId());
             current.setStatus(submitted.getStatus());
+            clearChanges();
             workflowActionInProgress = false;
             refreshActions();
-            Notification.show("Ã„ï¿½ÃƒÂ£ gÃ¡Â»Â­i phiÃ¡ÂºÂ¿u chuyÃ¡Â»Æ’n kho Ã„â€˜Ã¡Â»Æ’ chÃ¡Â»ï¿½ duyÃ¡Â»â€¡t", 3000, Position.TOP_END);
+            Notification.show("Đã gửi phiếu chuyển kho để chờ duyệt", 3000, Position.TOP_END);
         } catch (WarehouseBusinessException e) {
             workflowActionInProgress = false;
             refreshActions();
-            Notification.show(e.getMessage(), 4500, Position.TOP_END);
+            log.warn("Business error while submitting transfer id={}", current.getId(), e);
+            showError(e.getMessage());
+        } catch (Exception e) {
+            workflowActionInProgress = false;
+            refreshActions();
+            log.error("Unexpected error while submitting transfer id={}", current.getId(), e);
+            showError("Không thể gửi duyệt phiếu chuyển kho. Hãy kiểm tra log ứng dụng.");
         }
     }
 
-    @Subscribe(
-            id = "approveButton",
-            subject = "clickListener"
-    )
+    @Subscribe(id = "approveButton", subject = "clickListener")
     public void onApproveButtonClick(ClickEvent<JmixButton> event) {
         WarehouseTransaction current = getEditedEntity();
         if (current == null || current.getId() == null) {
-            Notification.show("KhÃƒÂ´ng tÃƒÂ¬m thÃ¡ÂºÂ¥y phiÃ¡ÂºÂ¿u chuyÃ¡Â»Æ’n kho", 4500, Position.TOP_END);
+            showError("Không tìm thấy phiếu chuyển kho đã lưu.");
             return;
         }
         if (current.getStatus() != WarehouseTransactionStatus.PENDING_APPROVAL) {
-            Notification.show("ChÃ¡Â»â€° phiÃ¡ÂºÂ¿u Ã„â€˜ang chÃ¡Â»ï¿½ duyÃ¡Â»â€¡t mÃ¡Â»â€ºi Ã„â€˜Ã†Â°Ã¡Â»Â£c duyÃ¡Â»â€¡t", 4500, Position.TOP_END);
+            showError("Chỉ phiếu đang chờ duyệt mới được duyệt.");
             return;
         }
 
+        approveButton.setEnabled(false);
         try {
             WarehouseTransaction approved = workflowService.approve(current.getId());
             current.setStatus(approved.getStatus());
+            clearChanges();
             refreshActions();
-            Notification.show("Ã„ï¿½ÃƒÂ£ duyÃ¡Â»â€¡t phiÃ¡ÂºÂ¿u chuyÃ¡Â»Æ’n kho", 3000, Position.TOP_END);
+            Notification.show("Đã duyệt phiếu chuyển kho. Bạn có thể POST ngay tại đây.", 3500, Position.TOP_END);
         } catch (WarehouseBusinessException e) {
-            Notification.show(e.getMessage(), 4500, Position.TOP_END);
+            log.warn("Business error while approving transfer id={}", current.getId(), e);
+            refreshActions();
+            showError(e.getMessage());
+        } catch (Exception e) {
+            log.error("Unexpected error while approving transfer id={}", current.getId(), e);
+            refreshActions();
+            showError("Duyệt phiếu chuyển kho thất bại. Hãy kiểm tra log ứng dụng.");
         }
     }
 
-    @Subscribe(
-            id = "rejectButton",
-            subject = "clickListener"
-    )
+    @Subscribe(id = "rejectButton", subject = "clickListener")
     public void onRejectButtonClick(ClickEvent<JmixButton> event) {
         WarehouseTransaction current = getEditedEntity();
         if (current == null || current.getId() == null) {
-            Notification.show("KhÃƒÂ´ng tÃƒÂ¬m thÃ¡ÂºÂ¥y phiÃ¡ÂºÂ¿u chuyÃ¡Â»Æ’n kho", 4500, Position.TOP_END);
+            showError("Không tìm thấy phiếu chuyển kho đã lưu.");
             return;
         }
         if (current.getStatus() != WarehouseTransactionStatus.PENDING_APPROVAL) {
-            Notification.show("ChÃ¡Â»â€° phiÃ¡ÂºÂ¿u Ã„â€˜ang chÃ¡Â»ï¿½ duyÃ¡Â»â€¡t mÃ¡Â»â€ºi Ã„â€˜Ã†Â°Ã¡Â»Â£c tÃ¡Â»Â« chÃ¡Â»â€˜i", 4500, Position.TOP_END);
+            showError("Chỉ phiếu đang chờ duyệt mới được từ chối.");
             return;
         }
 
         Dialog dialog = new Dialog();
-        dialog.setHeaderTitle("TÃ¡Â»Â« chÃ¡Â»â€˜i phiÃ¡ÂºÂ¿u chuyÃ¡Â»Æ’n kho");
+        dialog.setHeaderTitle("Từ chối phiếu chuyển kho");
         dialog.setWidth("450px");
 
-        TextArea reasonField = new TextArea("LÃƒÂ½ do tÃ¡Â»Â« chÃ¡Â»â€˜i");
+        TextArea reasonField = new TextArea("Lý do từ chối");
         reasonField.setWidthFull();
         reasonField.setRequired(true);
         reasonField.setMaxLength(1000);
-        reasonField.setPlaceholder("NhÃ¡ÂºÂ­p lÃƒÂ½ do tÃ¡Â»Â« chÃ¡Â»â€˜i...");
+        reasonField.setPlaceholder("Nhập lý do từ chối...");
 
-        Button cancelButton = new Button("HÃ¡Â»Â§y", e -> dialog.close());
-        Button confirmButton = new Button("XÃƒÂ¡c nhÃ¡ÂºÂ­n tÃ¡Â»Â« chÃ¡Â»â€˜i");
+        Button cancelButton = new Button("Hủy", e -> dialog.close());
+        Button confirmButton = new Button("Xác nhận từ chối");
         confirmButton.addClickListener(e -> {
             String reason = reasonField.getValue();
             if (reason == null || reason.isBlank()) {
-                Notification.show("Vui lÃƒÂ²ng nhÃ¡ÂºÂ­p lÃƒÂ½ do tÃ¡Â»Â« chÃ¡Â»â€˜i.", 4500, Position.TOP_END);
+                reasonField.setInvalid(true);
+                reasonField.setErrorMessage("Vui lòng nhập lý do từ chối.");
                 return;
             }
 
             confirmButton.setEnabled(false);
             try {
-                WarehouseTransaction rejected =
-                        workflowService.reject(current.getId(), reason);
+                WarehouseTransaction rejected = workflowService.reject(current.getId(), reason.trim());
                 current.setReason(rejected.getReason());
                 current.setStatus(rejected.getStatus());
                 dialog.close();
+                clearChanges();
                 refreshActions();
-                Notification.show("Ã„ï¿½ÃƒÂ£ tÃ¡Â»Â« chÃ¡Â»â€˜i phiÃ¡ÂºÂ¿u chuyÃ¡Â»Æ’n kho", 3000, Position.TOP_END);
+                Notification.show("Đã từ chối phiếu chuyển kho", 3000, Position.TOP_END);
             } catch (WarehouseBusinessException ex) {
                 confirmButton.setEnabled(true);
-                Notification.show(ex.getMessage(), 4500, Position.TOP_END);
+                log.warn("Business error while rejecting transfer id={}", current.getId(), ex);
+                showError(ex.getMessage());
+            } catch (Exception ex) {
+                confirmButton.setEnabled(true);
+                log.error("Unexpected error while rejecting transfer id={}", current.getId(), ex);
+                showError("Không thể từ chối phiếu chuyển kho. Hãy kiểm tra log ứng dụng.");
             }
         });
 
@@ -293,215 +293,85 @@ public class TransferDetailView
         dialog.open();
     }
 
-
-    /*
-     * ============================================================
-     * POST TRANSFER
-     * ============================================================
-     */
-
-    @Subscribe(
-            id = "postButton",
-            subject = "clickListener"
-    )
-    public void onPostButtonClick(
-            final ClickEvent<JmixButton> event) {
-
+    @Subscribe(id = "postButton", subject = "clickListener")
+    public void onPostButtonClick(ClickEvent<JmixButton> event) {
         WarehouseTransaction current = getEditedEntity();
         if (current == null || current.getId() == null) {
-            Notification.show("KhÃƒÂ´ng tÃƒÂ¬m thÃ¡ÂºÂ¥y phiÃ¡ÂºÂ¿u chuyÃ¡Â»Æ’n kho", 4500, Position.TOP_END);
+            showError("Không tìm thấy phiếu chuyển kho đã lưu.");
             return;
         }
         if (current.getStatus() != WarehouseTransactionStatus.APPROVED) {
-            Notification.show("ChÃ¡Â»â€° phiÃ¡ÂºÂ¿u APPROVED mÃ¡Â»â€ºi Ã„â€˜Ã†Â°Ã¡Â»Â£c POST", 4500, Position.TOP_END);
+            showError("Chỉ phiếu APPROVED mới được POST.");
             return;
         }
-        // PhiÃ¡ÂºÂ¿u APPROVED Ã„â€˜ÃƒÂ£ Ã„â€˜Ã†Â°Ã¡Â»Â£c lÃ†Â°u tÃ¡Â»Â« cÃƒÂ¡c bÃ†Â°Ã¡Â»â€ºc trÃ†Â°Ã¡Â»â€ºc, khÃƒÂ´ng gÃ¡Â»ï¿½i save()
-        // vÃƒÂ¬ validation DRAFT khÃƒÂ´ng ÃƒÂ¡p dÃ¡Â»Â¥ng cho trÃ¡ÂºÂ¡ng thÃƒÂ¡i APPROVED.
+
+        postButton.setEnabled(false);
         postSavedTransfer();
     }
 
     private void postSavedTransfer() {
         WarehouseTransaction current = getEditedEntity();
-
         if (current == null || current.getId() == null) {
-            postButton.setEnabled(true);
-            Notification.show(
-                    "KhÃƒÂ´ng thÃ¡Â»Æ’ lÃ†Â°u phiÃ¡ÂºÂ¿u chuyÃ¡Â»Æ’n kho trÃ†Â°Ã¡Â»â€ºc khi POST",
-                    5000,
-                    Position.TOP_END
-            );
+            refreshActions();
+            showError("Không thể POST khi phiếu chuyển kho chưa được lưu.");
             return;
         }
 
         try {
-
-            WarehouseTransaction posted =
-                    transferPostingService.postTransfer(
-                            current.getId()
-                    );
-
-            /*
-             * Ã„ï¿½Ã¡Â»â€œng bÃ¡Â»â„¢ entity trÃƒÂªn UI.
-             */
-            current.setStatus(
-                    WarehouseTransactionStatus.POSTED
-            );
-
-            current.setPostedAt(
-                    posted.getPostedAt()
-            );
-
-            current.setPostedBy(
-                    posted.getPostedBy()
-            );
-
-            updateStatusLabel(current);
+            WarehouseTransaction posted = transferPostingService.postTransfer(current.getId());
+            current.setStatus(WarehouseTransactionStatus.POSTED);
+            current.setPostedAt(posted.getPostedAt());
+            current.setPostedBy(posted.getPostedBy());
+            clearChanges();
             refreshActions();
-
-            Notification.show(
-                    "POST transfer thÃƒÂ nh cÃƒÂ´ng",
-                    3000,
-                    Position.TOP_END
-            );
-
-            getUI().ifPresent(ui ->
-                    ui.navigate(TransferListView.class)
-            );
-
+            Notification.show("POST phiếu chuyển kho thành công. Tồn kho hai kho đã được cập nhật.", 3500, Position.TOP_END);
+            // Deliberately stay on this detail screen, matching the export workflow.
         } catch (WarehouseBusinessException e) {
-
-            postButton.setEnabled(true);
-
-            Notification.show(
-                    e.getMessage(),
-                    5000,
-                    Position.TOP_END
-            );
+            log.warn("Business error while posting transfer id={}", current.getId(), e);
+            refreshActions();
+            showError(e.getMessage());
+        } catch (Exception e) {
+            log.error("Unexpected/access-control error while posting transfer id={}", current.getId(), e);
+            refreshActions();
+            showError("POST phiếu chuyển kho thất bại. Hãy kiểm tra log ứng dụng.");
         }
     }
 
-
-    /*
-     * ============================================================
-     * REVERSE TRANSFER
-     * ============================================================
-     */
-
-    @Subscribe(
-            id = "reverseButton",
-            subject = "clickListener"
-    )
-    public void onReverseButtonClick(
-            final ClickEvent<JmixButton> event) {
-
-        WarehouseTransaction current =
-                getEditedEntity();
-
-        /*
-         * PhiÃ¡ÂºÂ¿u phÃ¡ÂºÂ£i tÃ¡Â»â€œn tÃ¡ÂºÂ¡i vÃƒÂ  Ã„â€˜ÃƒÂ£ Ã„â€˜Ã†Â°Ã¡Â»Â£c lÃ†Â°u.
-         */
-        if (current == null) {
-
-            Notification.show(
-                    "KhÃƒÂ´ng tÃƒÂ¬m thÃ¡ÂºÂ¥y phiÃ¡ÂºÂ¿u chuyÃ¡Â»Æ’n",
-                    5000,
-                    Position.TOP_END
-            );
-
+    @Subscribe(id = "reverseButton", subject = "clickListener")
+    public void onReverseButtonClick(ClickEvent<JmixButton> event) {
+        WarehouseTransaction current = getEditedEntity();
+        if (current == null || current.getId() == null || entityStates.isNew(current)) {
+            showError("Không tìm thấy phiếu chuyển kho đã lưu.");
             return;
         }
-
-        if (current.getId() == null
-                || entityStates.isNew(current)) {
-
-            Notification.show(
-                    "PhiÃ¡ÂºÂ¿u chÃ†Â°a Ã„â€˜Ã†Â°Ã¡Â»Â£c lÃ†Â°u",
-                    5000,
-                    Position.TOP_END
-            );
-
-            return;
-        }
-
-        /*
-         * ChÃ¡Â»â€° POSTED mÃ¡Â»â€ºi Ã„â€˜Ã†Â°Ã¡Â»Â£c Reverse.
-         */
-        if (current.getStatus()
-                != WarehouseTransactionStatus.POSTED) {
-
-            Notification.show(
-                    "ChÃ¡Â»â€° phiÃ¡ÂºÂ¿u POSTED mÃ¡Â»â€ºi Ã„â€˜Ã†Â°Ã¡Â»Â£c phÃƒÂ©p Reverse",
-                    5000,
-                    Position.TOP_END
-            );
-
+        if (current.getStatus() != WarehouseTransactionStatus.POSTED) {
+            showError("Chỉ phiếu POSTED mới được phép đảo.");
             return;
         }
 
         try {
-
-            WarehouseTransaction reversal =
-                    reversalService.reverse(
-                            current.getId()
-                    );
-
-            /*
-             * Ã„ï¿½Ã¡Â»â€¢i trÃ¡ÂºÂ¡ng thÃƒÂ¡i transaction gÃ¡Â»â€˜c
-             * trÃƒÂªn UI.
-             */
-            current.setStatus(
-                    WarehouseTransactionStatus.REVERSED
-            );
-
-            updateStatusLabel(current);
+            WarehouseTransaction reversal = reversalService.reverse(current.getId());
+            current.setStatus(WarehouseTransactionStatus.REVERSED);
+            clearChanges();
             refreshActions();
-
-            Notification.show(
-                    "Reverse transfer thÃƒÂ nh cÃƒÂ´ng. "
-                            + "PhiÃ¡ÂºÂ¿u reversal: "
-                            + reversal.getDocumentNo(),
-                    5000,
-                    Position.TOP_END
-            );
-
+            Notification.show("Đảo phiếu chuyển kho thành công. Phiếu đảo: " + reversal.getDocumentNo(), 4500, Position.TOP_END);
         } catch (WarehouseBusinessException e) {
-
-            Notification.show(
-                    e.getMessage(),
-                    5000,
-                    Position.TOP_END
-            );
+            log.warn("Business error while reversing transfer id={}", current.getId(), e);
+            showError(e.getMessage());
+        } catch (Exception e) {
+            log.error("Unexpected error while reversing transfer id={}", current.getId(), e);
+            showError("Không thể đảo phiếu chuyển kho. Hãy kiểm tra log ứng dụng.");
         }
     }
-
-
-    /*
-     * ============================================================
-     * AFTER SAVE
-     * ============================================================
-     */
 
     @Subscribe
-    public void onAfterSave(
-            final AfterSaveEvent event) {
+    public void onAfterSave(AfterSaveEvent event) {
         refreshActions();
-
-        if (!workflowActionInProgress) {
-            Notification.show(
-                    "Ã„ï¿½ÃƒÂ£ lÃ†Â°u phiÃ¡ÂºÂ¿u chuyÃ¡Â»Æ’n kho",
-                    2500,
-                    Position.TOP_END
-            );
+        if (!workflowActionInProgress && getEditedEntity() != null
+                && getEditedEntity().getStatus() == WarehouseTransactionStatus.DRAFT) {
+            Notification.show("Đã lưu phiếu chuyển kho", 2500, Position.TOP_END);
         }
     }
-
-
-    /*
-     * ============================================================
-     * ACTIONS AND STATUS LABEL
-     * ============================================================
-     */
 
     private void refreshActions() {
         documentsPanel.show(documentsHost, getEditedEntity());
@@ -510,30 +380,26 @@ public class TransferDetailView
             return;
         }
 
-        boolean saved = !entityStates.isNew(transaction) && transaction.getId() != null;
+        boolean saved = transaction.getId() != null && !entityStates.isNew(transaction);
         WarehouseTransactionStatus status = transaction.getStatus();
         boolean draft = status == WarehouseTransactionStatus.DRAFT;
         boolean pending = status == WarehouseTransactionStatus.PENDING_APPROVAL;
         boolean approved = status == WarehouseTransactionStatus.APPROVED;
         boolean posted = status == WarehouseTransactionStatus.POSTED;
 
-        boolean editable = draft
-                && authorizationService.isAllowed(WarehousePermissions.EDIT_DRAFT);
-        boolean canSubmit = draft
-                && authorizationService.isAllowed(WarehousePermissions.SUBMIT);
-        boolean canApprove = pending
-                && authorizationService.isAllowed(WarehousePermissions.APPROVE);
-        boolean canReject = pending
-                && authorizationService.isAllowed(WarehousePermissions.REJECT);
-        boolean canPost = approved
-                && authorizationService.isAllowed(WarehousePermissions.POST);
-        boolean canReverse = saved
-                && posted
-                && transaction.getReversalOf() == null
+        boolean editable = draft && authorizationService.isAllowed(WarehousePermissions.EDIT_DRAFT);
+        boolean canSubmit = draft && authorizationService.isAllowed(WarehousePermissions.SUBMIT);
+        boolean canApprove = pending && authorizationService.isAllowed(WarehousePermissions.APPROVE);
+        boolean canReject = pending && authorizationService.isAllowed(WarehousePermissions.REJECT);
+        boolean canPost = approved && authorizationService.isAllowed(WarehousePermissions.POST);
+        boolean canReverse = saved && posted && transaction.getReversalOf() == null
                 && authorizationService.isAllowed(WarehousePermissions.REVERSE);
 
         setReadOnly(!editable);
         documentNoField.setReadOnly(true);
+
+        saveDraftButton.setVisible(editable);
+        saveDraftButton.setEnabled(editable && !workflowActionInProgress);
         addItemButton.setVisible(editable);
         editItemButton.setVisible(editable);
         removeItemButton.setVisible(editable);
@@ -541,20 +407,23 @@ public class TransferDetailView
         submitButton.setVisible(saved && canSubmit);
         submitButton.setEnabled(saved && canSubmit && !workflowActionInProgress);
         approveButton.setVisible(saved && canApprove);
-        approveButton.setEnabled(saved && canApprove);
+        approveButton.setEnabled(saved && canApprove && !workflowActionInProgress);
         rejectButton.setVisible(saved && canReject);
-        rejectButton.setEnabled(saved && canReject);
+        rejectButton.setEnabled(saved && canReject && !workflowActionInProgress);
         postButton.setVisible(saved && canPost);
-        postButton.setEnabled(saved && canPost);
+        postButton.setEnabled(saved && canPost && !workflowActionInProgress);
         reverseButton.setVisible(canReverse);
-        reverseButton.setEnabled(canReverse);
+        reverseButton.setEnabled(canReverse && !workflowActionInProgress);
 
         updateStatusLabel(transaction);
     }
 
-    private void updateStatusLabel(
-            WarehouseTransaction transaction) {
+    private void updateStatusLabel(WarehouseTransaction transaction) {
         WarehouseTransactionStatus status = transaction.getStatus();
         statusLabel.setText(status != null ? status.getId() : "-");
+    }
+
+    private void showError(String message) {
+        Notification.show(message, 4500, Position.TOP_END);
     }
 }

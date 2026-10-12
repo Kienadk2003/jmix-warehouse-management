@@ -8,7 +8,6 @@ import com.company.warehousemanagement.security.WarehousePermissions;
 import com.company.warehousemanagement.service.ExportIssueService;
 import com.company.warehousemanagement.service.ExportPostingService;
 import com.company.warehousemanagement.service.ReversalService;
-import com.company.warehousemanagement.service.WarehouseTransactionEmailService;
 import com.company.warehousemanagement.service.WarehouseTransactionWorkflowService;
 import com.company.warehousemanagement.view.main.MainView;
 import com.vaadin.flow.component.ClickEvent;
@@ -46,18 +45,10 @@ public class ExportDetailView extends StandardDetailView<WarehouseTransaction> {
     private static final Logger log = LoggerFactory.getLogger(ExportDetailView.class);
 
     @Autowired
-    private com.company.warehousemanagement.view.document.TransactionDocumentsPanel documentsPanel;
-    @ViewComponent
-    private com.vaadin.flow.component.orderedlayout.VerticalLayout documentsHost;
-
-    @Autowired
     private ExportIssueService exportIssueService;
 
     @Autowired
     private ExportPostingService exportPostingService;
-
-    @Autowired
-    private WarehouseTransactionEmailService emailService;
 
     @Autowired
     private ReversalService reversalService;
@@ -71,8 +62,17 @@ public class ExportDetailView extends StandardDetailView<WarehouseTransaction> {
     @Autowired
     private WarehouseAuthorizationService authorizationService;
 
+    @Autowired
+    private com.company.warehousemanagement.view.document.TransactionDocumentsPanel documentsPanel;
+
+    @ViewComponent
+    private com.vaadin.flow.component.orderedlayout.VerticalLayout documentsHost;
+
     @ViewComponent
     private JmixButton reverseButton;
+
+    @ViewComponent
+    private JmixButton saveDraftButton;
 
     @ViewComponent
     private Span statusLabel;
@@ -100,6 +100,8 @@ public class ExportDetailView extends StandardDetailView<WarehouseTransaction> {
 
     @ViewComponent
     private JmixButton rejectButton;
+
+    private boolean workflowActionInProgress;
 
     @Subscribe
     public void onInitEntity(final InitEntityEvent<WarehouseTransaction> event) {
@@ -129,14 +131,8 @@ public class ExportDetailView extends StandardDetailView<WarehouseTransaction> {
             WarehouseTransaction reversal = reversalService.reverse(current.getId());
 
             current.setStatus(WarehouseTransactionStatus.REVERSED);
-            updateStatusLabel(current);
-            setReadOnly(true);
-
-            addItemButton.setVisible(false);
-            editItemButton.setVisible(false);
-            removeItemButton.setVisible(false);
-            postButton.setVisible(false);
-            reverseButton.setVisible(false);
+            updateActionVisibility(current);
+            clearChanges();
 
             Notification.show(
                     "Reverse phiếu xuất thành công. Phiếu reversal: " + reversal.getDocumentNo(),
@@ -163,8 +159,13 @@ public class ExportDetailView extends StandardDetailView<WarehouseTransaction> {
 
     @Subscribe
     public void onValidation(final ValidationEvent event) {
+        WarehouseTransaction transaction = getEditedEntity();
+        if (transaction == null || transaction.getStatus() != WarehouseTransactionStatus.DRAFT) {
+            return;
+        }
+
         try {
-            exportIssueService.validateDraft(getEditedEntity());
+            exportIssueService.validateDraft(transaction);
         } catch (WarehouseBusinessException e) {
             event.getErrors().add(e.getMessage());
         }
@@ -175,6 +176,9 @@ public class ExportDetailView extends StandardDetailView<WarehouseTransaction> {
         WarehouseTransaction transaction = getEditedEntity();
         if (transaction != null) {
             updateActionVisibility(transaction);
+            if (!workflowActionInProgress && transaction.getStatus() == WarehouseTransactionStatus.DRAFT) {
+                Notification.show("Đã lưu nháp phiếu xuất", 2500, Position.TOP_END);
+            }
         }
     }
 
@@ -190,17 +194,20 @@ public class ExportDetailView extends StandardDetailView<WarehouseTransaction> {
             return;
         }
 
+        workflowActionInProgress = true;
         submitButton.setEnabled(false);
         setShowSaveNotification(false);
 
+        // save() validates and persists, but unlike detail_saveClose it does not leave this view.
         save()
                 .then(() -> {
                     setShowSaveNotification(true);
                     submitSavedExport();
                 })
                 .otherwise(() -> {
+                    workflowActionInProgress = false;
                     setShowSaveNotification(true);
-                    submitButton.setEnabled(true);
+                    updateActionVisibility(getEditedEntity());
                 });
     }
 
@@ -214,15 +221,20 @@ public class ExportDetailView extends StandardDetailView<WarehouseTransaction> {
 
         try {
             workflowService.submit(current.getId());
+            current.setStatus(WarehouseTransactionStatus.PENDING_APPROVAL);
+            workflowActionInProgress = false;
+            updateActionVisibility(current);
+            clearChanges();
             Notification.show("Đã gửi phiếu xuất để Manager duyệt", 3000, Position.TOP_END);
-            getUI().ifPresent(ui -> ui.navigate(ExportListView.class));
         } catch (WarehouseBusinessException e) {
+            workflowActionInProgress = false;
             log.warn("Business error while submitting export transaction id={}", current.getId(), e);
-            submitButton.setEnabled(true);
+            updateActionVisibility(current);
             Notification.show(e.getMessage(), 5000, Position.TOP_END);
         } catch (Exception e) {
+            workflowActionInProgress = false;
             log.error("Unexpected error while submitting export transaction id={}", current.getId(), e);
-            submitButton.setEnabled(true);
+            updateActionVisibility(current);
             Notification.show("Không thể gửi duyệt phiếu. Hãy kiểm tra log ứng dụng.", 5000, Position.TOP_END);
         }
     }
@@ -243,10 +255,12 @@ public class ExportDetailView extends StandardDetailView<WarehouseTransaction> {
             log.info("Permission check: warehouse.transaction.approve allowed={}", approveAllowed);
 
             workflowService.approve(current.getId());
+            current.setStatus(WarehouseTransactionStatus.APPROVED);
+            updateActionVisibility(current);
+            clearChanges();
 
             log.info("Approve completed successfully for export transaction id={}", current.getId());
-            Notification.show("Đã duyệt phiếu xuất. Hãy mở lại phiếu để ghi sổ", 4000, Position.TOP_END);
-            getUI().ifPresent(ui -> ui.navigate(ExportListView.class));
+            Notification.show("Đã duyệt phiếu xuất. Bạn có thể POST ngay tại đây", 4000, Position.TOP_END);
         } catch (WarehouseBusinessException e) {
             log.error("Business error while approving export transaction id={}", current.getId(), e);
             Notification.show(e.getMessage(), 5000, Position.TOP_END);
@@ -284,9 +298,12 @@ public class ExportDetailView extends StandardDetailView<WarehouseTransaction> {
 
             try {
                 workflowService.reject(current.getId(), reason.trim());
+                current.setReason(reason.trim());
+                current.setStatus(WarehouseTransactionStatus.REJECTED);
                 dialog.close();
+                updateActionVisibility(current);
+                clearChanges();
                 Notification.show("Đã từ chối phiếu xuất", 3000, Position.TOP_END);
-                getUI().ifPresent(ui -> ui.navigate(ExportListView.class));
             } catch (WarehouseBusinessException e) {
                 log.warn("Business error while rejecting export transaction id={}", current.getId(), e);
                 Notification.show(e.getMessage(), 5000, Position.TOP_END);
@@ -342,24 +359,10 @@ public class ExportDetailView extends StandardDetailView<WarehouseTransaction> {
                 current.setPostedBy(posted.getPostedBy());
             }
 
-            updateStatusLabel(current);
-            setReadOnly(true);
+            updateActionVisibility(current);
+            clearChanges();
 
-            addItemButton.setVisible(false);
-            editItemButton.setVisible(false);
-            removeItemButton.setVisible(false);
-            postButton.setVisible(false);
-
-            Notification.show(
-                    "POST phiếu xuất thành công. "
-                            + emailService.sendPostedNotification(posted.getId()).message(),
-                    5000,
-                    Position.TOP_END
-            );
-
-            getUI().ifPresent(ui ->
-                    ui.navigate(ExportListView.class)
-            );
+            Notification.show("POST phiếu xuất thành công. Phiếu đã hoàn tất", 3000, Position.TOP_END);
         } catch (WarehouseBusinessException e) {
             log.warn("Business error while posting export transaction id={}", current.getId(), e);
             postButton.setEnabled(true);
@@ -399,15 +402,22 @@ public class ExportDetailView extends StandardDetailView<WarehouseTransaction> {
         setReadOnly(!editable);
         documentNoField.setReadOnly(true);
 
+        saveDraftButton.setVisible(editable);
+        saveDraftButton.setEnabled(editable);
         addItemButton.setVisible(editable);
         editItemButton.setVisible(editable);
         removeItemButton.setVisible(editable);
 
         submitButton.setVisible(canSubmit);
+        submitButton.setEnabled(canSubmit);
         approveButton.setVisible(canApprove);
+        approveButton.setEnabled(canApprove);
         rejectButton.setVisible(canReject);
+        rejectButton.setEnabled(canReject);
         postButton.setVisible(canPost);
+        postButton.setEnabled(canPost);
         reverseButton.setVisible(canReverse);
+        reverseButton.setEnabled(canReverse);
     }
 
     private void updateStatusLabel(WarehouseTransaction transaction) {
