@@ -7,18 +7,19 @@ import com.company.warehousemanagement.entity.Product;
 import com.company.warehousemanagement.entity.ProductCategory;
 import com.company.warehousemanagement.entity.Stocktake;
 import com.company.warehousemanagement.entity.StocktakeItem;
+import com.company.warehousemanagement.entity.TransactionDocument;
 import com.company.warehousemanagement.entity.TransactionItem;
 import com.company.warehousemanagement.entity.Unit;
-import com.company.warehousemanagement.entity.UserWarehouse;
 import com.company.warehousemanagement.entity.Warehouse;
 import com.company.warehousemanagement.entity.WarehouseTransaction;
-import io.jmix.core.metamodel.annotation.JmixEntity;
+
 import io.jmix.security.model.EntityAttributePolicyAction;
 import io.jmix.security.model.EntityPolicyAction;
 import io.jmix.security.model.SecurityScope;
 import io.jmix.security.role.annotation.EntityAttributePolicy;
 import io.jmix.security.role.annotation.EntityPolicy;
 import io.jmix.security.role.annotation.ResourceRole;
+import io.jmix.security.role.annotation.SpecificPolicy;
 import io.jmix.securityflowui.role.annotation.MenuPolicy;
 import io.jmix.securityflowui.role.annotation.ViewPolicy;
 
@@ -32,48 +33,97 @@ public interface ViewerRole extends UiMinimalRole {
     String CODE = "warehouse-viewer";
 
     /*
-     * =========================
      * UI VIEWS
-     * =========================
+     *
+     * Viewer chỉ xem dữ liệu.
+     * Bổ sung các màn hình nghiệp vụ đã gộp:
+     * - Nhập / Xuất kho
+     * - Chuyển kho
+     * - Kiểm kê / Điều chỉnh
      */
-
     @ViewPolicy(viewIds = {
+            // Tra cứu tồn kho
             "Inventory.list",
             "Inventory.stockCard",
             "Inventory.report",
+
+            // Các màn hình nghiệp vụ mới
+            "WarehouseTransaction.importExportList",
+            "WarehouseTransaction.transferList",
+            "WarehouseTransaction.stocktakeAdjustmentList",
+
+            // Các màn hình cũ nếu vẫn còn sử dụng
             "ImportReceipt.list",
             "ImportReceipt.detail",
             "WarehouseTransaction.exportList",
-            "WarehouseTransaction.transferList",
+            "WarehouseTransaction.transferDetail",
             "WarehouseTransaction.adjustmentList",
             "WarehouseTransaction.exportDetail",
-            "WarehouseTransaction.transferDetail",
-            "WarehouseTransaction.adjustmentDetail"
-    })
-    @MenuPolicy(menuIds = {
-            "Inventory.list",
-            "Inventory.stockCard",
-            "Inventory.report",
-            "ImportReceipt.list",
-            "WarehouseTransaction.exportList",
-            "WarehouseTransaction.transferList",
-            "WarehouseTransaction.adjustmentList"
+            "WarehouseTransaction.adjustmentDetail",
+
+            // Kiểm kê
+            "Stocktake.list",
+            "Stocktake.detail"
     })
     void views();
 
-    @ViewPolicy(viewIds = {"Warehouse.reports", "Stocktake.list", "Stocktake.detail"})
-    @MenuPolicy(menuIds = {"Warehouse.reports", "Stocktake.list"})
+    /*
+     * MENU
+     *
+     * ID ở đây phải khớp với thuộc tính view
+     * của các item trong menu.xml.
+     *
+     * Không cấp menu Danh sách chờ duyệt cho Viewer.
+     */
+    @MenuPolicy(menuIds = {
+            // Tồn kho
+            "Inventory.list",
+            "Inventory.stockCard",
+            "Inventory.report",
+
+            // Nghiệp vụ kho - các màn hình đã gộp
+            "WarehouseTransaction.importExportList",
+            "WarehouseTransaction.transferList",
+            "WarehouseTransaction.stocktakeAdjustmentList",
+
+            // Báo cáo
+            "Warehouse.reports",
+            "Stocktake.list"
+    })
+    void menus();
+
+    /*
+     * REPORTS
+     */
+    @ViewPolicy(viewIds = {
+            "Warehouse.reports"
+    })
+    @MenuPolicy(menuIds = {
+            "Warehouse.reports"
+    })
     void reports();
 
-    @io.jmix.security.role.annotation.SpecificPolicy(resources = WarehousePermissions.VIEW_DOCUMENTS)
-    @EntityPolicy(entityClass = com.company.warehousemanagement.entity.TransactionDocument.class, actions = EntityPolicyAction.READ)
-    @EntityAttributePolicy(entityClass = com.company.warehousemanagement.entity.TransactionDocument.class, attributes = "*", action = EntityAttributePolicyAction.VIEW)
+    /*
+     * TRANSACTION DOCUMENTS
+     *
+     * Chỉ đọc chứng từ đính kèm nếu có quyền xem tài liệu.
+     */
+    @SpecificPolicy(
+            resources = WarehousePermissions.VIEW_DOCUMENTS
+    )
+    @EntityPolicy(
+            entityClass = TransactionDocument.class,
+            actions = EntityPolicyAction.READ
+    )
+    @EntityAttributePolicy(
+            entityClass = TransactionDocument.class,
+            attributes = "*",
+            action = EntityAttributePolicyAction.VIEW
+    )
     void documents();
 
     /*
-     * =========================
      * MASTER DATA - READ ONLY
-     * =========================
      */
 
     @EntityPolicy(
@@ -132,9 +182,7 @@ public interface ViewerRole extends UiMinimalRole {
     void warehouse();
 
     /*
-     * =========================
-     * INVENTORY / LEDGER - READ
-     * =========================
+     * INVENTORY / LEDGER - READ ONLY
      */
 
     @EntityPolicy(
@@ -160,9 +208,7 @@ public interface ViewerRole extends UiMinimalRole {
     void inventoryMovement();
 
     /*
-     * =========================
-     * TRANSACTIONS - READ
-     * =========================
+     * TRANSACTIONS - READ ONLY
      */
 
     @EntityPolicy(
@@ -188,9 +234,7 @@ public interface ViewerRole extends UiMinimalRole {
     void transactionItem();
 
     /*
-     * =========================
-     * STOCKTAKE - READ
-     * =========================
+     * STOCKTAKE - READ ONLY
      */
 
     @EntityPolicy(
