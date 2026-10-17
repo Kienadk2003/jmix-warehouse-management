@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS"
+        logicalFilePath="com/company/warehousemanagement/liquibase/changelog/2026/10/01-101842-cc13759a.xml">
+    <changeSet id="1" author="warehouse-management">
+        <createTable tableName="INVENTORY">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_INVENTORY"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="WAREHOUSE_ID" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PRODUCT_ID" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="QUANTITY" type="DECIMAL(19, 3)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="RESERVED_QUANTITY" type="DECIMAL(19, 3)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED_AT" type="timestamp with time zone">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="2" author="warehouse-management">
+        <createTable tableName="INVENTORY_MOVEMENT">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_INVENTORY_MOVEMENT"/>
+            </column>
+            <column name="TRANSACTION_ID" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ITEM_ID" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="WAREHOUSE_ID" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PRODUCT_ID" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="OCCURRED_AT" type="timestamp with time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SIGNED_QUANTITY" type="DECIMAL(19, 3)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MOVEMENT_TYPE" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SEQUENCE_NO" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="3" author="warehouse-management">
+        <createTable tableName="STOCKTAKE">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_STOCKTAKE"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_BY" type="VARCHAR(255)"/>
+            <column name="CREATED_DATE" type="timestamp with time zone"/>
+            <column name="LAST_MODIFIED_BY" type="VARCHAR(255)"/>
+            <column name="LAST_MODIFIED_DATE" type="timestamp with time zone"/>
+            <column name="DOCUMENT_NO" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="WAREHOUSE_ID" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="STATUS" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SNAPSHOT_AT" type="timestamp with time zone"/>
+            <column name="APPROVED_AT" type="timestamp with time zone"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="4" author="warehouse-management">
+        <createTable tableName="STOCKTAKE_ITEM">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_STOCKTAKE_ITEM"/>
+            </column>
+            <column name="STOCKTAKE_ID" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PRODUCT_ID" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="BOOK_QTY" type="DECIMAL(19, 3)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="COUNTED_QTY" type="DECIMAL(19, 3)"/>
+            <column name="VARIANCE_QTY" type="DECIMAL(19, 3)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="5" author="warehouse-management">
+        <createTable tableName="TRANSACTION_ITEM">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_TRANSACTION_ITEM"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TRANSACTION_ID" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="LINE_NO" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PRODUCT_ID" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="QUANTITY" type="DECIMAL(19, 3)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UNIT_ID" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="NOTE" type="VARCHAR(1000)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="6" author="warehouse-management">
+        <createTable tableName="WAREHOUSE_TRANSACTION">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_WAREHOUSE_TRANSACTION"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_BY" type="VARCHAR(255)"/>
+            <column name="CREATED_DATE" type="timestamp with time zone"/>
+            <column name="LAST_MODIFIED_BY" type="VARCHAR(255)"/>
+            <column name="LAST_MODIFIED_DATE" type="timestamp with time zone"/>
+            <column name="DOCUMENT_NO" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TYPE" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="STATUS" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SOURCE_WAREHOUSE_ID" type="UUID"/>
+            <column name="DESTINATION_WAREHOUSE_ID" type="UUID"/>
+            <column name="PARTNER_ID" type="UUID"/>
+            <column name="DOCUMENT_DATE" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="POSTED_AT" type="timestamp with time zone"/>
+            <column name="POSTED_BY" type="VARCHAR(255)"/>
+            <column name="REVERSAL_OF_ID" type="UUID"/>
+            <column name="REASON" type="VARCHAR(1000)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="7" author="warehouse-management">
+        <addColumn tableName="PARTNER">
+            <column name="ACTIVE" type="BOOLEAN"/>
+        </addColumn>
+
+        <addNotNullConstraint columnName="ACTIVE" defaultNullValue="false" tableName="PARTNER"/>
+    </changeSet>
+    <changeSet id="8" author="warehouse-management">
+        <addColumn tableName="PRODUCT">
+            <column name="CREATED_BY" type="VARCHAR(255)"/>
+            <column name="CREATED_DATE" type="timestamp with time zone"/>
+            <column name="LAST_MODIFIED_BY" type="VARCHAR(255)"/>
+            <column name="LAST_MODIFIED_DATE" type="timestamp with time zone"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="9" author="warehouse-management">
+        <addColumn tableName="PRODUCT_CATEGORY">
+            <column name="CREATED_BY" type="VARCHAR(255)"/>
+            <column name="CREATED_DATE" type="timestamp with time zone"/>
+            <column name="LAST_MODIFIED_BY" type="VARCHAR(255)"/>
+            <column name="LAST_MODIFIED_DATE" type="timestamp with time zone"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="10" author="warehouse-management">
+        <addColumn tableName="WAREHOUSE">
+            <column name="CREATED_BY" type="VARCHAR(255)"/>
+            <column name="CREATED_DATE" type="timestamp with time zone"/>
+            <column name="LAST_MODIFIED_BY" type="VARCHAR(255)"/>
+            <column name="LAST_MODIFIED_DATE" type="timestamp with time zone"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="11" author="warehouse-management">
+        <addColumn tableName="PARTNER">
+            <column name="PARTNER_TYPE" type="VARCHAR(20)"/>
+        </addColumn>
+
+        <addNotNullConstraint columnName="PARTNER_TYPE" tableName="PARTNER"/>
+    </changeSet>
+    <changeSet id="12" author="warehouse-management">
+        <addColumn tableName="PRODUCT">
+            <column name="VERSION" type="INT"/>
+        </addColumn>
+
+        <addNotNullConstraint columnName="VERSION" defaultNullValue="0" tableName="PRODUCT"/>
+    </changeSet>
+    <changeSet id="13" author="warehouse-management">
+        <addColumn tableName="PRODUCT_CATEGORY">
+            <column name="VERSION" type="INT"/>
+        </addColumn>
+
+        <addNotNullConstraint columnName="VERSION" defaultNullValue="0" tableName="PRODUCT_CATEGORY"/>
+    </changeSet>
+    <changeSet id="14" author="warehouse-management">
+        <addColumn tableName="WAREHOUSE">
+            <column name="VERSION" type="INT"/>
+        </addColumn>
+
+        <addNotNullConstraint columnName="VERSION" defaultNullValue="0" tableName="WAREHOUSE"/>
+    </changeSet>
+    <changeSet id="15" author="warehouse-management">
+        <addUniqueConstraint columnNames="WAREHOUSE_ID, PRODUCT_ID" constraintName="IDX_INVENTORY_UNQ_WAREHOUSE_PRODUCT"
+                             tableName="INVENTORY"/>
+    </changeSet>
+    <changeSet id="16" author="warehouse-management">
+        <addUniqueConstraint columnNames="CODE" constraintName="IDX_PARTNER_UNQ_CODE" tableName="PARTNER"/>
+    </changeSet>
+    <changeSet id="17" author="warehouse-management">
+        <addUniqueConstraint columnNames="CODE" constraintName="IDX_PRODUCT_CATEGORY_UNQ_CODE"
+                             tableName="PRODUCT_CATEGORY"/>
+    </changeSet>
+    <changeSet id="18" author="warehouse-management">
+        <addUniqueConstraint columnNames="CODE" constraintName="IDX_PRODUCT_UNQ_CODE" tableName="PRODUCT"/>
+    </changeSet>
+    <changeSet id="19" author="warehouse-management">
+        <addUniqueConstraint columnNames="STOCKTAKE_ID, PRODUCT_ID" constraintName="IDX_STOCKTAKE_ITEM_UNQ_PRODUCT"
+                             tableName="STOCKTAKE_ITEM"/>
+    </changeSet>
+    <changeSet id="20" author="warehouse-management">
+        <addUniqueConstraint columnNames="DOCUMENT_NO" constraintName="IDX_STOCKTAKE_UNQ_NO" tableName="STOCKTAKE"/>
+    </changeSet>
+    <changeSet id="21" author="warehouse-management">
+        <addUniqueConstraint columnNames="TRANSACTION_ID, LINE_NO" constraintName="IDX_TRANSACTION_ITEM_UNQ_LINE"
+                             tableName="TRANSACTION_ITEM"/>
+    </changeSet>
+    <changeSet id="22" author="warehouse-management">
+        <addUniqueConstraint columnNames="CODE" constraintName="IDX_UNIT_UNQ_CODE" tableName="UNIT"/>
+    </changeSet>
+    <changeSet id="23" author="warehouse-management">
+        <addUniqueConstraint columnNames="DOCUMENT_NO" constraintName="IDX_WAREHOUSE_TRANSACTION_UNQ_NO"
+                             tableName="WAREHOUSE_TRANSACTION"/>
+    </changeSet>
+    <changeSet id="24" author="warehouse-management">
+        <addUniqueConstraint columnNames="CODE" constraintName="IDX_WAREHOUSE_UNQ_CODE" tableName="WAREHOUSE"/>
+    </changeSet>
+    <changeSet id="25" author="warehouse-management">
+        <createIndex indexName="IDX_INVENTORY_PRODUCT" tableName="INVENTORY">
+            <column name="PRODUCT_ID"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseColumnNames="PRODUCT_ID" baseTableName="INVENTORY"
+                                 constraintName="FK_INVENTORY_ON_PRODUCT" referencedColumnNames="ID"
+                                 referencedTableName="PRODUCT"/>
+    </changeSet>
+    <changeSet id="26" author="warehouse-management">
+        <createIndex indexName="IDX_INV_MOVEMENT_TRANSACTION" tableName="INVENTORY_MOVEMENT">
+            <column name="TRANSACTION_ID"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseColumnNames="TRANSACTION_ID" baseTableName="INVENTORY_MOVEMENT"
+                                 constraintName="FK_INVENTORY_MOVEMENT_ON_TRANSACTION" referencedColumnNames="ID"
+                                 referencedTableName="WAREHOUSE_TRANSACTION"/>
+    </changeSet>
+    <changeSet id="27" author="warehouse-management">
+        <createIndex indexName="IDX_INV_MOVEMENT_WAREHOUSE_PRODUCT_TIME" tableName="INVENTORY_MOVEMENT">
+            <column name="WAREHOUSE_ID"/>
+            <column name="PRODUCT_ID"/>
+            <column name="OCCURRED_AT"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="28" author="warehouse-management">
+        <createIndex indexName="IDX_PARTNER_NAME" tableName="PARTNER">
+            <column name="NAME"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="29" author="warehouse-management">
+        <createIndex indexName="IDX_PRODUCT_NAME" tableName="PRODUCT">
+            <column name="NAME"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="30" author="warehouse-management">
+        <createIndex indexName="IDX_STOCKTAKE_WAREHOUSE_STATUS_DATE" tableName="STOCKTAKE">
+            <column name="WAREHOUSE_ID"/>
+            <column name="STATUS"/>
+            <column name="SNAPSHOT_AT"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="31" author="warehouse-management">
+        <createIndex indexName="IDX_TRANSACTION_ITEM_PRODUCT" tableName="TRANSACTION_ITEM">
+            <column name="PRODUCT_ID"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseColumnNames="PRODUCT_ID" baseTableName="TRANSACTION_ITEM"
+                                 constraintName="FK_TRANSACTION_ITEM_ON_PRODUCT" referencedColumnNames="ID"
+                                 referencedTableName="PRODUCT"/>
+    </changeSet>
+    <changeSet id="32" author="warehouse-management">
+        <createIndex indexName="IDX_WT_DESTINATION_DATE" tableName="WAREHOUSE_TRANSACTION">
+            <column name="DESTINATION_WAREHOUSE_ID"/>
+            <column name="DOCUMENT_DATE"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="33" author="warehouse-management">
+        <createIndex indexName="IDX_WT_SOURCE_DATE" tableName="WAREHOUSE_TRANSACTION">
+            <column name="SOURCE_WAREHOUSE_ID"/>
+            <column name="DOCUMENT_DATE"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="34" author="warehouse-management">
+        <createIndex indexName="IDX_WT_TYPE_STATUS_DATE" tableName="WAREHOUSE_TRANSACTION">
+            <column name="TYPE"/>
+            <column name="STATUS"/>
+            <column name="DOCUMENT_DATE"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="35" author="warehouse-management">
+        <addForeignKeyConstraint baseColumnNames="ITEM_ID" baseTableName="INVENTORY_MOVEMENT"
+                                 constraintName="FK_INVENTORY_MOVEMENT_ON_ITEM" referencedColumnNames="ID"
+                                 referencedTableName="TRANSACTION_ITEM"/>
+    </changeSet>
+    <changeSet id="36" author="warehouse-management">
+        <addForeignKeyConstraint baseColumnNames="PRODUCT_ID" baseTableName="INVENTORY_MOVEMENT"
+                                 constraintName="FK_INVENTORY_MOVEMENT_ON_PRODUCT" referencedColumnNames="ID"
+                                 referencedTableName="PRODUCT"/>
+    </changeSet>
+    <changeSet id="37" author="warehouse-management">
+        <addForeignKeyConstraint baseColumnNames="WAREHOUSE_ID" baseTableName="INVENTORY_MOVEMENT"
+                                 constraintName="FK_INVENTORY_MOVEMENT_ON_WAREHOUSE" referencedColumnNames="ID"
+                                 referencedTableName="WAREHOUSE"/>
+    </changeSet>
+    <changeSet id="38" author="warehouse-management">
+        <addForeignKeyConstraint baseColumnNames="WAREHOUSE_ID" baseTableName="INVENTORY"
+                                 constraintName="FK_INVENTORY_ON_WAREHOUSE" referencedColumnNames="ID"
+                                 referencedTableName="WAREHOUSE"/>
+    </changeSet>
+    <changeSet id="39" author="warehouse-management">
+        <addForeignKeyConstraint baseColumnNames="PRODUCT_ID" baseTableName="STOCKTAKE_ITEM"
+                                 constraintName="FK_STOCKTAKE_ITEM_ON_PRODUCT" referencedColumnNames="ID"
+                                 referencedTableName="PRODUCT"/>
+    </changeSet>
+    <changeSet id="40" author="warehouse-management">
+        <addForeignKeyConstraint baseColumnNames="STOCKTAKE_ID" baseTableName="STOCKTAKE_ITEM"
+                                 constraintName="FK_STOCKTAKE_ITEM_ON_STOCKTAKE" referencedColumnNames="ID"
+                                 referencedTableName="STOCKTAKE"/>
+    </changeSet>
+    <changeSet id="41" author="warehouse-management">
+        <addForeignKeyConstraint baseColumnNames="WAREHOUSE_ID" baseTableName="STOCKTAKE"
+                                 constraintName="FK_STOCKTAKE_ON_WAREHOUSE" referencedColumnNames="ID"
+                                 referencedTableName="WAREHOUSE"/>
+    </changeSet>
+    <changeSet id="42" author="warehouse-management">
+        <addForeignKeyConstraint baseColumnNames="TRANSACTION_ID" baseTableName="TRANSACTION_ITEM"
+                                 constraintName="FK_TRANSACTION_ITEM_ON_TRANSACTION" referencedColumnNames="ID"
+                                 referencedTableName="WAREHOUSE_TRANSACTION"/>
+    </changeSet>
+    <changeSet id="43" author="warehouse-management">
+        <addForeignKeyConstraint baseColumnNames="UNIT_ID" baseTableName="TRANSACTION_ITEM"
+                                 constraintName="FK_TRANSACTION_ITEM_ON_UNIT" referencedColumnNames="ID"
+                                 referencedTableName="UNIT"/>
+    </changeSet>
+    <changeSet id="44" author="warehouse-management">
+        <addForeignKeyConstraint baseColumnNames="DESTINATION_WAREHOUSE_ID" baseTableName="WAREHOUSE_TRANSACTION"
+                                 constraintName="FK_WAREHOUSE_TRANSACTION_ON_DESTINATION_WAREHOUSE"
+                                 referencedColumnNames="ID" referencedTableName="WAREHOUSE"/>
+    </changeSet>
+    <changeSet id="45" author="warehouse-management">
+        <addForeignKeyConstraint baseColumnNames="PARTNER_ID" baseTableName="WAREHOUSE_TRANSACTION"
+                                 constraintName="FK_WAREHOUSE_TRANSACTION_ON_PARTNER" referencedColumnNames="ID"
+                                 referencedTableName="PARTNER"/>
+    </changeSet>
+    <changeSet id="46" author="warehouse-management">
+        <addForeignKeyConstraint baseColumnNames="REVERSAL_OF_ID" baseTableName="WAREHOUSE_TRANSACTION"
+                                 constraintName="FK_WAREHOUSE_TRANSACTION_ON_REVERSAL_OF" referencedColumnNames="ID"
+                                 referencedTableName="WAREHOUSE_TRANSACTION"/>
+    </changeSet>
+    <changeSet id="47" author="warehouse-management">
+        <addForeignKeyConstraint baseColumnNames="SOURCE_WAREHOUSE_ID" baseTableName="WAREHOUSE_TRANSACTION"
+                                 constraintName="FK_WAREHOUSE_TRANSACTION_ON_SOURCE_WAREHOUSE"
+                                 referencedColumnNames="ID" referencedTableName="WAREHOUSE"/>
+    </changeSet>
+    <changeSet id="48" author="warehouse-management">
+        <dropIndex indexName="IDX_PARTNER_UNQ" tableName="PARTNER"/>
+    </changeSet>
+    <changeSet id="49" author="warehouse-management">
+        <dropIndex indexName="IDX_PRODUCT_2" tableName="PRODUCT"/>
+    </changeSet>
+    <changeSet id="50" author="warehouse-management">
+        <dropIndex indexName="IDX_PRODUCT_BASE_UNIT" tableName="PRODUCT"/>
+    </changeSet>
+    <changeSet id="51" author="warehouse-management">
+        <dropIndex indexName="IDX_PRODUCT_CATEGORY" tableName="PRODUCT"/>
+    </changeSet>
+    <changeSet id="52" author="warehouse-management">
+        <dropIndex indexName="IDX_PRODUCT_CATEGORY_UNQ" tableName="PRODUCT_CATEGORY"/>
+    </changeSet>
+    <changeSet id="53" author="warehouse-management">
+        <dropIndex indexName="IDX_UNIT_UNQ" tableName="UNIT"/>
+    </changeSet>
+    <changeSet id="54" author="warehouse-management">
+        <dropIndex indexName="IDX_WAREHOUSE_UNQ" tableName="WAREHOUSE"/>
+    </changeSet>
+    <changeSet id="55" author="warehouse-management">
+        <dropColumn columnName="ATIVE" tableName="PARTNER"/>
+
+        <dropColumn columnName="CUSTOMER" tableName="PARTNER"/>
+
+        <dropColumn columnName="SUPPLIER" tableName="PARTNER"/>
+    </changeSet>
+    <changeSet id="56" author="warehouse-management">
+        <dropColumn columnName="DESCRIPTION" tableName="PRODUCT_CATEGORY"/>
+    </changeSet>
+    <changeSet id="57" author="warehouse-management">
+        <addNotNullConstraint columnDataType="BOOLEAN" columnName="ACTIVE" tableName="PRODUCT" validate="true"/>
+    </changeSet>
+    <changeSet id="58" author="warehouse-management">
+        <addNotNullConstraint columnDataType="BOOLEAN" columnName="ACTIVE" tableName="PRODUCT_CATEGORY"
+                              validate="true"/>
+    </changeSet>
+    <changeSet id="59" author="warehouse-management">
+        <addNotNullConstraint columnDataType="BOOLEAN" columnName="ACTIVE" tableName="UNIT" validate="true"/>
+    </changeSet>
+    <changeSet id="60" author="warehouse-management">
+        <addNotNullConstraint columnDataType="BOOLEAN" columnName="ACTIVE" tableName="WAREHOUSE" validate="true"/>
+    </changeSet>
+    <changeSet id="61" author="warehouse-management">
+        <modifyDataType columnName="ADDRESS" newDataType="VARCHAR(500)" tableName="WAREHOUSE"/>
+    </changeSet>
+    <changeSet id="62" author="warehouse-management">
+        <dropNotNullConstraint columnDataType="VARCHAR(500)" columnName="ADDRESS" tableName="WAREHOUSE"/>
+    </changeSet>
+    <changeSet id="63" author="warehouse-management">
+        <modifyDataType columnName="CODE" newDataType="VARCHAR(50)" tableName="PRODUCT_CATEGORY"/>
+    </changeSet>
+</databaseChangeLog>

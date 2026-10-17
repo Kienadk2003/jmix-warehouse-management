@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="com/company/warehousemanagement/liquibase/changelog/2026/10/2026-10-05-user-warehouse.xml">
+
+    <changeSet id="2026-10-05-user-warehouse-1"
+               author="warehouse-management">
+
+        <createTable tableName="USER_WAREHOUSE">
+
+            <column name="ID" type="UUID">
+                <constraints
+                        nullable="false"
+                        primaryKey="true"
+                        primaryKeyName="PK_USER_WAREHOUSE"/>
+            </column>
+
+            <column name="USER_ID" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="WAREHOUSE_ID" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+    </changeSet>
+
+    <changeSet id="2026-10-05-user-warehouse-2"
+               author="warehouse-management">
+
+        <addUniqueConstraint
+                tableName="USER_WAREHOUSE"
+                columnNames="USER_ID,WAREHOUSE_ID"
+                constraintName="IDX_USER_WAREHOUSE_UNQ"/>
+
+    </changeSet>
+
+    <changeSet id="2026-10-05-user-warehouse-3"
+               author="warehouse-management">
+
+        <addForeignKeyConstraint
+                baseTableName="USER_WAREHOUSE"
+                baseColumnNames="USER_ID"
+                constraintName="FK_USER_WAREHOUSE_USER"
+                referencedTableName="USER_"
+                referencedColumnNames="ID"/>
+
+        <addForeignKeyConstraint
+                baseTableName="USER_WAREHOUSE"
+                baseColumnNames="WAREHOUSE_ID"
+                constraintName="FK_USER_WAREHOUSE_WAREHOUSE"
+                referencedTableName="WAREHOUSE"
+                referencedColumnNames="ID"/>
+
+    </changeSet>
+
+    <changeSet id="2026-10-05-user-warehouse-4"
+               author="warehouse-management">
+
+        <createIndex
+                indexName="IDX_USER_WAREHOUSE_USER"
+                tableName="USER_WAREHOUSE">
+            <column name="USER_ID"/>
+        </createIndex>
+
+        <createIndex
+                indexName="IDX_USER_WAREHOUSE_WAREHOUSE"
+                tableName="USER_WAREHOUSE">
+            <column name="WAREHOUSE_ID"/>
+        </createIndex>
+
+    </changeSet>
+
+</databaseChangeLog>

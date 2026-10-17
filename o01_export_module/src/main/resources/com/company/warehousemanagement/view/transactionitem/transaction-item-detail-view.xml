@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="Dòng sản phẩm xuất"
+      focusComponent="form">
+    <data>
+        <instance id="transactionItemDc"
+                  class="com.company.warehousemanagement.entity.TransactionItem">
+            <fetchPlan extends="_base">
+                <property name="product" fetchPlan="_base"/>
+                <property name="unit" fetchPlan="_base"/>
+            </fetchPlan>
+            <loader id="transactionItemDl"/>
+        </instance>
+    </data>
+
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+    </facets>
+
+    <actions>
+        <action id="saveCloseAction" type="detail_saveClose"/>
+        <action id="closeAction" type="detail_close"/>
+    </actions>
+
+    <layout>
+        <formLayout id="form" dataContainer="transactionItemDc">
+            <responsiveSteps>
+                <responsiveStep minWidth="0" columns="1"/>
+                <responsiveStep minWidth="30em" columns="2"/>
+            </responsiveSteps>
+
+            <entityPicker id="productField"
+                          property="product"
+                          label="Sản phẩm"
+                          required="true"
+                          requiredMessage="Bạn chưa chọn sản phẩm">
+                <actions>
+                    <action id="entityLookupAction" type="entity_lookup"/>
+                    <action id="entityClearAction" type="entity_clear"/>
+                </actions>
+            </entityPicker>
+
+            <bigDecimalField id="quantityField"
+                             property="quantity"
+                             label="Số lượng"
+                             required="true"
+                             requiredMessage="Số lượng không được để trống">
+                <validators>
+                    <positive message="Số lượng phải lớn hơn 0"/>
+                    <digits integer="16"
+                            fraction="3"
+                            message="Số lượng chỉ được tối đa 16 chữ số phần nguyên và 3 chữ số thập phân"/>
+                </validators>
+            </bigDecimalField>
+
+            <entityPicker id="unitField"
+                          property="unit"
+                          label="Đơn vị tính"
+                          required="true"
+                          requiredMessage="Bạn chưa chọn đơn vị tính">
+                <actions>
+                    <action id="entityLookupAction" type="entity_lookup"/>
+                    <action id="entityClearAction" type="entity_clear"/>
+                </actions>
+            </entityPicker>
+
+            <textArea id="noteField"
+                      property="note"
+                      label="Ghi chú"
+                      maxLength="1000"
+                      minRows="2"
+                      maxRows="4"
+                      width="100%"
+                      colspan="2"/>
+        </formLayout>
+
+        <hbox id="detailActions">
+            <button id="saveAndCloseButton" action="saveCloseAction"/>
+            <button id="closeButton" action="closeAction"/>
+        </hbox>
+    </layout>
+</view>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<menu-config xmlns="http://jmix.io/schema/flowui/menu">
+    <item view="MainView" title="msg://com.company.warehousemanagement.menu.home" icon="vaadin:home"/>
+
+    <menu id="warehouse" title="msg://com.company.warehousemanagement.menu.warehouse" icon="vaadin:building">
+        <item view="Warehouse.list" title="msg://com.company.warehousemanagement.menu.warehouses" icon="vaadin:building-o"/>
+        <item view="Inventory.list" title="msg://com.company.warehousemanagement.menu.inventory" icon="vaadin:archive"/>
+    </menu>
+
+    <menu id="products" title="msg://com.company.warehousemanagement.menu.products" icon="vaadin:package">
+        <item view="Product.list" title="msg://com.company.warehousemanagement.menu.productList" icon="vaadin:package"/>
+        <item view="ProductCategory.list" title="msg://com.company.warehousemanagement.menu.categories" icon="vaadin:tags"/>
+        <item view="Unit.list" title="msg://com.company.warehousemanagement.menu.units" icon="vaadin:scale"/>
+        <item view="Partner.list" title="msg://com.company.warehousemanagement.menu.partners" icon="vaadin:handshake"/>
+    </menu>
+
+    <menu id="operations" title="msg://com.company.warehousemanagement.menu.operations" icon="vaadin:exchange">
+        <item view="WarehouseTransaction.importExportList" title="msg://com.company.warehousemanagement.menu.importExport" icon="vaadin:exchange"/>
+        <item view="WarehouseTransaction.transferList" title="msg://com.company.warehousemanagement.menu.transfers" icon="vaadin:truck"/>
+        <item view="WarehouseTransaction.stocktakeAdjustmentList" title="msg://com.company.warehousemanagement.menu.stocktakeAdjust" icon="vaadin:clipboard-check"/>
+        <item view="WarehouseTransaction.pendingApprovals" title="msg://com.company.warehousemanagement.menu.pending" icon="vaadin:clock"/>
+    </menu>
+
+    <menu id="reports" title="msg://com.company.warehousemanagement.menu.reports" icon="vaadin:chart">
+        <item view="Warehouse.reports" title="msg://com.company.warehousemanagement.menu.warehouseReports" icon="vaadin:chart-line"/>
+        <item view="Inventory.stockCard" title="msg://com.company.warehousemanagement.menu.stockCard" icon="vaadin:book"/>
+        <item view="Inventory.report" title="msg://com.company.warehousemanagement.menu.inventoryReport" icon="vaadin:bar-chart"/>
+    </menu>
+
+    <menu id="people" title="msg://com.company.warehousemanagement.menu.people" opened="false" icon="vaadin:users">
+        <item view="User.list" title="msg://com.company.warehousemanagement.menu.users" icon="vaadin:user"/>
+        <item view="employeeAssignment-list" title="msg://com.company.warehousemanagement.menu.assignments" icon="vaadin:users"/>
+    </menu>
+</menu-config>

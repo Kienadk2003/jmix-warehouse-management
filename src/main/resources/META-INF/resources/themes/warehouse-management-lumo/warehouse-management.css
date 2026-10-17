@@ -1,0 +1,162 @@
+/* Define your styles here */
+
+
+/* Shared list search toolbar */
+.warehouse-toolbar { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.warehouse-search-field { flex: 1 1 20rem; min-width: min(100%, 18rem); max-width: 24rem; }
+.warehouse-search-field::part(input-field) { border-radius: 0.65rem; }
+
+
+
+
+/* KhoFlow cross-page consistency layer (v12).
+   Shared styling for every list/detail/report view; presentation only. */
+:root, :host {
+  --wm-control-height: 40px;
+  --wm-radius: 10px;
+}
+vaadin-vertical-layout.warehouse-page-layout,
+vaadin-horizontal-layout.warehouse-page-layout {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  gap: 14px;
+  padding: clamp(12px, 1.6vw, 24px);
+}
+vaadin-text-field.warehouse-search-field {
+  flex: 1 1 20rem;
+  width: min(100%, 24rem);
+  min-width: min(100%, 16rem);
+  max-width: 28rem;
+}
+vaadin-text-field.warehouse-search-field::part(input-field) {
+  min-height: var(--wm-control-height);
+  padding-inline-start: 10px !important;
+}
+vaadin-text-field.warehouse-search-field::part(value) {
+  padding-inline-start: 0 !important;
+  margin-inline-start: 0 !important;
+}
+vaadin-text-field.warehouse-search-field::part(input-field)::before,
+vaadin-text-field.warehouse-search-field::part(input-field)::after {
+  content: none !important;
+  display: none !important;
+}
+vaadin-text-field.warehouse-search-field input {
+  padding-inline-start: 0 !important;
+}
+.warehouse-toolbar {
+  box-sizing: border-box;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.warehouse-toolbar vaadin-button,
+.warehouse-detail-actions vaadin-button {
+  min-height: 38px;
+  border-radius: 9px;
+  font-weight: 600;
+}
+.warehouse-data-grid {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--wm-border);
+  border-radius: 12px;
+  background: var(--wm-surface);
+  overflow: hidden;
+}
+.warehouse-form-layout {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: clamp(16px, 2vw, 28px);
+  gap: 18px 20px;
+  border: 1px solid var(--wm-border);
+  border-radius: 14px;
+  background: var(--wm-surface);
+  box-shadow: 0 2px 8px rgba(36,55,70,.035);
+}
+.warehouse-form-layout vaadin-text-field,
+.warehouse-form-layout vaadin-number-field,
+.warehouse-form-layout vaadin-combo-box,
+.warehouse-form-layout vaadin-date-picker,
+.warehouse-form-layout vaadin-date-time-picker,
+.warehouse-form-layout vaadin-select,
+.warehouse-form-layout vaadin-text-area,
+.warehouse-form-layout vaadin-entity-picker,
+.warehouse-form-layout vaadin-checkbox {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+.warehouse-form-layout vaadin-text-field::part(input-field),
+.warehouse-form-layout vaadin-number-field::part(input-field),
+.warehouse-form-layout vaadin-combo-box::part(input-field),
+.warehouse-form-layout vaadin-date-picker::part(input-field),
+.warehouse-form-layout vaadin-date-time-picker::part(input-field),
+.warehouse-form-layout vaadin-select::part(input-field),
+.warehouse-form-layout vaadin-text-area::part(input-field),
+.warehouse-form-layout vaadin-entity-picker::part(input-field) {
+  border-radius: 9px;
+}
+.warehouse-status-bar {
+  box-sizing: border-box;
+  min-height: 54px;
+  padding: 12px 16px;
+  border: 1px solid var(--wm-border);
+  border-radius: 12px;
+  background: var(--wm-surface);
+}
+.warehouse-detail-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--wm-border);
+  border-radius: 12px;
+  background: rgba(255,255,255,.96);
+  box-shadow: 0 -4px 18px rgba(36,55,70,.06);
+  backdrop-filter: blur(8px);
+}
+.warehouse-empty-card {
+  box-sizing: border-box;
+  min-height: 180px;
+  justify-content: center;
+  padding: 28px 20px;
+  border: 1px dashed var(--wm-border);
+  border-radius: 14px;
+  background: var(--wm-surface);
+  text-align: center;
+}
+.warehouse-pagination-panel {
+  box-sizing: border-box;
+  min-height: 48px;
+  padding: 8px 12px;
+  border: 1px solid var(--wm-border);
+  border-radius: 10px;
+  background: var(--wm-surface);
+}
+@media (max-width: 800px) {
+  vaadin-vertical-layout.warehouse-page-layout,
+  vaadin-horizontal-layout.warehouse-page-layout { padding: 12px; }
+  vaadin-text-field.warehouse-search-field { flex: 1 1 100%; width: 100%; max-width: none; }
+  .warehouse-form-layout { padding: 14px; gap: 14px; }
+  .warehouse-detail-actions { position: static; justify-content: stretch; }
+  .warehouse-detail-actions vaadin-button { flex: 1 1 auto; }
+}
+
+
+/* v5: no decorative search icon; prevent placeholder/text overlap on every list view. */
+vaadin-text-field.warehouse-search-field::part(input-field) { background-image: none !important; padding-inline-start: 10px !important; }
+vaadin-text-field.warehouse-search-field input { padding-inline-start: 0 !important; margin-inline-start: 0 !important; }
+.warehouse-detail-actions { position: relative !important; inset-block-end: auto !important; z-index: 1 !important; }

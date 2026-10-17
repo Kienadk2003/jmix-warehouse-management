@@ -1,0 +1,159 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" title="msg://stockCardView.title">
+
+    <data>
+
+        <!-- =========================
+             WAREHOUSE
+             ========================= -->
+
+        <collection id="warehousesDc" class="com.company.warehousemanagement.entity.Warehouse">
+
+            <fetchPlan extends="_instance_name"/>
+
+            <loader id="warehousesDl">
+
+                <query>
+                    <![CDATA[
+                        select e
+                        from Warehouse e
+                        order by e.id
+                    ]]>
+                </query>
+
+            </loader>
+
+        </collection>
+
+
+        <!-- =========================
+             PRODUCT
+             ========================= -->
+
+        <collection id="productsDc" class="com.company.warehousemanagement.entity.Product">
+
+            <fetchPlan extends="_instance_name"/>
+
+            <loader id="productsDl">
+
+                <query>
+                    <![CDATA[
+                        select e
+                        from Product e
+                        order by e.id
+                    ]]>
+                </query>
+
+            </loader>
+
+        </collection>
+
+
+        <!-- =========================
+             STOCK CARD DATA
+             ========================= -->
+
+        <keyValueCollection id="stockCardDc">
+
+            <properties idProperty="movementId">
+
+                <property name="movementId" datatype="uuid"/>
+
+                <property name="movementTime" datatype="string"/>
+
+                <property name="documentNo" datatype="string"/>
+
+                <property name="transactionType" datatype="string"/>
+
+                <property name="movementType" datatype="string"/>
+
+                <property name="signedQuantity" datatype="decimal"/>
+
+                <property name="runningBalance" datatype="decimal"/>
+
+            </properties>
+
+        </keyValueCollection>
+
+    </data>
+
+
+    <facets>
+
+        <dataLoadCoordinator auto="true"/>
+
+    </facets>
+
+
+    <layout spacing="true" classNames="warehouse-page-layout">
+
+        <!-- FILTER: one card = form + action buttons -->
+        <vbox id="filterCard" classNames="warehouse-card" width="100%" padding="false" spacing="false">
+
+            <h3 text="msg://filterCard.title" classNames="warehouse-card-title"/>
+
+            <formLayout id="filterForm" classNames="warehouse-card-form">
+                <responsiveSteps>
+                    <responsiveStep minWidth="0" columns="1"/>
+                    <responsiveStep minWidth="38em" columns="2"/>
+                </responsiveSteps>
+
+                <entityComboBox id="warehouseField" label="msg://field.warehouse" metaClass="Warehouse" itemsContainer="warehousesDc"
+                                required="true" requiredMessage="msg://requiredMessage"/>
+
+                <entityComboBox id="productField" label="msg://field.product" metaClass="Product" itemsContainer="productsDc"
+                                required="true" requiredMessage="msg://requiredMessage"/>
+
+                <datePicker id="fromDateField" label="msg://field.fromDate" datatype="localDate"
+                            required="true" requiredMessage="msg://requiredMessage"/>
+
+                <datePicker id="toDateField" label="msg://field.toDate" datatype="localDate"
+                            required="true" requiredMessage="msg://requiredMessage"/>
+            </formLayout>
+
+            <hbox id="filterButtons" classNames="warehouse-card-actions" padding="false">
+                <button id="searchButton" text="msg://searchButton.text" icon="vaadin:search" themeNames="primary"/>
+            </hbox>
+        </vbox>
+
+
+        <!-- SUMMARY: values are filled by the search, nothing is pre-filled -->
+        <formLayout id="summaryForm" classNames="warehouse-summary-form">
+            <responsiveSteps>
+                <responsiveStep minWidth="0" columns="1"/>
+                <responsiveStep minWidth="38em" columns="3"/>
+            </responsiveSteps>
+
+            <textField id="openingStockField" label="msg://summary.opening" placeholder="—" readOnly="true" classNames="warehouse-summary-field"/>
+
+            <textField id="closingStockField" label="msg://summary.closing" placeholder="—" readOnly="true" classNames="warehouse-summary-field"/>
+
+            <textField id="currentInventoryField" label="msg://summary.current" placeholder="—" readOnly="true" classNames="warehouse-summary-field"/>
+        </formLayout>
+
+
+        <!-- STOCK CARD HISTORY -->
+        <dataGrid id="stockCardDataGrid" dataContainer="stockCardDc" width="100%" minHeight="16em" classNames="warehouse-data-grid"
+                  emptyStateText="msg://stockCardDataGrid.emptyState">
+
+            <columns>
+
+                <column property="movementTime" header="msg://column.movementTime"/>
+
+                <column property="documentNo" header="msg://column.documentNo"/>
+
+                <column property="transactionType" header="msg://column.transactionType"/>
+
+                <column property="movementType" header="msg://column.movementType"/>
+
+                <column property="signedQuantity" header="msg://column.quantity" textAlign="END"/>
+
+                <column property="runningBalance" header="msg://column.runningBalance" textAlign="END"/>
+
+            </columns>
+
+        </dataGrid>
+
+    </layout>
+
+</view>

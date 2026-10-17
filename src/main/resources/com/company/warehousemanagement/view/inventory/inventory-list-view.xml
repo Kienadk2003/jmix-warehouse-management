@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" title="msg://inventoryListView.title">
+
+    <data readOnly="true">
+
+        <collection id="inventoryDc" class="com.company.warehousemanagement.entity.Inventory">
+
+            <fetchPlan extends="_base">
+
+                <property name="warehouse" fetchPlan="_instance_name"/>
+
+                <property name="product" fetchPlan="_instance_name"/>
+
+            </fetchPlan>
+
+            <loader id="inventoryDl">
+
+                <query>
+                    <![CDATA[
+                        select e from Inventory e
+                        where (:searchTerm is null or trim(:searchTerm) = ''
+                            or lower(coalesce(e.warehouse.name, '')) like concat('%', lower(:searchTerm), '%')
+                            or lower(coalesce(e.warehouse.code, '')) like concat('%', lower(:searchTerm), '%')
+                            or lower(coalesce(e.product.name, '')) like concat('%', lower(:searchTerm), '%')
+                            or lower(coalesce(e.product.code, '')) like concat('%', lower(:searchTerm), '%'))
+                        order by e.warehouse.id, e.product.id
+                    ]]>
+                </query>
+
+            </loader>
+
+        </collection>
+
+    </data>
+
+    <facets>
+
+        <dataLoadCoordinator auto="false"/>
+
+    </facets>
+
+    <layout classNames="warehouse-page-layout">
+<hbox id="buttonsPanel" classNames="buttons-panel warehouse-toolbar" wrap="true">
+            <textField id="searchField" placeholder="msg://searchPlaceholder" clearButtonVisible="true" valueChangeMode="LAZY" width="22em" classNames="warehouse-search-field"></textField>
+            <button id="refreshButton" action="inventoryDataGrid.refresh" icon="vaadin:refresh" text="msg://refreshButton.text"/>
+        </hbox>
+
+
+        <dataGrid id="inventoryDataGrid" dataContainer="inventoryDc" width="100%" minHeight="16em" classNames="warehouse-data-grid"
+                  emptyStateText="msg://inventoryDataGrid.emptyState">
+
+            <actions>
+                <action id="refresh" type="list_refresh"/>
+            </actions>
+
+            <columns>
+
+                <column property="warehouse" header="msg://column.warehouse"/>
+
+                <column property="product" header="msg://column.product"/>
+
+                <column property="quantity" header="msg://column.quantity" textAlign="END"/>
+
+                <column property="reservedQuantity" header="msg://column.reservedQuantity" textAlign="END"/>
+
+                <column property="updatedAt" header="msg://column.updatedAt"/>
+
+            </columns>
+
+        </dataGrid>
+
+    </layout>
+
+</view>

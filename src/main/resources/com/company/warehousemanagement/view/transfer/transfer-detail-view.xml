@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="msg://transferDetailView.title"
+      focusComponent="form">
+
+    <data>
+        <instance id="warehouseTransactionDc"
+                  class="com.company.warehousemanagement.entity.WarehouseTransaction">
+            <fetchPlan extends="_base">
+                <property name="sourceWarehouse" fetchPlan="_base"/>
+                <property name="destinationWarehouse" fetchPlan="_base"/>
+                <property name="items">
+                    <property name="lineNo"/>
+                    <property name="quantity"/>
+                    <property name="note"/>
+                    <property name="product" fetchPlan="_base"/>
+                    <property name="unit" fetchPlan="_base"/>
+                </property>
+            </fetchPlan>
+            <loader id="warehouseTransactionDl"/>
+            <collection id="itemsDc" property="items"/>
+        </instance>
+    </data>
+
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+    </facets>
+
+    <actions>
+        <action id="saveCloseAction" type="detail_saveClose"/>
+        <action id="closeAction" type="detail_close"/>
+    </actions>
+
+    <layout classNames="warehouse-page-layout">
+        <hbox id="statusBox" width="100%" alignItems="CENTER" classNames="warehouse-status-bar">
+            <span text="msg://field.status"/>
+            <span id="statusLabel" themeNames="badge"/>
+        </hbox>
+
+        <formLayout id="form" dataContainer="warehouseTransactionDc" classNames="warehouse-form-layout">
+            <responsiveSteps>
+                <responsiveStep minWidth="0" columns="1"/>
+                <responsiveStep minWidth="40em" columns="2"/>
+            </responsiveSteps>
+
+            <textField id="documentNoField" property="documentNo" label="msg://field.documentNo" readOnly="true"/>
+
+            <entityPicker id="sourceWarehouseField" property="sourceWarehouse" label="msg://field.sourceWarehouse" required="true"
+                          requiredMessage="msg://validation.sourceWarehouseRequired">
+                <actions>
+                    <action id="entityLookupAction" type="entity_lookup"/>
+                    <action id="entityClearAction" type="entity_clear"/>
+                </actions>
+            </entityPicker>
+
+            <entityPicker id="destinationWarehouseField" property="destinationWarehouse" label="msg://field.destinationWarehouse" required="true"
+                          requiredMessage="msg://validation.destinationWarehouseRequired">
+                <actions>
+                    <action id="entityLookupAction" type="entity_lookup"/>
+                    <action id="entityClearAction" type="entity_clear"/>
+                </actions>
+            </entityPicker>
+
+            <datePicker id="documentDateField" property="documentDate" label="msg://field.documentDate" dateFormat="dd/MM/yyyy"
+                        required="true" requiredMessage="msg://validation.documentDateRequired"/>
+
+            <textArea id="reasonField" property="reason" label="msg://field.reason" maxLength="1000"
+                      width="100%" colspan="2" minRows="2" maxRows="4"/>
+        </formLayout>
+
+        <hbox id="itemsHeader" width="100%" alignItems="CENTER">
+            <h3 text="msg://items.title"/>
+        </hbox>
+
+        <hbox id="itemsButtons" width="100%" classNames="buttons-panel warehouse-toolbar">
+            <button id="addItemButton" action="itemsDataGrid.createAction" text="msg://button.addItem"/>
+            <button id="editItemButton" action="itemsDataGrid.editAction" text="msg://button.editItem"/>
+            <button id="removeItemButton" action="itemsDataGrid.removeAction" text="msg://button.removeItem"/>
+        </hbox>
+
+        <dataGrid id="itemsDataGrid" dataContainer="itemsDc" width="100%" minHeight="18em"
+                  classNames="warehouse-data-grid">
+            <actions>
+                <action id="createAction" type="list_create">
+                    <properties>
+                        <property name="openMode" value="DIALOG"/>
+                    </properties>
+                </action>
+                <action id="editAction" type="list_edit">
+                    <properties>
+                        <property name="openMode" value="DIALOG"/>
+                    </properties>
+                </action>
+                <action id="removeAction" type="list_remove"/>
+            </actions>
+            <columns resizable="true">
+                <column property="lineNo" header="msg://column.lineNo"/>
+                <column property="product" header="msg://column.product"/>
+                <column property="quantity" header="msg://column.quantity"/>
+                <column property="unit" header="msg://column.unit"/>
+                <column property="note" header="msg://column.note"/>
+            </columns>
+        </dataGrid>
+
+        <hbox id="detailActions" width="100%" wrap="true" classNames="warehouse-detail-actions">
+            <button id="saveDraftButton" text="msg://button.saveDraft" themeNames="primary"/>
+            <button id="submitButton" text="msg://button.submitForApproval" themeNames="primary"/>
+            <button id="approveButton" text="msg://button.approve" themeNames="primary success"/>
+            <button id="rejectButton" text="msg://button.reject" themeNames="error"/>
+            <button id="postButton" text="msg://button.post" themeNames="primary"/>
+            <button id="saveAndCloseButton" action="saveCloseAction" text="msg://button.saveAndClose"/>
+            <button id="closeButton" action="closeAction" text="msg://button.close"/>
+            <button id="reverseButton" text="msg://button.reverse"/>
+        </hbox>
+
+        <!-- Preserved from test1 for document attachment integration. -->
+        <vbox id="documentsHost" width="100%" padding="false"/>
+    </layout>
+</view>

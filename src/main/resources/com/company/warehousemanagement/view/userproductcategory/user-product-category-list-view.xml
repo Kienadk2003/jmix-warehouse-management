@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" xmlns:c="http://jmix.io/schema/flowui/jpql-condition" title="msg://userProductCategoryListView.title" focusComponent="userProductCategoriesDataGrid">
+    <data>
+        <collection id="userProductCategoriesDc" class="com.company.warehousemanagement.entity.UserProductCategory">
+            <fetchPlan extends="_base">
+                <property name="user" fetchPlan="_base"/>
+                <property name="productCategory" fetchPlan="_base"/>
+            </fetchPlan>
+            <loader id="userProductCategoriesDl" readOnly="true">
+                <query>
+                    <![CDATA[
+                    select e from UserProductCategory e where (:searchTerm is null or trim(:searchTerm) = '' or (lower(coalesce(e.user.username, '')) like concat('%', lower(:searchTerm), '%') OR lower(coalesce(e.user.firstName, '')) like concat('%', lower(:searchTerm), '%') OR lower(coalesce(e.user.lastName, '')) like concat('%', lower(:searchTerm), '%') OR lower(coalesce(e.productCategory.code, '')) like concat('%', lower(:searchTerm), '%') OR lower(coalesce(e.productCategory.name, '')) like concat('%', lower(:searchTerm), '%')))
+                ]]>
+                </query>
+            </loader>
+        </collection>
+    </data>
+    <facets>
+        <dataLoadCoordinator auto="false"/>
+        <urlQueryParameters>
+            <pagination component="pagination"/>
+        </urlQueryParameters>
+    </facets>
+    <actions>
+        <action id="selectAction" type="lookup_select"/>
+        <action id="discardAction" type="lookup_discard"/>
+    </actions>
+    <layout classNames="warehouse-page-layout">
+<hbox id="buttonsPanel" wrap="true" width="100%" classNames="warehouse-toolbar">
+            <startSlot>
+                <textField id="searchField" placeholder="msg://searchPlaceholder" clearButtonVisible="true" valueChangeMode="LAZY" width="22em" classNames="warehouse-search-field"></textField>
+                <button id="addButton" action="userProductCategoriesDataGrid.addAction" text="Thêm phân công"/>
+                <button id="createButton" action="userProductCategoriesDataGrid.createAction" themeNames="primary" icon="vaadin:plus" text="Tạo mới"/>
+                <button id="editButton" action="userProductCategoriesDataGrid.editAction" icon="vaadin:pencil" text="Sửa"/>
+                <button id="readButton" action="userProductCategoriesDataGrid.readAction" icon="vaadin:eye" text="Xem chi tiết"/>
+                <button id="removeButton" action="userProductCategoriesDataGrid.removeAction" themeNames="error" icon="vaadin:trash" text="Xóa"/>
+            </startSlot>
+            <endSlot>
+                <simplePagination id="pagination" dataLoader="userProductCategoriesDl"/>
+            </endSlot>
+        </hbox>
+        <dataGrid id="userProductCategoriesDataGrid" width="100%" minHeight="20em" dataContainer="userProductCategoriesDc" columnReorderingAllowed="true" classNames="warehouse-data-grid">
+            <actions>
+                <action id="addAction" type="list_add"/>
+                <action id="createAction" type="list_create"/>
+                <action id="editAction" type="list_edit"/>
+                <action id="readAction" type="list_read"/>
+                <action id="removeAction" type="list_remove"/>
+            </actions>
+            <columns resizable="true">
+                <column property="user"/>
+                <column property="productCategory"/>
+            </columns>
+        </dataGrid>
+        <hbox id="lookupActions" visible="false">
+            <button id="selectButton" action="selectAction" text="Chọn"/>
+            <button id="discardButton" action="discardAction" text="Đóng"/>
+        </hbox>
+    </layout>
+</view>

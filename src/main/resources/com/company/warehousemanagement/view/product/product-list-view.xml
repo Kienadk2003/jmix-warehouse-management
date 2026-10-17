@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" xmlns:c="http://jmix.io/schema/flowui/jpql-condition" title="msg://productListView.title" focusComponent="productsDataGrid">
+    <data>
+        <collection id="productsDc" class="com.company.warehousemanagement.entity.Product">
+            <fetchPlan extends="_base">
+                <property name="category" fetchPlan="_base"/>
+                <property name="baseUnit" fetchPlan="_base"/>
+            </fetchPlan>
+            <loader id="productsDl" readOnly="true">
+                <query>
+                    <![CDATA[
+                    select e from Product e where (:searchTerm is null or trim(:searchTerm) = '' or (lower(coalesce(e.code, '')) like concat('%', lower(:searchTerm), '%') OR lower(coalesce(e.name, '')) like concat('%', lower(:searchTerm), '%')))
+                ]]>
+                </query>
+            </loader>
+        </collection>
+    </data>
+    <facets>
+        <dataLoadCoordinator auto="false"/>
+        <urlQueryParameters>
+            <pagination component="pagination"/>
+        </urlQueryParameters>
+    </facets>
+    <actions>
+        <action id="selectAction" type="lookup_select"/>
+        <action id="discardAction" type="lookup_discard"/>
+    </actions>
+    <layout classNames="warehouse-page-layout">
+<hbox id="buttonsPanel" wrap="true" width="100%" classNames="warehouse-toolbar">
+            <startSlot>
+                <textField id="searchField" placeholder="msg://searchPlaceholder" clearButtonVisible="true" valueChangeMode="LAZY" width="22em" classNames="warehouse-search-field"></textField>
+                <button id="createButton" action="productsDataGrid.createAction" themeNames="primary" icon="vaadin:plus" text="Tạo mới"/>
+                <button id="editButton" action="productsDataGrid.editAction" icon="vaadin:pencil" text="Sửa"/>
+                <button id="readButton" action="productsDataGrid.readAction" icon="vaadin:eye" text="Xem chi tiết"/>
+                <button id="removeButton" action="productsDataGrid.removeAction" themeNames="error" icon="vaadin:trash" text="Xóa"/>
+            </startSlot>
+            <endSlot>
+                <simplePagination id="pagination" dataLoader="productsDl"/>
+            </endSlot>
+        </hbox>
+        <dataGrid id="productsDataGrid" width="100%" minHeight="20em" dataContainer="productsDc" columnReorderingAllowed="true" classNames="warehouse-data-grid">
+            <actions>
+                <action id="createAction" type="list_create"/>
+                <action id="editAction" type="list_edit"/>
+                <action id="readAction" type="list_read"/>
+                <action id="removeAction" type="list_remove"/>
+            </actions>
+            <columns resizable="true">
+                <column property="code"/>
+                <column property="name"/>
+                <column property="category"/>
+                <column property="baseUnit"/>
+                <column property="active"/>
+            </columns>
+        </dataGrid>
+        <hbox id="lookupActions" visible="false">
+            <button id="selectButton" action="selectAction" text="Chọn"/>
+            <button id="discardButton" action="discardAction" text="Đóng"/>
+        </hbox>
+    </layout>
+</view>

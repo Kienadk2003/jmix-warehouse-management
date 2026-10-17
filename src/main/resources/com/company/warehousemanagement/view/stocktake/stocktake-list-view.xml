@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" title="Phiếu kiểm kê" focusComponent="stocktakesDataGrid">
+    <data>
+        <collection id="stocktakesDc" class="com.company.warehousemanagement.entity.Stocktake">
+            <fetchPlan extends="_base">
+                <property name="warehouse" fetchPlan="_instance_name"/>
+            </fetchPlan>
+            <loader id="stocktakesDl" readOnly="true">
+                <query><![CDATA[
+                    select e from Stocktake e
+                    where (:searchTerm is null or trim(:searchTerm) = ''
+                        or lower(coalesce(e.documentNo, '')) like concat('%', lower(:searchTerm), '%')
+                        or lower(coalesce(e.warehouse.name, '')) like concat('%', lower(:searchTerm), '%')
+                        or lower(coalesce(e.warehouse.code, '')) like concat('%', lower(:searchTerm), '%'))
+                    order by e.createdDate desc, e.documentNo desc
+                ]]></query>
+            </loader>
+        </collection>
+    </data>
+    <facets>
+        <dataLoadCoordinator auto="false"/>
+    </facets>
+    <layout classNames="warehouse-page-layout">
+<hbox id="buttonsPanel" width="100%" wrap="true" classNames="warehouse-toolbar">
+            <startSlot>
+                <textField id="searchField" placeholder="msg://searchPlaceholder" clearButtonVisible="true" valueChangeMode="LAZY" width="22em" classNames="warehouse-search-field"></textField>
+                <button id="createButton" action="stocktakesDataGrid.createAction" text="Tạo mới" themeNames="primary" icon="vaadin:plus"/>
+                <button id="editButton" action="stocktakesDataGrid.editAction" icon="vaadin:pencil" text="Sửa"/>
+            </startSlot>
+        </hbox>
+        <dataGrid id="stocktakesDataGrid" width="100%" minHeight="20em" dataContainer="stocktakesDc" classNames="warehouse-data-grid">
+            <actions>
+                <action id="createAction" type="list_create">
+                    <properties>
+                        <property name="viewId" value="Stocktake.detail"/>
+                    </properties>
+                </action>
+                <action id="editAction" type="list_edit">
+                    <properties>
+                        <property name="viewId" value="Stocktake.detail"/>
+                    </properties>
+                </action>
+            </actions>
+            <columns>
+                <column property="documentNo" header="Số phiếu"/>
+                <column property="warehouse" header="Kho"/>
+                <column property="status" header="Trạng thái"/>
+                <column property="snapshotAt" header="Thời điểm chụp tồn"/>
+                <column property="approvedAt" header="Thời điểm duyệt"/>
+            </columns>
+        </dataGrid>
+    </layout>
+</view>

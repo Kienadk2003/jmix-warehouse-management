@@ -1,0 +1,105 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" title="msg://UserWarehouseDetailView.title">
+
+    <data>
+
+        <instance id="userWarehouseDc" class="com.company.warehousemanagement.entity.UserWarehouse">
+
+            <fetchPlan extends="_base">
+                <property name="user" fetchPlan="_base"/>
+                <property name="warehouse" fetchPlan="_base"/>
+            </fetchPlan>
+
+            <loader id="userWarehouseDl"/>
+
+        </instance>
+
+        <collection id="usersDc" class="com.company.warehousemanagement.entity.User">
+
+            <fetchPlan extends="_base"/>
+
+            <loader id="usersDl">
+                <query>
+                    
+                        select e
+                        from User e
+                        order by e.username
+                    
+                </query>
+            </loader>
+
+        </collection>
+
+        <collection id="warehousesDc" class="com.company.warehousemanagement.entity.Warehouse">
+
+            <fetchPlan extends="_base"/>
+
+            <loader id="warehousesDl">
+                <query>
+                    
+                        select e
+                        from Warehouse e
+                        where e.active = true
+                        order by e.code
+                    
+                </query>
+            </loader>
+
+        </collection>
+
+        <!-- PRODUCT CATEGORIES -->
+
+        <collection id="productCategoriesDc" class="com.company.warehousemanagement.entity.ProductCategory">
+
+            <fetchPlan extends="_base"/>
+
+            <loader id="productCategoriesDl">
+                <query>
+                    <![CDATA[
+                        select e
+                        from ProductCategory e
+                        where e.active = true
+                        order by e.name
+                    ]]>
+                </query>
+            </loader>
+
+        </collection>
+
+    </data>
+
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+    </facets>
+
+    <actions>
+
+        <action id="saveAction" type="detail_saveClose"/>
+
+        <action id="closeAction" type="detail_close"/>
+
+    </actions>
+
+    <layout classNames="warehouse-page-layout">
+
+        <formLayout width="100%" classNames="warehouse-form-layout">
+
+            <entityComboBox id="userField" dataContainer="userWarehouseDc" property="user" itemsContainer="usersDc" label="Người dùng" width="100%" required="true"/>
+
+            <entityComboBox id="warehouseField" dataContainer="userWarehouseDc" property="warehouse" itemsContainer="warehousesDc" label="Kho" width="100%" required="true"/>
+
+            <entityComboBox id="productCategoryField" dataContainer="userWarehouseDc" property="productCategory" itemsContainer="productCategoriesDc" label="Nhóm sản phẩm" width="100%" required="true"/>
+
+        </formLayout>
+
+        <hbox id="detailActions" justifyContent="END" width="100%" classNames="warehouse-detail-actions">
+
+            <button id="closeButton" action="closeAction" text="Đóng"/>
+
+            <button id="saveButton" action="saveAction"/>
+
+        </hbox>
+
+    </layout>
+
+</view>

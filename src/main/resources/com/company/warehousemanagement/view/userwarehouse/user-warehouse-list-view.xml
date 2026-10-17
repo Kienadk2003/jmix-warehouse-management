@@ -1,0 +1,94 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" title="msg://UserWarehouseListView.title" focusComponent="userWarehousesDataGrid">
+
+    <data>
+        <collection id="userWarehousesDc" class="com.company.warehousemanagement.entity.UserWarehouse">
+            <fetchPlan extends="_base">
+                <property name="user" fetchPlan="_base"/>
+                <property name="warehouse" fetchPlan="_base"/>
+            </fetchPlan>
+
+            <loader id="userWarehousesDl" readOnly="true">
+                <query>
+                    <![CDATA[
+                    select e from UserWarehouse e
+                    where (:searchTerm is null or trim(:searchTerm) = ''
+                        or lower(coalesce(e.user.username, '')) like concat('%', lower(:searchTerm), '%')
+                        or lower(coalesce(e.user.firstName, '')) like concat('%', lower(:searchTerm), '%')
+                        or lower(coalesce(e.user.lastName, '')) like concat('%', lower(:searchTerm), '%')
+                        or lower(coalesce(e.warehouse.code, '')) like concat('%', lower(:searchTerm), '%')
+                        or lower(coalesce(e.warehouse.name, '')) like concat('%', lower(:searchTerm), '%'))
+                    order by e.user.username, e.warehouse.code
+                    ]]>
+                </query>
+            </loader>
+        </collection>
+    </data>
+
+    <actions>
+        <action id="selectAction" type="lookup_select"/>
+        <action id="discardAction" type="lookup_discard"/>
+    </actions>
+
+    <facets>
+        <dataLoadCoordinator auto="false"/>
+        <urlQueryParameters>
+            <pagination component="pagination"/>
+        </urlQueryParameters>
+    </facets>
+
+    <layout classNames="warehouse-page-layout">
+<hbox id="buttonsPanel" width="100%" wrap="true" classNames="warehouse-toolbar">
+
+            <startSlot>
+                <textField id="searchField" placeholder="msg://searchPlaceholder" clearButtonVisible="true" valueChangeMode="LAZY" width="22em" classNames="warehouse-search-field"></textField>
+
+                <button id="createButton" action="userWarehousesDataGrid.createAction" icon="vaadin:plus" text="Tạo mới" themeNames="primary"/>
+
+                <button id="editButton" action="userWarehousesDataGrid.editAction" icon="vaadin:pencil" text="Sửa"/>
+
+                <button id="removeButton" action="userWarehousesDataGrid.removeAction" icon="vaadin:trash" text="Xóa" themeNames="error"/>
+
+            </startSlot>
+
+            <endSlot>
+
+                <simplePagination id="pagination" dataLoader="userWarehousesDl"/>
+
+            </endSlot>
+
+        </hbox>
+
+        <dataGrid id="userWarehousesDataGrid" width="100%" minHeight="20em" dataContainer="userWarehousesDc" columnReorderingAllowed="true" classNames="warehouse-data-grid">
+
+            <actions>
+
+                <action id="createAction" type="list_create"/>
+
+                <action id="editAction" type="list_edit"/>
+
+                <action id="removeAction" type="list_remove"/>
+
+            </actions>
+
+            <columns resizable="true">
+
+                <column property="user"/>
+
+                <column property="warehouse"/>
+
+            </columns>
+
+        </dataGrid>
+
+        <hbox id="lookupActions" visible="false">
+
+            <button id="selectButton" action="selectAction" text="Chọn"/>
+
+            <button id="discardButton" action="discardAction" text="Đóng"/>
+
+        </hbox>
+
+    </layout>
+
+</view>

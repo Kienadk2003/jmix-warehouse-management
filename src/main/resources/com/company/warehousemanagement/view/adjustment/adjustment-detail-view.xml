@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="Phiếu điều chỉnh tồn kho"
+      focusComponent="headerForm">
+
+    <data>
+        <instance id="warehouseTransactionDc"
+                  class="com.company.warehousemanagement.entity.WarehouseTransaction">
+            <fetchPlan extends="_base">
+                <property name="sourceWarehouse" fetchPlan="_instance_name"/>
+                <property name="adjustmentDirection"/>
+                <property name="items">
+                    <property name="lineNo"/>
+                    <property name="quantity"/>
+                    <property name="note"/>
+                    <property name="product" fetchPlan="_instance_name"/>
+                    <property name="unit" fetchPlan="_instance_name"/>
+                </property>
+            </fetchPlan>
+            <loader id="warehouseTransactionDl"/>
+            <collection id="itemsDc" property="items"/>
+        </instance>
+
+        <collection id="warehousesDc"
+                    class="com.company.warehousemanagement.entity.Warehouse">
+            <fetchPlan extends="_instance_name"/>
+            <loader id="warehousesDl">
+                <query>
+                    <![CDATA[
+                        select e
+                        from Warehouse e
+                        where e.active = true
+                    ]]>
+                </query>
+            </loader>
+        </collection>
+    </data>
+
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+    </facets>
+
+    <actions>
+        <action id="saveAction" type="detail_save"/>
+        <action id="closeAction" type="detail_close"/>
+    </actions>
+
+    <layout padding="true" spacing="true" classNames="warehouse-page-layout">
+        <formLayout id="headerForm"
+                    dataContainer="warehouseTransactionDc"
+                    classNames="warehouse-form-layout">
+            <responsiveSteps>
+                <responsiveStep minWidth="0" columns="1"/>
+                <responsiveStep minWidth="40em" columns="2"/>
+            </responsiveSteps>
+
+            <textField id="documentNoField"
+                       property="documentNo"
+                       label="Số phiếu"
+                       readOnly="true"/>
+
+            <entityComboBox id="warehouseField"
+                            property="sourceWarehouse"
+                            label="Kho điều chỉnh"
+                            itemsContainer="warehousesDc"
+                            required="true"
+                            requiredMessage="Vui lòng chọn kho điều chỉnh"/>
+
+            <comboBox id="adjustmentDirectionField"
+                      property="adjustmentDirection"
+                      label="Loại điều chỉnh"
+                      itemsEnum="com.company.warehousemanagement.entity.AdjustmentDirection"
+                      required="true"
+                      requiredMessage="Vui lòng chọn loại điều chỉnh"
+                      placeholder="Chọn tăng hoặc giảm tồn kho"/>
+
+            <datePicker id="documentDateField"
+                        property="documentDate"
+                        label="Ngày chứng từ"
+                        dateFormat="dd/MM/yyyy"
+                        required="true"
+                        requiredMessage="Ngày chứng từ không được để trống"/>
+
+            <textField id="statusField"
+                       label="Trạng thái"
+                       readOnly="true"/>
+
+            <textArea id="reasonField"
+                      property="reason"
+                      label="Lý do điều chỉnh"
+                      required="true"
+                      requiredMessage="Vui lòng nhập lý do điều chỉnh"
+                      maxLength="1000"
+                      width="100%"
+                      colspan="2"
+                      minRows="2"
+                      maxRows="4"/>
+        </formLayout>
+
+        <hbox id="itemsHeader" width="100%" alignItems="CENTER">
+            <h3 text="Danh sách sản phẩm điều chỉnh"/>
+        </hbox>
+
+        <hbox id="itemsButtonsPanel" classNames="buttons-panel">
+            <button id="addItemButton" text="Thêm dòng hàng"/>
+            <button id="editItemButton" text="Sửa dòng hàng"/>
+            <button id="removeItemButton" text="Xóa dòng hàng" themeNames="error"/>
+        </hbox>
+
+        <dataGrid id="itemsDataGrid"
+                  dataContainer="itemsDc"
+                  width="100%"
+                  minHeight="18em"
+                  editorBuffered="true"
+                  classNames="warehouse-data-grid">
+            <columns resizable="true">
+                <column property="lineNo" header="STT" width="5em"/>
+                <column property="product" header="Sản phẩm" editable="true"/>
+                <column property="quantity" header="Số lượng" editable="true"/>
+                <column property="unit" header="Đơn vị tính" editable="true"/>
+                <column property="note" header="Ghi chú" editable="true"/>
+                <editorActionsColumn key="editorActions">
+                    <editButton icon="PENCIL"/>
+                    <saveButton icon="CHECK"/>
+                    <cancelButton icon="CLOSE"/>
+                </editorActionsColumn>
+            </columns>
+        </dataGrid>
+
+        <hbox id="detailActions"
+              classNames="buttons-panel warehouse-detail-actions"
+              width="100%"
+              wrap="true">
+            <button id="saveDraftButton"
+                    action="saveAction"
+                    text="Lưu nháp"/>
+            <button id="submitButton"
+                    text="Gửi duyệt"
+                    themeNames="primary"
+                    visible="false"/>
+            <button id="approveButton"
+                    text="Duyệt"
+                    themeNames="primary success"
+                    visible="false"/>
+            <button id="rejectButton"
+                    text="Từ chối"
+                    themeNames="error"
+                    visible="false"/>
+            <button id="postButton"
+                    text="Ghi sổ"
+                    themeNames="primary"
+                    visible="false"/>
+            <button id="closeButton" action="closeAction" text="Đóng"/>
+            <button id="reverseButton"
+                    text="Đảo phiếu"
+                    themeNames="error"
+                    visible="false"/>
+        </hbox>
+
+        <!-- Preserved from test1 for document attachment integration. -->
+        <vbox id="documentsHost" width="100%" padding="false"/>
+    </layout>
+</view>

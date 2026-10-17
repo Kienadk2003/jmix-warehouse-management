@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" title="msg://partnerDetailView.title" focusComponent="form">
+
+    <data>
+        <instance id="partnerDc" class="com.company.warehousemanagement.entity.Partner">
+            <fetchPlan extends="_base"/>
+            <loader id="partnerDl"/>
+        </instance>
+    </data>
+
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+    </facets>
+
+    <actions>
+        <action id="saveCloseAction" type="detail_saveClose"/>
+        <action id="closeAction" type="detail_close"/>
+    </actions>
+
+    <layout classNames="warehouse-page-layout">
+
+        <formLayout id="form" dataContainer="partnerDc" classNames="warehouse-form-layout">
+
+            <responsiveSteps>
+                <responsiveStep minWidth="0" columns="1"/>
+                <responsiveStep minWidth="40em" columns="2"/>
+            </responsiveSteps>
+
+            <textField id="codeField" property="code"/>
+
+            <textField id="nameField" property="name"/>
+
+            <select id="partnerTypeField" property="partnerType"/>
+
+            <emailField id="emailField" property="email"/>
+
+            <checkbox id="activeField" property="active"/>
+
+        </formLayout>
+
+        <hbox id="detailActions" classNames="warehouse-detail-actions">
+            <button id="saveAndCloseButton" action="saveCloseAction" text="Lưu và đóng"/>
+            <button id="closeButton" action="closeAction" text="Đóng"/>
+        </hbox>
+
+    </layout>
+
+</view>

@@ -1,0 +1,1553 @@
+/* KhoFlow - warehouse management UI, inspired by the supplied export screenshots. */
+:root,
+:host {
+    --wm-primary: #007a75;
+    --wm-primary-dark: #00645f;
+    --wm-primary-soft: #dff3f0;
+    --wm-page-bg: #eaf6f5;
+    --wm-surface: #ffffff;
+    --wm-text: #18333a;
+    --wm-muted: #708187;
+    --wm-border: #dce7e8;
+    --wm-border-soft: #e8eeee;
+    --wm-amber: #d99100;
+    --wm-amber-soft: #fff1d6;
+    --wm-blue: #3d9cb5;
+    --wm-green: #279b78;
+    --vaadin-app-layout-drawer-width: 252px;
+    --aura-app-background: var(--wm-page-bg);
+    --aura-surface-color: var(--wm-surface);
+    --vaadin-primary-color: var(--wm-primary);
+    --vaadin-primary-color-10pct: rgba(0, 122, 117, .10);
+    --vaadin-primary-color-50pct: rgba(0, 122, 117, .50);
+    --vaadin-text-color: var(--wm-text);
+    --vaadin-text-color-secondary: var(--wm-muted);
+    --vaadin-border-color: var(--wm-border);
+    --vaadin-border-color-secondary: var(--wm-border-soft);
+    --vaadin-focus-ring-color: rgba(0, 122, 117, .28);
+}
+
+html,
+body {
+    min-height: 100%;
+    background: var(--wm-page-bg);
+    color: var(--wm-text);
+    font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    font-size: 14px;
+}
+
+/* App shell: white compact header + white left sidebar + pale mint work area. */
+vaadin-app-layout.jmix-main-view-app-layout,
+vaadin-app-layout.warehouse-app-layout {
+    --vaadin-app-layout-drawer-width: 252px;
+    background: var(--wm-page-bg);
+    min-height: 100vh;
+}
+
+vaadin-app-layout.jmix-main-view-app-layout::part(navbar) {
+    min-height: 64px;
+    padding: 0;
+    background: #fff;
+    border-bottom: 1px solid var(--wm-border);
+    box-shadow: 0 2px 10px rgba(24, 51, 58, .025);
+}
+
+vaadin-app-layout.jmix-main-view-app-layout::part(drawer) {
+    background: #fff;
+    border-inline-end: 1px solid var(--wm-border);
+    box-shadow: 2px 0 12px rgba(24, 51, 58, .025);
+}
+
+vaadin-app-layout.jmix-main-view-app-layout::part(content) {
+    background: var(--wm-page-bg);
+}
+
+.jmix-main-view-header,
+.warehouse-main-header {
+    min-height: 64px;
+    width: 100%;
+    gap: 14px;
+    padding: 0 22px;
+    background: #fff;
+    border: 0;
+    border-radius: 0;
+    box-sizing: border-box;
+}
+
+.jmix-main-view-title,
+.warehouse-current-view-title {
+    color: var(--wm-text);
+    font-size: 19px;
+    font-weight: 650;
+    letter-spacing: -.02em;
+}
+
+.jmix-main-view-user-menu,
+.warehouse-user-menu {
+    margin-inline-start: auto;
+    border-radius: 9px;
+}
+
+.jmix-main-view-section,
+.warehouse-sidebar {
+    height: 100%;
+    min-height: 100%;
+    background: #fff;
+}
+
+.jmix-main-view-application-title,
+.warehouse-brand {
+    min-height: 72px;
+    gap: 10px;
+    padding: 16px 18px;
+    margin: 0;
+    border-bottom: 1px solid #f0f4f4;
+    box-sizing: border-box;
+    font-size: 19px;
+    font-weight: 750;
+    letter-spacing: -.03em;
+}
+
+.warehouse-brand-logo {
+    width: 29px;
+    height: 29px;
+    object-fit: contain;
+    flex: 0 0 auto;
+}
+
+.jmix-main-view-application-title-base-link,
+.warehouse-brand-link {
+    color: var(--wm-primary) !important;
+    font-weight: 750;
+    text-decoration: none;
+}
+
+.jmix-main-view-application-title-base-link:hover,
+.warehouse-brand-link:hover {
+    color: var(--wm-primary-dark) !important;
+}
+
+.jmix-main-view-navigation,
+.warehouse-navigation {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    overflow-x: hidden;
+    padding: 12px 10px 18px;
+    box-sizing: border-box;
+}
+
+.jmix-main-view-navigation jmix-list-menu,
+.warehouse-navigation jmix-list-menu {
+    display: block;
+    width: 100%;
+}
+
+.jmix-main-view-navigation vaadin-side-nav-item,
+.warehouse-navigation vaadin-side-nav-item {
+    margin: 2px 0;
+    color: #4c6268;
+    font-size: 13px;
+    border-radius: 9px;
+}
+
+.jmix-main-view-navigation vaadin-side-nav-item::part(item),
+.warehouse-navigation vaadin-side-nav-item::part(item) {
+    min-height: 38px;
+    padding: 0 11px;
+    border-radius: 9px;
+    color: #4c6268;
+    transition: background-color .14s ease, color .14s ease;
+}
+
+.jmix-main-view-navigation vaadin-side-nav-item:hover::part(item),
+.warehouse-navigation vaadin-side-nav-item:hover::part(item) {
+    background: #f0f8f7;
+    color: var(--wm-primary);
+}
+
+.jmix-main-view-navigation vaadin-side-nav-item[active]::part(item),
+.warehouse-navigation vaadin-side-nav-item[active]::part(item) {
+    background: var(--wm-primary-soft);
+    color: var(--wm-primary-dark);
+    font-weight: 650;
+}
+
+.jmix-main-view-navigation vaadin-side-nav-item::part(toggle-button),
+.warehouse-navigation vaadin-side-nav-item::part(toggle-button) {
+    color: #7d9095;
+}
+
+.warehouse-sidebar-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: auto;
+    padding: 14px 18px 18px;
+    border-top: 1px solid #f0f4f4;
+    color: var(--wm-muted);
+}
+
+.warehouse-sidebar-footer-label {
+    font-size: 9px;
+    letter-spacing: .12em;
+    font-weight: 700;
+}
+
+.warehouse-sidebar-footer-copyright {
+    font-size: 11px;
+}
+
+/* Root page surfaces shared by list, detail and report views. */
+vaadin-vertical-layout.warehouse-page-layout,
+vaadin-horizontal-layout.warehouse-page-layout {
+    width: 100%;
+    min-width: 0;
+    padding: 22px 24px;
+    gap: 16px;
+    box-sizing: border-box;
+    background: transparent;
+}
+
+.warehouse-filter {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 16px 18px;
+    border: 1px solid var(--wm-border);
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 3px 10px rgba(24, 51, 58, .035);
+}
+
+.warehouse-toolbar,
+.warehouse-detail-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 9px;
+    box-sizing: border-box;
+}
+
+.warehouse-toolbar {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--wm-border);
+    border-radius: 12px;
+    background: #fff;
+}
+
+.warehouse-detail-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    width: 100%;
+    padding: 14px 18px;
+    margin-top: 6px;
+    border: 1px solid var(--wm-border);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, .97);
+    box-shadow: 0 -5px 18px rgba(24, 51, 58, .035);
+}
+
+.warehouse-form-layout {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 20px 22px;
+    border: 1px solid var(--wm-border);
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 3px 10px rgba(24, 51, 58, .03);
+}
+
+.warehouse-status-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 12px 16px;
+    border: 1px solid var(--wm-border);
+    border-radius: 10px;
+    background: #fff;
+}
+
+/* Tables: soft grey header, subtle separators, rounded outside edge. */
+vaadin-grid.warehouse-data-grid {
+    width: 100%;
+    min-width: 0;
+    border: 1px solid var(--wm-border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 4px 14px rgba(24, 51, 58, .035);
+    --vaadin-grid-cell-background: #fff;
+    --vaadin-grid-cell-padding: 12px 14px;
+    --vaadin-grid-header-background: #f0f4f5;
+}
+
+vaadin-grid.warehouse-data-grid::part(header-cell) {
+    background: #eef2f4;
+    color: #52666d;
+    font-size: 12px;
+    font-weight: 700;
+    border-bottom: 1px solid #dfe7e8;
+}
+
+vaadin-grid.warehouse-data-grid::part(body-cell) {
+    color: #294149;
+    font-size: 13px;
+    border-bottom: 1px solid #edf1f2;
+}
+
+vaadin-grid.warehouse-data-grid::part(row):hover vaadin-grid-cell-content,
+vaadin-grid.warehouse-data-grid::part(row):hover {
+    background: #f3fbfa;
+}
+
+vaadin-grid.warehouse-data-grid::part(row)[selected] {
+    background: #e5f5f3;
+}
+
+vaadin-grid.warehouse-data-grid::part(footer-cell) {
+    background: #fbfcfc;
+    color: var(--wm-muted);
+    border-top: 1px solid var(--wm-border);
+}
+
+/* Buttons and fields follow the flat, rounded teal controls in the references. */
+vaadin-button {
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px;
+}
+
+vaadin-button::part(button) {
+    min-height: 36px;
+    padding-inline: 14px;
+    border-radius: 8px;
+    box-shadow: none;
+    transition: background-color .14s ease, border-color .14s ease, color .14s ease;
+}
+
+vaadin-button[theme~="primary"]::part(button) {
+    color: #fff;
+    background: var(--wm-primary);
+    border: 1px solid var(--wm-primary);
+}
+
+vaadin-button[theme~="primary"]:hover::part(button) {
+    background: var(--wm-primary-dark);
+    border-color: var(--wm-primary-dark);
+}
+
+vaadin-button:not([theme~="primary"]):not([theme~="tertiary"]):not([theme~="tertiary-inline"]):not([theme~="icon"])::part(button) {
+    border: 1px solid #cedbdd;
+    background: #fff;
+    color: #355058;
+}
+
+vaadin-button:not([theme~="primary"]):not([theme~="tertiary"]):not([theme~="tertiary-inline"]):not([theme~="icon"]):hover::part(button) {
+    border-color: #9fcac6;
+    background: #f5fbfa;
+    color: var(--wm-primary-dark);
+}
+
+vaadin-button[theme~="error"]::part(button) {
+    color: #fff;
+    background: #c64b53;
+    border-color: #c64b53;
+}
+
+vaadin-text-field::part(input-field),
+vaadin-number-field::part(input-field),
+vaadin-big-decimal-field::part(input-field),
+vaadin-password-field::part(input-field),
+vaadin-combo-box::part(input-field),
+vaadin-combo-box-light::part(input-field),
+vaadin-date-picker::part(input-field),
+vaadin-date-time-picker::part(input-field),
+vaadin-time-picker::part(input-field),
+vaadin-select::part(input-field),
+vaadin-text-area::part(input-field) {
+    border-radius: 8px;
+    border: 1px solid #d7e1e3;
+    background: #fff;
+    box-shadow: none;
+}
+
+vaadin-text-field:focus-within::part(input-field),
+vaadin-number-field:focus-within::part(input-field),
+vaadin-big-decimal-field:focus-within::part(input-field),
+vaadin-combo-box:focus-within::part(input-field),
+vaadin-date-picker:focus-within::part(input-field),
+vaadin-date-time-picker:focus-within::part(input-field),
+vaadin-select:focus-within::part(input-field),
+vaadin-text-area:focus-within::part(input-field) {
+    border-color: var(--wm-primary);
+    box-shadow: 0 0 0 2px rgba(0, 122, 117, .10);
+}
+
+vaadin-form-layout {
+    --vaadin-form-item-label-font-weight: 600;
+    --vaadin-form-item-label-color: #52676d;
+}
+
+[theme~="badge"] {
+    border-radius: 999px;
+    padding: 4px 10px;
+    background: #e0f4f0;
+    color: #006d67;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+h1, h2, h3, h4 {
+    color: var(--wm-text);
+    letter-spacing: -.02em;
+}
+
+/* Dashboard assembled in MainView's initial layout. */
+.warehouse-initial-layout {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    padding: 22px 24px 28px;
+    box-sizing: border-box;
+    overflow: auto;
+    align-items: stretch;
+    justify-content: flex-start;
+    background: var(--wm-page-bg);
+}
+
+.warehouse-dashboard {
+    width: 100%;
+    max-width: 1640px;
+    margin-inline: auto;
+    gap: 18px;
+    box-sizing: border-box;
+}
+
+.warehouse-dashboard-heading {
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 2px;
+}
+
+.warehouse-dashboard-heading-copy {
+    gap: 5px;
+}
+
+.warehouse-eyebrow {
+    color: var(--wm-primary);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .16em;
+}
+
+.warehouse-dashboard-title {
+    margin: 0;
+    font-size: 28px;
+    line-height: 1.2;
+    font-weight: 750;
+}
+
+.warehouse-dashboard-subtitle,
+.warehouse-panel-subtitle {
+    color: var(--wm-muted);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.warehouse-dashboard-mark {
+    align-self: center;
+    padding: 8px 12px;
+    border: 1px solid #cfe7e4;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .72);
+    color: var(--wm-primary-dark);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    white-space: nowrap;
+}
+
+.warehouse-dashboard-hero-grid,
+.warehouse-dashboard-stat-grid,
+.warehouse-dashboard-bottom-grid {
+    gap: 16px;
+}
+
+.warehouse-hero-card {
+    flex: 1 1 360px;
+    width: auto !important;
+    min-width: 260px;
+    min-height: 150px;
+    gap: 7px;
+    padding: 21px 24px;
+    box-sizing: border-box;
+    border-radius: 14px;
+    color: #fff;
+    box-shadow: 0 7px 18px rgba(21, 70, 72, .10);
+    overflow: hidden;
+    position: relative;
+}
+
+.warehouse-hero-card::after {
+    content: "";
+    position: absolute;
+    width: 190px;
+    height: 190px;
+    right: -35px;
+    bottom: -115px;
+    border: 22px solid rgba(255, 255, 255, .075);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.warehouse-hero-card-teal {
+    background: linear-gradient(120deg, #006d68, #00827b);
+}
+
+.warehouse-hero-card-amber {
+    background: linear-gradient(120deg, #c98400, #e1a000);
+}
+
+.warehouse-hero-card-top {
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.warehouse-hero-label {
+    font-size: 15px;
+    font-weight: 650;
+    color: rgba(255, 255, 255, .96);
+}
+
+.warehouse-hero-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    color: #fff;
+    background: rgba(255, 255, 255, .14);
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.warehouse-hero-value {
+    color: #fff;
+    font-size: 36px;
+    line-height: 1.15;
+    font-weight: 800;
+    letter-spacing: -.04em;
+}
+
+.warehouse-hero-note {
+    color: rgba(255, 255, 255, .76);
+    font-size: 12px;
+}
+
+.warehouse-dashboard-panel {
+    min-width: 0;
+    gap: 14px;
+    padding: 20px;
+    box-sizing: border-box;
+    border: 1px solid var(--wm-border);
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 5px 16px rgba(24, 51, 58, .035);
+}
+
+.warehouse-transaction-summary {
+    gap: 15px;
+}
+
+.warehouse-panel-heading {
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.warehouse-panel-title {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 750;
+}
+
+.warehouse-panel-subtitle {
+    margin-top: -8px;
+}
+
+.warehouse-stat-card {
+    flex: 1 1 230px;
+    width: auto !important;
+    min-height: 102px;
+    gap: 7px;
+    padding: 16px 17px;
+    border: 1px solid #e3ebec;
+    border-radius: 11px;
+    box-sizing: border-box;
+    background: #fbfdfd;
+}
+
+.warehouse-stat-label {
+    color: #52676d;
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.warehouse-stat-value {
+    color: var(--wm-text);
+    font-size: 25px;
+    line-height: 1.15;
+    font-weight: 800;
+    letter-spacing: -.03em;
+}
+
+.warehouse-stat-footnote {
+    color: #87969a;
+    font-size: 11px;
+}
+
+.warehouse-stat-combined {
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+.warehouse-stat-divider {
+    display: inline-block;
+    width: 1px;
+    height: 19px;
+    margin: 0 4px;
+    background: #d8e3e4;
+}
+
+.warehouse-quick-access,
+.warehouse-workflow-panel {
+    flex: 1 1 420px;
+    width: auto !important;
+    gap: 12px;
+}
+
+.warehouse-quick-actions,
+.warehouse-dashboard-report-actions {
+    gap: 9px;
+    margin-top: 4px;
+}
+
+.warehouse-workflow-strip {
+    gap: 10px;
+    align-items: center;
+    padding: 8px 0 4px;
+}
+
+.warehouse-workflow-step {
+    flex: 1 1 70px;
+    min-width: 60px;
+    gap: 8px;
+    align-items: center;
+    text-align: center;
+}
+
+.warehouse-workflow-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    color: var(--wm-primary-dark);
+    background: var(--wm-primary-soft);
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.warehouse-workflow-step:nth-child(5) .warehouse-workflow-number {
+    color: #8b5d00;
+    background: var(--wm-amber-soft);
+}
+
+.warehouse-workflow-label {
+    color: #52676d;
+    font-size: 11px;
+    font-weight: 650;
+}
+
+.warehouse-workflow-arrow {
+    align-self: center;
+    color: #a6b6b9;
+    font-size: 26px;
+    line-height: 1;
+}
+
+/* Login and empty states use the same theme without changing authentication logic. */
+.jmix-login-main-layout {
+    background: var(--wm-page-bg);
+}
+
+.jmix-login-main-layout jmix-login-form::part(form) {
+    border: 1px solid var(--wm-border);
+    border-radius: 16px;
+    box-shadow: 0 16px 40px rgba(24, 51, 58, .10);
+}
+
+/* Keep UI usable on laptop/tablet widths and narrow windows. */
+@media (max-width: 1000px) {
+    :root,
+    :host {
+        --vaadin-app-layout-drawer-width: 224px;
+    }
+
+    vaadin-app-layout.jmix-main-view-app-layout {
+        --vaadin-app-layout-drawer-width: 224px;
+    }
+
+    .warehouse-page-layout,
+    vaadin-vertical-layout.warehouse-page-layout,
+    vaadin-horizontal-layout.warehouse-page-layout {
+        padding: 16px;
+    }
+
+    .warehouse-initial-layout {
+        padding: 16px;
+    }
+
+    .warehouse-dashboard-title {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 650px) {
+    .warehouse-dashboard-heading {
+        align-items: flex-start;
+    }
+
+    .warehouse-dashboard-mark {
+        display: none;
+    }
+
+    .warehouse-dashboard-panel {
+        padding: 15px;
+    }
+
+    .warehouse-hero-card {
+        min-width: 100%;
+    }
+
+    .warehouse-workflow-arrow {
+        display: none;
+    }
+}
+
+.warehouse-dashboard-heading-actions {
+    gap: 12px;
+    align-items: center;
+    margin-inline-start: auto;
+}
+
+/* Final UI polish: list pages, detail forms and warehouse reporting. */
+.warehouse-page-layout {
+    align-content: start;
+    gap: 14px !important;
+    padding: 22px 24px 28px !important;
+}
+
+.warehouse-filter {
+    padding: 13px 16px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 8px rgba(18, 68, 70, .025) !important;
+}
+
+.warehouse-filter vaadin-details::part(summary),
+.warehouse-filter vaadin-details-summary,
+.warehouse-filter [part~="summary"] {
+    color: #28484d;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.warehouse-filter vaadin-details::part(toggle) {
+    color: var(--wm-primary);
+}
+
+.warehouse-toolbar {
+    padding: 11px 13px !important;
+    gap: 9px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 8px rgba(18, 68, 70, .025) !important;
+}
+
+.warehouse-toolbar vaadin-button::part(button) {
+    min-height: 37px;
+    padding-inline: 13px;
+}
+
+.warehouse-form-layout {
+    padding: 24px !important;
+    gap: 22px 20px;
+    border-radius: 14px !important;
+    box-shadow: 0 3px 12px rgba(18, 68, 70, .035) !important;
+}
+
+.warehouse-form-layout vaadin-form-item::part(label),
+.warehouse-form-layout label {
+    color: #29484e;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.warehouse-form-layout vaadin-text-field,
+.warehouse-form-layout vaadin-number-field,
+.warehouse-form-layout vaadin-combo-box,
+.warehouse-form-layout vaadin-date-picker,
+.warehouse-form-layout vaadin-date-time-picker,
+.warehouse-form-layout vaadin-select,
+.warehouse-form-layout vaadin-text-area,
+.warehouse-form-layout vaadin-entity-picker,
+.warehouse-form-layout vaadin-checkbox {
+    min-width: 0;
+}
+
+.warehouse-detail-actions {
+    justify-content: flex-end;
+    padding: 13px 16px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 8px rgba(18, 68, 70, .025) !important;
+}
+
+.warehouse-detail-actions vaadin-button[theme~="primary"]::part(button) {
+    min-width: 138px;
+}
+
+vaadin-grid.warehouse-data-grid {
+    --vaadin-grid-cell-padding: 11px 14px;
+    border-radius: 12px !important;
+}
+
+vaadin-grid.warehouse-data-grid::part(header-cell) {
+    background: #edf3f4;
+    color: #49636a;
+    font-size: 12px;
+    letter-spacing: .01em;
+}
+
+vaadin-grid.warehouse-data-grid::part(body-cell) {
+    font-size: 13px;
+}
+
+/* A clearer, icon-led report page matching the supplied reference. */
+.warehouse-reports-page {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 22px 24px 30px;
+    background: transparent;
+}
+
+.warehouse-reports-heading {
+    margin: 0 0 18px;
+}
+
+.warehouse-reports-title {
+    margin: 0 0 5px;
+    font-size: 25px;
+    font-weight: 750;
+    letter-spacing: -.035em;
+}
+
+.warehouse-reports-subtitle {
+    display: block;
+    color: var(--wm-muted);
+    font-size: 13px;
+}
+
+.warehouse-report-filters {
+    box-sizing: border-box;
+    padding: 20px;
+    margin-bottom: 18px;
+    align-items: flex-end;
+    gap: 14px;
+    border: 1px solid var(--wm-border);
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 3px 12px rgba(24, 51, 58, .035);
+}
+
+.warehouse-report-filters vaadin-date-picker,
+.warehouse-report-filters vaadin-combo-box,
+.warehouse-report-filters vaadin-text-field {
+    flex: 1 1 175px;
+    min-width: 155px;
+}
+
+.warehouse-report-submit::part(button) {
+    min-height: 40px;
+    padding-inline: 20px;
+}
+
+.warehouse-report-results {
+    gap: 16px;
+}
+
+.warehouse-report-kpis {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.warehouse-report-kpi-card {
+    flex: 1 1 220px;
+    box-sizing: border-box;
+    min-width: 0;
+    gap: 7px;
+    padding: 18px 20px;
+    border: 1px solid var(--wm-border);
+    border-radius: 13px;
+    background: #fff;
+    box-shadow: 0 3px 12px rgba(24, 51, 58, .03);
+}
+
+.warehouse-report-kpi-icon {
+    width: 36px;
+    height: 36px;
+    padding: 9px;
+    box-sizing: border-box;
+    border-radius: 10px;
+    color: var(--wm-primary);
+    background: var(--wm-primary-soft);
+}
+
+.warehouse-report-kpi-label {
+    color: #5c7379;
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.warehouse-report-kpi-value {
+    margin: 0;
+    color: #173a40;
+    font-size: 29px;
+    line-height: 1.2;
+    font-weight: 800;
+}
+
+.warehouse-report-note {
+    display: block;
+    padding: 11px 14px;
+    color: #5c7379;
+    font-size: 12px;
+    line-height: 1.55;
+    border: 1px solid #e0ebeb;
+    border-radius: 9px;
+    background: #f7fbfb;
+}
+
+.warehouse-report-tabs {
+    display: block;
+    padding: 12px 14px 16px;
+    border: 1px solid var(--wm-border);
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 3px 12px rgba(24, 51, 58, .03);
+}
+
+.warehouse-report-tabs::part(tab) {
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.warehouse-report-tabs::part(selected-tab) {
+    color: var(--wm-primary);
+}
+
+.warehouse-report-section {
+    box-sizing: border-box;
+    padding: 14px 2px 2px;
+    gap: 12px;
+}
+
+.warehouse-report-section h3 {
+    margin: 5px 0 0;
+    font-size: 17px;
+    font-weight: 750;
+}
+
+.warehouse-report-section > vaadin-horizontal-layout > span,
+.warehouse-report-section > span {
+    color: #62787d;
+    font-size: 12px;
+}
+
+.warehouse-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 13px;
+    min-height: 220px;
+    padding: 24px 16px;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.warehouse-empty-illustration {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 104px;
+    height: 84px;
+    position: relative;
+    border-radius: 24px;
+    background: #f1f5f6;
+}
+
+.warehouse-empty-illustration::before {
+    content: "";
+    position: absolute;
+    width: 57px;
+    height: 48px;
+    left: 23px;
+    top: 14px;
+    border: 1.5px solid #aab9be;
+    border-radius: 7px;
+    background: #fff;
+    box-shadow: 0 12px 0 -2px #fff, 0 12px 0 -1px #aab9be, 0 24px 0 -4px #fff, 0 24px 0 -3px #aab9be;
+}
+
+.warehouse-empty-illustration span {
+    z-index: 1;
+    margin-top: -22px;
+    color: #82949a;
+    font-size: 26px;
+    letter-spacing: 3px;
+}
+
+.warehouse-empty-copy h3 {
+    margin: 0 0 5px;
+    color: #29484e;
+    font-size: 14px;
+    font-weight: 750;
+}
+
+.warehouse-empty-copy span {
+    display: block;
+    max-width: 360px;
+    color: #829197;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.warehouse-report-error {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px;
+    color: #a13e45;
+    border: 1px solid #f1d4d6;
+    border-radius: 10px;
+    background: #fff8f8;
+}
+
+@media (max-width: 760px) {
+    .warehouse-page-layout,
+    .warehouse-reports-page {
+        padding: 14px !important;
+    }
+    .warehouse-form-layout {
+        padding: 16px !important;
+    }
+    .warehouse-report-filters {
+        padding: 14px;
+    }
+    .warehouse-report-kpi-card {
+        flex-basis: 100%;
+    }
+}
+
+
+/* ===== Figma-aligned final overrides (source theme; not generated assets) ===== */
+:root, :host {
+  --wm-primary: #087f78;
+  --wm-primary-dark: #066b65;
+  --wm-primary-soft: #e1f5f2;
+  --wm-page-bg: #f3f8f8;
+  --wm-surface: #ffffff;
+  --wm-text: #243746;
+  --wm-muted: #667985;
+  --wm-border: #dce7eb;
+}
+vaadin-app-layout.jmix-main-view-app-layout::part(content) { background: #f3f8f8 !important; }
+vaadin-app-layout.jmix-main-view-app-layout::part(navbar) { background: #fff !important; border-bottom: 1px solid #e2eaed !important; }
+vaadin-app-layout.jmix-main-view-app-layout::part(drawer) { background: #fff !important; border-inline-end: 1px solid #e2eaed !important; }
+.jmix-main-view-navigation vaadin-side-nav-item[active]::part(item) { background: #e5f5f3 !important; color: #087f78 !important; font-weight: 700 !important; }
+.jmix-main-view-navigation vaadin-side-nav-item::part(item) { min-height: 40px !important; border-radius: 9px !important; }
+
+/* List pages: visually separate search/filter, action toolbar and data table. */
+vaadin-vertical-layout.warehouse-page-layout { padding: 22px 24px 30px !important; gap: 14px !important; }
+.warehouse-filter { padding: 16px 18px !important; background: #fff !important; border: 1px solid #dce7eb !important; border-radius: 14px !important; box-shadow: 0 3px 12px rgba(28,70,77,.035) !important; }
+.warehouse-filter vaadin-details::part(summary), .warehouse-filter [part~="summary"] { font-weight: 700 !important; color: #243746 !important; }
+.warehouse-toolbar { padding: 12px 14px !important; background: #fff !important; border: 1px solid #dce7eb !important; border-radius: 13px !important; box-shadow: 0 3px 12px rgba(28,70,77,.025) !important; }
+.warehouse-toolbar vaadin-button::part(button) { min-height: 38px !important; border-radius: 8px !important; }
+vaadin-grid.warehouse-data-grid { min-height: 300px; background: #fff !important; border: 1px solid #dce7eb !important; border-radius: 12px !important; box-shadow: 0 3px 12px rgba(28,70,77,.025) !important; }
+vaadin-grid.warehouse-data-grid::part(header-cell) { background: #f1f5f6 !important; color: #405a63 !important; font-weight: 700 !important; border-bottom: 1px solid #d8e5e8 !important; }
+vaadin-grid.warehouse-data-grid::part(body-cell) { border-bottom: 1px solid #edf2f3 !important; }
+
+/* Detail pages: consistent white form card and visible footer actions. */
+.warehouse-form-layout { padding: 26px !important; background: #fff !important; border: 1px solid #dce7eb !important; border-radius: 14px !important; box-shadow: 0 3px 12px rgba(28,70,77,.03) !important; gap: 22px 20px !important; }
+.warehouse-form-layout vaadin-text-field, .warehouse-form-layout vaadin-number-field, .warehouse-form-layout vaadin-combo-box, .warehouse-form-layout vaadin-date-picker, .warehouse-form-layout vaadin-date-time-picker, .warehouse-form-layout vaadin-select, .warehouse-form-layout vaadin-text-area, .warehouse-form-layout vaadin-entity-picker { width: 100%; }
+.warehouse-form-layout vaadin-text-field::part(label), .warehouse-form-layout vaadin-number-field::part(label), .warehouse-form-layout vaadin-combo-box::part(label), .warehouse-form-layout vaadin-date-picker::part(label), .warehouse-form-layout vaadin-date-time-picker::part(label), .warehouse-form-layout vaadin-select::part(label), .warehouse-form-layout vaadin-text-area::part(label), .warehouse-form-layout vaadin-entity-picker::part(label) { color: #314d56 !important; font-weight: 650 !important; }
+.warehouse-detail-actions { padding: 14px 18px !important; background: #fff !important; border: 1px solid #dce7eb !important; border-radius: 13px !important; box-shadow: 0 3px 12px rgba(28,70,77,.025) !important; }
+.warehouse-detail-actions vaadin-button[theme~="primary"]::part(button) { background: #087f78 !important; border-color: #087f78 !important; }
+
+/* Report screen layout mirrors the Figma: heading, filter card, KPI cards, tabs and report tables. */
+.warehouse-reports-page { padding: 22px 24px 32px !important; box-sizing: border-box !important; }
+.warehouse-reports-heading { margin: 0 0 18px !important; }
+.warehouse-reports-title { color: #243746 !important; font-size: 25px !important; font-weight: 750 !important; margin: 0 0 6px !important; }
+.warehouse-reports-subtitle { color: #667985 !important; line-height: 1.5 !important; }
+.warehouse-report-filters { padding: 20px !important; margin-bottom: 18px !important; border: 1px solid #dce7eb !important; border-radius: 14px !important; background: #fff !important; box-shadow: 0 3px 12px rgba(28,70,77,.035) !important; gap: 14px !important; }
+.warehouse-report-filters vaadin-date-picker, .warehouse-report-filters vaadin-combo-box, .warehouse-report-filters vaadin-text-field { flex: 1 1 180px !important; min-width: 165px !important; }
+.warehouse-report-submit::part(button) { min-height: 40px !important; padding-inline: 20px !important; border-radius: 8px !important; background: #087f78 !important; border-color: #087f78 !important; }
+.warehouse-report-results { gap: 16px !important; }
+.warehouse-report-kpis { display: grid !important; grid-template-columns: repeat(3,minmax(0,1fr)) !important; gap: 14px !important; }
+.warehouse-report-kpi-card { min-height: 128px !important; padding: 18px 20px !important; border: 1px solid #dce7eb !important; border-radius: 13px !important; background: #fff !important; box-shadow: 0 3px 12px rgba(28,70,77,.03) !important; }
+.warehouse-report-kpi-icon { display: inline-flex !important; align-items: center !important; justify-content: center !important; width: 38px !important; height: 38px !important; padding: 9px !important; border-radius: 11px !important; color: #087f78 !important; background: #e1f5f2 !important; }
+.warehouse-report-kpi-value { color: #243746 !important; font-size: 29px !important; }
+.warehouse-report-tabs { padding: 12px 14px 16px !important; border: 1px solid #dce7eb !important; border-radius: 14px !important; background: #fff !important; box-shadow: 0 3px 12px rgba(28,70,77,.025) !important; }
+.warehouse-report-tabs::part(tab) { color: #536b74 !important; font-weight: 650 !important; }
+.warehouse-report-tabs::part(selected-tab) { color: #087f78 !important; }
+.warehouse-report-section { padding: 16px 2px 2px !important; gap: 12px !important; }
+.warehouse-report-section h3 { color: #243746 !important; font-size: 17px !important; }
+.warehouse-report-section vaadin-grid { min-height: 210px !important; }
+.warehouse-empty-state { min-height: 250px !important; padding: 28px 18px !important; border-radius: 12px !important; background: #fff !important; }
+.warehouse-empty-illustration { width: 132px !important; height: 102px !important; border-radius: 28px !important; background: #f4f7f8 !important; }
+.warehouse-empty-illustration::before { width: 68px !important; height: 53px !important; left: 31px !important; top: 16px !important; border-color: #aab8bd !important; }
+.warehouse-empty-illustration span { font-size: 0 !important; }
+.warehouse-empty-illustration span::after { content: "•••"; color: #84959b; font-size: 22px; letter-spacing: 4px; }
+.warehouse-empty-copy h3 { color: #243746 !important; font-size: 15px !important; }
+.warehouse-empty-copy span { color: #667985 !important; font-size: 12px !important; }
+@media (max-width: 850px) { .warehouse-report-kpis { grid-template-columns: 1fr !important; } .warehouse-reports-page { padding: 14px !important; } }
+
+
+/* --- Consistent filter surface: compact, calm, and distinct from the data table --- */
+jmix-generic-filter,
+jmix-generic-filter.warehouse-filter,
+.warehouse-filter {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 18px 20px;
+    margin: 0;
+    background: #fff;
+    border: 1px solid #d9e8e8;
+    border-radius: 14px;
+    box-shadow: 0 5px 18px rgba(14, 73, 77, .045);
+    color: var(--wm-text);
+}
+jmix-generic-filter::part(header),
+jmix-generic-filter::part(summary),
+jmix-generic-filter::part(content) {
+    background: transparent;
+}
+jmix-generic-filter vaadin-button,
+jmix-generic-filter button {
+    border-radius: 9px;
+    font-weight: 600;
+}
+jmix-generic-filter vaadin-button[theme~="primary"],
+jmix-generic-filter button[theme~="primary"] {
+    background: var(--wm-primary);
+    color: #fff;
+    box-shadow: none;
+}
+jmix-generic-filter vaadin-button[theme~="tertiary"],
+jmix-generic-filter button[theme~="tertiary"] {
+    color: var(--wm-primary);
+}
+jmix-generic-filter vaadin-text-field,
+jmix-generic-filter vaadin-combo-box,
+jmix-generic-filter vaadin-date-picker,
+jmix-generic-filter vaadin-number-field,
+jmix-generic-filter vaadin-select {
+    --vaadin-input-field-background: #f8fbfb;
+    --vaadin-input-field-border-color: #d7e3e5;
+    --vaadin-input-field-border-radius: 9px;
+}
+jmix-generic-filter [part="summary"] {
+    font-weight: 650;
+    color: #25444a;
+}
+.warehouse-filter vaadin-horizontal-layout,
+.warehouse-filter vaadin-vertical-layout {
+    gap: 10px;
+}
+
+/* Language toggle in the header */
+.warehouse-language-button {
+    min-width: 42px;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid #dce7e8;
+    border-radius: 9px;
+    background: #fff;
+    color: #536a70;
+    font-size: 12px;
+    font-weight: 700;
+}
+.warehouse-language-button:hover,
+.warehouse-language-active {
+    color: var(--wm-primary);
+    border-color: #a9d8d4;
+    background: #e9f7f5;
+}
+
+/* Navigation icons: small line-icon tiles attached to each route. */
+vaadin-side-nav-item[href*="products"]::part(item),
+vaadin-side-nav-item[href*="product-categories"]::part(item),
+vaadin-side-nav-item[href*="units"]::part(item),
+vaadin-side-nav-item[href*="partners"]::part(item),
+vaadin-side-nav-item[href*="warehouses"]::part(item),
+vaadin-side-nav-item[href*="inventory"]::part(item),
+vaadin-side-nav-item[href*="warehouse-operations"]::part(item),
+vaadin-side-nav-item[href*="transfers"]::part(item),
+vaadin-side-nav-item[href*="stock-card"]::part(item),
+vaadin-side-nav-item[href*="warehouse-reports"]::part(item),
+vaadin-side-nav-item[href*="users"]::part(item) {
+    background-repeat: no-repeat;
+    background-position: 12px center;
+    background-size: 16px 16px;
+    padding-inline-start: 36px;
+}
+vaadin-side-nav-item[href*="products"]::part(item) { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23007a75' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m12 3 9 5-9 5-9-5 9-5Z'/%3E%3Cpath d='m3 8 9 5 9-5M3 13l9 5 9-5M3 8v8l9 5 9-5V8'/%3E%3C/svg%3E"); }
+vaadin-side-nav-item[href*="warehouses"]::part(item),
+vaadin-side-nav-item[href*="inventory"]::part(item) { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23007a75' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 10 9-7 9 7v10H3z'/%3E%3Cpath d='M9 20v-6h6v6M7 10h.01M17 10h.01'/%3E%3C/svg%3E"); }
+vaadin-side-nav-item[href*="users"]::part(item) { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23007a75' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='9' cy='8' r='3'/%3E%3Cpath d='M3 20v-2a6 6 0 0 1 12 0v2M17 5a3 3 0 0 1 0 6M18 14a4 4 0 0 1 3 4v2'/%3E%3C/svg%3E"); }
+vaadin-side-nav-item[href*="warehouse-operations"]::part(item),
+vaadin-side-nav-item[href*="transfers"]::part(item) { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23007a75' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h13l-3-3M20 17H7l3 3'/%3E%3Cpath d='M17 4l3 3-3 3M7 14l-3 3 3 3'/%3E%3C/svg%3E"); }
+vaadin-side-nav-item[href*="warehouse-reports"]::part(item),
+vaadin-side-nav-item[href*="stock-card"]::part(item) { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23007a75' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 19V5M4 19h17'/%3E%3Cpath d='m7 15 4-4 3 2 5-6'/%3E%3C/svg%3E"); }
+
+/* Remove unused technical menu groups if they are contributed by a default menu config. */
+
+/* v8: compact single language switch beside the account menu */
+.warehouse-main-header .warehouse-language-button {
+    flex: 0 0 auto;
+    min-width: 48px !important;
+    height: 36px !important;
+    margin-inline-start: auto;
+    margin-inline-end: 8px;
+    border: 1px solid #cfe2e2 !important;
+    border-radius: 10px !important;
+    background: #ffffff !important;
+    color: #087f78 !important;
+    font-size: 12px !important;
+    font-weight: 750 !important;
+    box-shadow: 0 2px 6px rgba(20, 75, 80, .05);
+}
+.warehouse-main-header .warehouse-language-button::part(button) {
+    min-height: 36px;
+    padding: 0 12px;
+}
+.warehouse-main-header .warehouse-language-button:hover {
+    background: #eaf7f6 !important;
+    border-color: #87c9c3 !important;
+}
+
+/* v8: reduce the default GenericFilter panel so it reads as a compact search/filter strip. */
+.warehouse-page-layout > jmix-generic-filter.warehouse-filter {
+    padding: 8px 12px !important;
+    margin: 0 0 2px !important;
+    border: 1px solid #d7e6e8 !important;
+    border-radius: 12px !important;
+    box-shadow: none !important;
+    background: #fff !important;
+}
+.warehouse-page-layout > jmix-generic-filter.warehouse-filter::part(header),
+.warehouse-page-layout > jmix-generic-filter.warehouse-filter::part(summary) {
+    min-height: 28px !important;
+    padding: 2px 4px !important;
+    color: #087f78 !important;
+    font-size: 13px !important;
+    font-weight: 650 !important;
+}
+.warehouse-page-layout > jmix-generic-filter.warehouse-filter::part(content) {
+    padding: 8px 2px 2px !important;
+}
+.warehouse-page-layout > jmix-generic-filter.warehouse-filter vaadin-text-field,
+.warehouse-page-layout > jmix-generic-filter.warehouse-filter vaadin-combo-box,
+.warehouse-page-layout > jmix-generic-filter.warehouse-filter vaadin-date-picker,
+.warehouse-page-layout > jmix-generic-filter.warehouse-filter vaadin-number-field,
+.warehouse-page-layout > jmix-generic-filter.warehouse-filter vaadin-select {
+    min-width: 150px;
+    --vaadin-input-field-background: #f8fbfb;
+    --vaadin-input-field-border-color: #d6e4e6;
+    --vaadin-input-field-border-radius: 9px;
+}
+
+
+/* V8 Figma-aligned visual system: clean mint canvas, teal actions, consistent density. */
+:root, :host {
+  --wm-primary: #087f78;
+  --wm-primary-dark: #066b65;
+  --wm-primary-soft: #e3f6f4;
+  --wm-background: #f3f8f8;
+  --wm-surface: #ffffff;
+  --wm-text: #243746;
+  --wm-muted: #667985;
+  --wm-border: #dce8e9;
+  --wm-radius: 12px;
+}
+
+.jmix-main-view-app-layout,
+.warehouse-app-layout { background: var(--wm-background); color: var(--wm-text); }
+.warehouse-main-header { min-height: 66px; background: rgba(255,255,255,.94); border-bottom: 1px solid var(--wm-border); box-shadow: 0 1px 3px rgba(25,55,60,.035); }
+.warehouse-current-view-title { color: var(--wm-text); font-size: 20px; font-weight: 700; letter-spacing: -.025em; }
+.warehouse-language-button { margin-inline-start: auto; min-width: 46px; border: 1px solid #cfe4e3; border-radius: 10px; color: var(--wm-primary); background: white; font-weight: 700; box-shadow: 0 2px 6px rgba(20,70,70,.05); }
+.warehouse-language-button:hover { background: var(--wm-primary-soft); }
+.warehouse-user-menu { margin-inline-start: 4px; }
+.warehouse-sidebar { background: #fff; border-inline-end: 1px solid var(--wm-border); }
+.warehouse-brand, .jmix-main-view-application-title { min-height: 72px; border-bottom: 1px solid #edf2f2; }
+.warehouse-navigation vaadin-side-nav-item::part(item), .jmix-main-view-navigation vaadin-side-nav-item::part(item) { min-height: 40px; border-radius: 9px; font-size: 13px; }
+.warehouse-navigation vaadin-side-nav-item[active]::part(item), .jmix-main-view-navigation vaadin-side-nav-item[active]::part(item) { background: var(--wm-primary-soft); color: var(--wm-primary); font-weight: 700; }
+.warehouse-navigation vaadin-side-nav-item::part(toggle-button), .jmix-main-view-navigation vaadin-side-nav-item::part(toggle-button) { color: #73878d; }
+
+/* Remove the old full-width Filter card. Search fields now occupy a compact toolbar row. */
+vaadin-text-field.warehouse-search-field { width: min(100%, 420px); min-width: 220px; }
+vaadin-text-field.warehouse-search-field::part(input-field) { min-height: 40px; border: 1px solid #d8e4e6; border-radius: 9px; background: #fff; box-shadow: none; }
+vaadin-text-field.warehouse-search-field::part(input-field):hover { border-color: #9fcfcb; }
+vaadin-text-field.warehouse-search-field::part(input-field):focus-within { border-color: var(--wm-primary); box-shadow: 0 0 0 3px rgba(8,127,120,.11); }
+vaadin-text-field.warehouse-search-field::part(input-field)::before { color: var(--wm-muted); }
+vaadin-vertical-layout.warehouse-page-layout, vaadin-horizontal-layout.warehouse-page-layout { gap: 12px; padding: 20px 22px; background: transparent; }
+/* v11: default Jmix generic filter is kept (all its functions); no longer hidden. */
+.warehouse-toolbar { display: flex; align-items: center; gap: 10px; min-height: 62px; padding: 10px 12px; border: 1px solid var(--wm-border); border-radius: 12px; background: #fff; box-shadow: 0 2px 8px rgba(25,55,60,.035); }
+.warehouse-toolbar [slot="start"] { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.warehouse-toolbar [slot="end"] { display: flex; align-items: center; gap: 8px; margin-inline-start: auto; }
+.warehouse-toolbar vaadin-button { border-radius: 9px; font-weight: 650; }
+.warehouse-toolbar vaadin-button[theme~="primary"] { background: var(--wm-primary); color: #fff; box-shadow: 0 2px 4px rgba(8,127,120,.18); }
+.warehouse-toolbar vaadin-button[theme~="primary"]:hover { background: var(--wm-primary-dark); }
+.warehouse-toolbar vaadin-button:not([theme~="primary"]) { border: 1px solid #dce7e8; background: #fff; color: #405963; }
+.warehouse-data-grid { border: 1px solid var(--wm-border); border-radius: 12px; overflow: hidden; background: white; box-shadow: 0 2px 8px rgba(25,55,60,.025); }
+.warehouse-data-grid::part(header-cell) { background: #eff6f6; color: #3c5962; font-size: 12px; font-weight: 700; border-bottom: 1px solid #d9e8e8; }
+.warehouse-data-grid::part(body-cell) { color: var(--wm-text); font-size: 12px; border-bottom-color: #edf2f2; }
+.warehouse-data-grid::part(row):hover [part~="body-cell"] { background: #f5fbfa; }
+
+/* Standardize all data-entry forms without changing their actions or bindings. */
+vaadin-form-layout { padding: 20px; border: 1px solid var(--wm-border); border-radius: 12px; background: white; box-shadow: 0 2px 8px rgba(25,55,60,.03); }
+vaadin-text-field::part(label), vaadin-number-field::part(label), vaadin-combo-box::part(label), vaadin-date-picker::part(label), vaadin-checkbox { color: var(--wm-text); font-size: 13px; font-weight: 600; }
+vaadin-text-field::part(input-field), vaadin-number-field::part(input-field), vaadin-combo-box::part(input-field), vaadin-date-picker::part(input-field), vaadin-text-area::part(input-field) { border-radius: 9px; }
+.warehouse-detail-actions { padding: 12px 14px; border: 1px solid var(--wm-border); border-radius: 12px; background: white; }
+
+/* Consistent report and dashboard surfaces; dashboard layout/logic remain untouched. */
+.warehouse-report-card, .warehouse-report-panel, .warehouse-dashboard-card { border: 1px solid var(--wm-border); border-radius: 12px; background: #fff; box-shadow: 0 3px 10px rgba(25,55,60,.035); }
+@media (max-width: 900px) {
+  vaadin-vertical-layout.warehouse-page-layout, vaadin-horizontal-layout.warehouse-page-layout { padding: 12px; }
+  .warehouse-toolbar { align-items: stretch; }
+  vaadin-text-field.warehouse-search-field { width: 100%; min-width: 0; }
+}
+
+/* KhoFlow shared empty-state and pagination treatment. */
+.warehouse-empty-card {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 150px;
+  padding: 28px 20px;
+  gap: 8px;
+  border: 1px dashed var(--wm-border);
+  border-radius: 12px;
+  background: rgba(255,255,255,.78);
+  text-align: center;
+}
+.warehouse-empty-card-icon { color: var(--wm-primary); width: 28px; height: 28px; }
+.warehouse-empty-card-title { color: var(--wm-text); font-size: 15px; font-weight: 700; }
+.warehouse-empty-card-hint { max-width: 34rem; color: var(--wm-muted); font-size: 13px; }
+.warehouse-pagination-panel { box-sizing: border-box; min-height: 48px; padding: 4px 8px; border: 1px solid var(--wm-border); border-radius: 10px; background: #fff; }
+.warehouse-pagination-panel vaadin-button { min-width: 32px; }
+
+
+/* KhoFlow cross-page consistency layer (v12).
+   Shared styling for every list/detail/report view; presentation only. */
+:root, :host {
+  --wm-control-height: 40px;
+  --wm-radius: 10px;
+}
+vaadin-vertical-layout.warehouse-page-layout,
+vaadin-horizontal-layout.warehouse-page-layout {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  gap: 14px;
+  padding: clamp(12px, 1.6vw, 24px);
+}
+vaadin-text-field.warehouse-search-field {
+  flex: 1 1 20rem;
+  width: min(100%, 24rem);
+  min-width: min(100%, 16rem);
+  max-width: 28rem;
+}
+vaadin-text-field.warehouse-search-field::part(input-field) {
+  min-height: var(--wm-control-height);
+  padding-inline-start: 10px !important;
+}
+vaadin-text-field.warehouse-search-field::part(value) {
+  padding-inline-start: 0 !important;
+  margin-inline-start: 0 !important;
+}
+vaadin-text-field.warehouse-search-field::part(input-field)::before,
+vaadin-text-field.warehouse-search-field::part(input-field)::after {
+  content: none !important;
+  display: none !important;
+}
+vaadin-text-field.warehouse-search-field input {
+  padding-inline-start: 0 !important;
+}
+.warehouse-toolbar {
+  box-sizing: border-box;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.warehouse-toolbar vaadin-button,
+.warehouse-detail-actions vaadin-button {
+  min-height: 38px;
+  border-radius: 9px;
+  font-weight: 600;
+}
+.warehouse-data-grid {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--wm-border);
+  border-radius: 12px;
+  background: var(--wm-surface);
+  overflow: hidden;
+}
+.warehouse-form-layout {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: clamp(16px, 2vw, 28px);
+  gap: 18px 20px;
+  border: 1px solid var(--wm-border);
+  border-radius: 14px;
+  background: var(--wm-surface);
+  box-shadow: 0 2px 8px rgba(36,55,70,.035);
+}
+.warehouse-form-layout vaadin-text-field,
+.warehouse-form-layout vaadin-number-field,
+.warehouse-form-layout vaadin-combo-box,
+.warehouse-form-layout vaadin-date-picker,
+.warehouse-form-layout vaadin-date-time-picker,
+.warehouse-form-layout vaadin-select,
+.warehouse-form-layout vaadin-text-area,
+.warehouse-form-layout vaadin-entity-picker,
+.warehouse-form-layout vaadin-checkbox {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+.warehouse-form-layout vaadin-text-field::part(input-field),
+.warehouse-form-layout vaadin-number-field::part(input-field),
+.warehouse-form-layout vaadin-combo-box::part(input-field),
+.warehouse-form-layout vaadin-date-picker::part(input-field),
+.warehouse-form-layout vaadin-date-time-picker::part(input-field),
+.warehouse-form-layout vaadin-select::part(input-field),
+.warehouse-form-layout vaadin-text-area::part(input-field),
+.warehouse-form-layout vaadin-entity-picker::part(input-field) {
+  border-radius: 9px;
+}
+.warehouse-status-bar {
+  box-sizing: border-box;
+  min-height: 54px;
+  padding: 12px 16px;
+  border: 1px solid var(--wm-border);
+  border-radius: 12px;
+  background: var(--wm-surface);
+}
+.warehouse-detail-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--wm-border);
+  border-radius: 12px;
+  background: rgba(255,255,255,.96);
+  box-shadow: 0 -4px 18px rgba(36,55,70,.06);
+  backdrop-filter: blur(8px);
+}
+.warehouse-empty-card {
+  box-sizing: border-box;
+  min-height: 180px;
+  justify-content: center;
+  padding: 28px 20px;
+  border: 1px dashed var(--wm-border);
+  border-radius: 14px;
+  background: var(--wm-surface);
+  text-align: center;
+}
+.warehouse-pagination-panel {
+  box-sizing: border-box;
+  min-height: 48px;
+  padding: 8px 12px;
+  border: 1px solid var(--wm-border);
+  border-radius: 10px;
+  background: var(--wm-surface);
+}
+@media (max-width: 800px) {
+  vaadin-vertical-layout.warehouse-page-layout,
+  vaadin-horizontal-layout.warehouse-page-layout { padding: 12px; }
+  vaadin-text-field.warehouse-search-field { flex: 1 1 100%; width: 100%; max-width: none; }
+  .warehouse-form-layout { padding: 14px; gap: 14px; }
+  .warehouse-detail-actions { position: static; justify-content: stretch; }
+  .warehouse-detail-actions vaadin-button { flex: 1 1 auto; }
+}
+
+
+/* v5: no decorative search icon; prevent placeholder/text overlap on every list view. */
+vaadin-text-field.warehouse-search-field::part(input-field) { background-image: none !important; padding-inline-start: 10px !important; }
+vaadin-text-field.warehouse-search-field input { padding-inline-start: 0 !important; margin-inline-start: 0 !important; }
+/* Detail action bars stay below their content instead of covering the last grid rows. */
+.warehouse-detail-actions { position: relative !important; inset-block-end: auto !important; z-index: 1 !important; }
+
+
+/* v7: keep transfer item action buttons in normal document flow above the grid.
+   Avoid the grid painting over the toolbar in the transfer detail form. */
+vaadin-horizontal-layout#itemsButtons.warehouse-toolbar,
+#itemsButtons.warehouse-toolbar {
+    display: flex !important;
+    position: relative !important;
+    z-index: 3 !important;
+    flex: 0 0 auto !important;
+    min-height: 48px !important;
+    height: auto !important;
+    margin: 0 0 8px 0 !important;
+    padding: 4px 0 !important;
+    align-items: center !important;
+    overflow: visible !important;
+}
+vaadin-horizontal-layout#itemsButtons.warehouse-toolbar > vaadin-button {
+    position: relative !important;
+    flex: 0 0 auto !important;
+    align-self: center !important;
+}
+vaadin-grid#itemsDataGrid.warehouse-data-grid,
+#itemsDataGrid.warehouse-data-grid {
+    position: relative !important;
+    z-index: 0 !important;
+    display: block !important;
+    clear: both !important;
+    margin-top: 0 !important;
+}

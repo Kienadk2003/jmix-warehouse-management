@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" title="msg://UserListView.title" focusComponent="usersDataGrid">
+    <data>
+        <collection id="usersDc" class="com.company.warehousemanagement.entity.User">
+            <fetchPlan extends="_base"/>
+            <loader id="usersDl" readOnly="true">
+                <query>
+                    <![CDATA[
+                    select e from User e where (:searchTerm is null or trim(:searchTerm) = '' or (lower(coalesce(e.username, '')) like concat('%', lower(:searchTerm), '%') OR lower(coalesce(e.firstName, '')) like concat('%', lower(:searchTerm), '%') OR lower(coalesce(e.lastName, '')) like concat('%', lower(:searchTerm), '%') OR lower(coalesce(e.email, '')) like concat('%', lower(:searchTerm), '%'))) order by e.username
+                ]]>
+                </query>
+            </loader>
+        </collection>
+    </data>
+    <actions>
+        <action id="selectAction" type="lookup_select"/>
+        <action id="discardAction" type="lookup_discard"/>
+    </actions>
+    <facets>
+        <dataLoadCoordinator auto="false"/>
+        <urlQueryParameters>
+            <pagination component="pagination"/>
+        </urlQueryParameters>
+    </facets>
+    <layout classNames="warehouse-page-layout">
+<hbox id="buttonsPanel" wrap="true" width="100%" classNames="warehouse-toolbar">
+            <startSlot>
+                <textField id="searchField" placeholder="msg://searchPlaceholder" clearButtonVisible="true" valueChangeMode="LAZY" width="22em" classNames="warehouse-search-field"></textField>
+                <button id="createButton" action="usersDataGrid.createAction" themeNames="primary" icon="vaadin:plus" text="Tạo mới"/>
+                <button id="editButton" action="usersDataGrid.editAction" icon="vaadin:pencil" text="Sửa"/>
+                <button id="removeButton" action="usersDataGrid.removeAction" themeNames="error" icon="vaadin:trash" text="Xóa"/>
+                <button id="showRoleAssignmentsButton" action="usersDataGrid.showRoleAssignmentsAction" text="Phân quyền"/>
+                <dropdownButton id="additionalButton" text="msg://additionalMenu" icon="COG">
+                    <items>
+                        <actionItem id="changePasswordItem" ref="usersDataGrid.changePasswordAction"/>
+                        <actionItem id="resetPasswordItem" ref="usersDataGrid.resetPasswordAction"/>
+                        <actionItem id="showUserSubstitutionsItem" ref="usersDataGrid.showUserSubstitutionsAction"/>
+                    </items>
+                </dropdownButton>
+            </startSlot>
+            <endSlot>
+                <simplePagination id="pagination" dataLoader="usersDl"/>
+            </endSlot>
+        </hbox>
+        <dataGrid id="usersDataGrid" width="100%" columnReorderingAllowed="true" minHeight="20em" dataContainer="usersDc" classNames="warehouse-data-grid">
+            <actions>
+                <action id="createAction" type="list_create"/>
+                <action id="editAction" type="list_edit"/>
+                <action id="removeAction" type="list_remove"/>
+                <action id="showRoleAssignmentsAction" type="sec_showRoleAssignments"/>
+                <action id="changePasswordAction" type="sec_changePassword"/>
+                <action id="resetPasswordAction" type="sec_resetPassword"/>
+                <action id="showUserSubstitutionsAction" type="sec_showUserSubstitutions"/>
+            </actions>
+            <columns resizable="true">
+                <column property="username"/>
+                <column property="firstName"/>
+                <column property="lastName"/>
+                <column property="email"/>
+                <column property="timeZoneId"/>
+                <column property="active"/>
+            </columns>
+        </dataGrid>
+        <hbox id="lookupActions" visible="false">
+            <button id="selectButton" action="selectAction" text="Chọn"/>
+            <button id="discardButton" action="discardAction" text="Đóng"/>
+        </hbox>
+    </layout>
+</view>

@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<view xmlns="http://jmix.io/schema/flowui/view" focusComponent="login" title="msg://LoginView.title">
+    <layout justifyContent="CENTER" alignItems="CENTER" classNames="jmix-login-main-layout warehouse-page-layout warehouse-login-page">
+        <hbox classNames="warehouse-login-card" spacing="false" padding="false">
+            <vbox classNames="warehouse-login-banner" spacing="false" padding="false" justifyContent="CENTER" alignItems="CENTER">
+                <image resource="public/images/logo.png" classNames="warehouse-login-banner-logo"/>
+                <h2 text="msg://loginBanner.title" classNames="warehouse-login-banner-title"/>
+                <span text="msg://loginBanner.line1" classNames="warehouse-login-banner-text"/>
+                <span text="msg://loginBanner.line2" classNames="warehouse-login-banner-text"/>
+            </vbox>
+            <vbox classNames="warehouse-login-form-pane" spacing="false" padding="false" justifyContent="CENTER" alignItems="STRETCH">
+                <h2 text="msg://loginPane.title" classNames="warehouse-login-title"/>
+                <span text="msg://loginPane.subtitle" classNames="warehouse-login-subtitle"/>
+                <loginForm id="login" forgotPasswordButtonVisible="false" classNames="warehouse-login-form">
+                    <form title="msg://loginForm.headerTitle" username="msg://loginForm.username" password="msg://loginForm.password" rememberMe="msg://loginForm.rememberMe" submit="msg://loginForm.submit" forgotPassword="msg://loginForm.forgotPassword"/>
+                    <errorMessage title="msg://loginForm.errorTitle" message="msg://loginForm.badCredentials" username="msg://loginForm.errorUsername" password="msg://loginForm.errorPassword"/>
+                </loginForm>
+            </vbox>
+        </hbox>
+    </layout>
+</view>

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="msg://stocktakeAdjustmentView.title"
+      focusComponent="stocktakesDataGrid">
+    <data>
+        <collection id="stocktakesDc" class="com.company.warehousemanagement.entity.Stocktake">
+            <fetchPlan extends="_base">
+                <property name="warehouse" fetchPlan="_instance_name"/>
+            </fetchPlan>
+            <loader id="stocktakesDl" readOnly="true">
+                <query><![CDATA[
+                    select e from Stocktake e
+                    where (:stocktakeSearchTerm is null or trim(:stocktakeSearchTerm) = ''
+                        or lower(coalesce(e.documentNo, '')) like concat('%', lower(:stocktakeSearchTerm), '%')
+                        or lower(coalesce(e.warehouse.name, '')) like concat('%', lower(:stocktakeSearchTerm), '%')
+                        or lower(coalesce(e.warehouse.code, '')) like concat('%', lower(:stocktakeSearchTerm), '%'))
+                    order by e.createdDate desc, e.documentNo desc
+                ]]></query>
+            </loader>
+        </collection>
+        <collection id="adjustmentsDc" class="com.company.warehousemanagement.entity.WarehouseTransaction">
+            <fetchPlan extends="_base">
+                <property name="sourceWarehouse" fetchPlan="_instance_name"/>
+            </fetchPlan>
+            <loader id="adjustmentsDl" readOnly="true">
+                <query><![CDATA[
+                    select e from WarehouseTransaction e
+                    where e.type = 'ADJUSTMENT'
+                      and (:adjustmentSearchTerm is null or trim(:adjustmentSearchTerm) = ''
+                           or lower(coalesce(e.documentNo, '')) like concat('%', lower(:adjustmentSearchTerm), '%')
+                           or lower(coalesce(e.sourceWarehouse.name, '')) like concat('%', lower(:adjustmentSearchTerm), '%')
+                           or lower(coalesce(e.reason, '')) like concat('%', lower(:adjustmentSearchTerm), '%'))
+                    order by e.documentDate desc, e.documentNo desc
+                ]]></query>
+            </loader>
+        </collection>
+    </data>
+    <facets>
+        <dataLoadCoordinator auto="false"/>
+    </facets>
+    <layout classNames="warehouse-page-layout">
+        <tabSheet id="stocktakeTabs" width="100%">
+            <tab id="stocktakeTab" label="msg://tab.stocktake">
+                <vbox width="100%">
+<hbox id="stocktakeButtonsPanel" width="100%" wrap="true" classNames="warehouse-toolbar">
+                        <startSlot>
+                            <textField id="stocktakeSearchField" placeholder="msg://stocktakeSearchPlaceholder" clearButtonVisible="true" valueChangeMode="LAZY" width="22em" classNames="warehouse-search-field"></textField>
+                            <button id="createStocktakeButton" action="stocktakesDataGrid.createAction"
+                                    icon="vaadin:plus" text="msg://button.createStocktake" themeNames="primary"/>
+                            <button id="editStocktakeButton" action="stocktakesDataGrid.editAction" icon="vaadin:pencil" text="msg://button.edit"/>
+                            <button id="readStocktakeButton" action="stocktakesDataGrid.readAction" icon="vaadin:eye" text="msg://button.details"/>
+                            <button id="refreshStocktakeButton" action="stocktakesDataGrid.refreshAction" icon="vaadin:refresh" text="msg://button.refresh"/>
+                        </startSlot>
+                        <endSlot>
+                            <simplePagination id="stocktakesPagination" dataLoader="stocktakesDl"/>
+                        </endSlot>
+                    </hbox>
+                    <dataGrid id="stocktakesDataGrid" emptyStateText="msg://stocktakesDataGrid.emptyState" width="100%" minHeight="16em"
+                              dataContainer="stocktakesDc" columnReorderingAllowed="true"
+                              classNames="warehouse-data-grid">
+                        <actions>
+                            <action id="createAction" type="list_create">
+                                <properties>
+                                    <property name="viewId" value="Stocktake.detail"/>
+                                </properties>
+                            </action>
+                            <action id="editAction" type="list_edit">
+                                <properties>
+                                    <property name="viewId" value="Stocktake.detail"/>
+                                </properties>
+                            </action>
+                            <action id="readAction" type="list_read">
+                                <properties>
+                                    <property name="viewId" value="Stocktake.detail"/>
+                                </properties>
+                            </action>
+                            <action id="refreshAction" type="list_refresh"/>
+                        </actions>
+                        <columns resizable="true">
+                            <column property="documentNo" header="msg://column.documentNo" sortable="true"/>
+                            <column property="warehouse" header="msg://column.warehouse" sortable="true"/>
+                            <column property="status" header="msg://column.status" sortable="true"/>
+                            <column property="snapshotAt" header="msg://column.snapshotAt" sortable="true"/>
+                            <column property="approvedAt" header="msg://column.approvedAt" sortable="true"/>
+                        </columns>
+                    </dataGrid>
+                </vbox>
+            </tab>
+            <tab id="adjustmentTab" label="msg://tab.adjustment">
+                <vbox width="100%">
+<hbox id="adjustmentButtonsPanel" width="100%" wrap="true" classNames="warehouse-toolbar">
+                        <startSlot>
+                            <textField id="adjustmentSearchField" placeholder="msg://adjustmentSearchPlaceholder" clearButtonVisible="true" valueChangeMode="LAZY" width="22em" classNames="warehouse-search-field"></textField>
+                            <button id="createAdjustmentButton" action="adjustmentsDataGrid.createAction"
+                                    icon="vaadin:plus" text="msg://button.createAdjustment" themeNames="primary"/>
+                            <button id="editAdjustmentButton" action="adjustmentsDataGrid.editAction" icon="vaadin:pencil" text="msg://button.edit"/>
+                            <button id="readAdjustmentButton" action="adjustmentsDataGrid.readAction" icon="vaadin:eye" text="msg://button.details"/>
+                            <button id="refreshAdjustmentButton" action="adjustmentsDataGrid.refreshAction" icon="vaadin:refresh" text="msg://button.refresh"/>
+                        </startSlot>
+                        <endSlot>
+                            <simplePagination id="adjustmentsPagination" dataLoader="adjustmentsDl"/>
+                        </endSlot>
+                    </hbox>
+                    <dataGrid id="adjustmentsDataGrid" emptyStateText="msg://adjustmentsDataGrid.emptyState" width="100%" minHeight="16em"
+                              dataContainer="adjustmentsDc" columnReorderingAllowed="true"
+                              classNames="warehouse-data-grid">
+                        <actions>
+                            <action id="createAction" type="list_create">
+                                <properties>
+                                    <property name="viewId" value="WarehouseTransaction.adjustmentDetail"/>
+                                </properties>
+                            </action>
+                            <action id="editAction" type="list_edit">
+                                <properties>
+                                    <property name="viewId" value="WarehouseTransaction.adjustmentDetail"/>
+                                </properties>
+                            </action>
+                            <action id="readAction" type="list_read">
+                                <properties>
+                                    <property name="viewId" value="WarehouseTransaction.adjustmentDetail"/>
+                                </properties>
+                            </action>
+                            <action id="refreshAction" type="list_refresh"/>
+                        </actions>
+                        <columns resizable="true">
+                            <column property="documentNo" header="msg://column.documentNo" sortable="true"/>
+                            <column property="sourceWarehouse" header="msg://column.warehouse" sortable="true"/>
+                            <column property="adjustmentDirection" header="msg://column.adjustmentDirection" sortable="true"/>
+                            <column property="documentDate" header="msg://column.documentDate" sortable="true"/>
+                            <column property="status" header="msg://column.status" sortable="true"/>
+                            <column property="reason" header="msg://column.reason"/>
+                        </columns>
+                    </dataGrid>
+                </vbox>
+            </tab>
+        </tabSheet>
+    </layout>
+</view>

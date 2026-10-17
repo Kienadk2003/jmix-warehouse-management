@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<mainView xmlns="http://jmix.io/schema/flowui/main-view"
+          title="msg://MainView.title">
+    <actions>
+        <action id="logoutAction" text="msg:///actions.logout.text" type="logout"/>
+    </actions>
+    <appLayout classNames="jmix-main-view-app-layout warehouse-app-layout">
+        <navigationBar>
+            <header id="header" classNames="jmix-main-view-header warehouse-main-header">
+                <drawerToggle id="drawerToggle"
+                              classNames="jmix-main-view-drawer-toggle"
+                              ariaLabel="msg://drawerToggle.ariaLabel"/>
+                <h1 id="viewTitle" classNames="jmix-main-view-title warehouse-current-view-title"/>
+                <userMenu id="userMenu"
+                          themeNames="tertiary"
+                          classNames="jmix-main-view-user-menu warehouse-user-menu">
+                    <items>
+                        <separator/>
+                        <actionItem id="substituteUserMenuItem" themeNames="non-checkable">
+                            <action id="substituteUserAction" type="sec_userMenuSubstituteUser"/>
+                        </actionItem>
+                        <separator/>
+                        <actionItem id="logoutMenuItem" ref="logoutAction" themeNames="non-checkable"/>
+                    </items>
+                </userMenu>
+            </header>
+        </navigationBar>
+        <drawerLayout>
+            <section id="section" classNames="jmix-main-view-section warehouse-sidebar">
+                <h2 id="applicationTitle" classNames="jmix-main-view-application-title warehouse-brand">
+                    <image resource="public/images/logo.png" classNames="warehouse-brand-logo"/>
+                    <anchor id="baseLink"
+                            href="."
+                            text="msg://applicationTitle.text"
+                            classNames="jmix-main-view-application-title-base-link warehouse-brand-link"/>
+                </h2>
+                <nav id="navigation"
+                     classNames="jmix-main-view-navigation warehouse-navigation"
+                     ariaLabel="msg://navigation.ariaLabel">
+                    <listMenu id="menu" themeNames="toggle-reverse"/>
+                </nav>
+                <div classNames="warehouse-sidebar-footer">
+                    <span text="WAREHOUSE MANAGEMENT" classNames="warehouse-sidebar-footer-label"/>
+                    <span text="© 2026 KhoFlow" classNames="warehouse-sidebar-footer-copyright"/>
+                </div>
+            </section>
+        </drawerLayout>
+        <initialLayout id="initialLayout" classNames="jmix-initial-layout warehouse-initial-layout">
+            <vbox id="warehouseDashboard" classNames="warehouse-dashboard" width="100%" padding="false" spacing="false">
+                <hbox id="dashboardHeading" classNames="warehouse-dashboard-heading" width="100%" alignItems="CENTER">
+                    <vbox classNames="warehouse-dashboard-heading-copy" spacing="false">
+                        <span text="msg://dashboard.eyebrow" classNames="warehouse-eyebrow"/>
+                        <h2 text="msg://dashboard.title" classNames="warehouse-dashboard-title"/>
+                        <span text="msg://dashboard.subtitle" classNames="warehouse-dashboard-subtitle"/>
+                    </vbox>
+                    <hbox classNames="warehouse-dashboard-heading-actions" alignItems="CENTER">
+                        <button id="refreshDashboardButton" text="msg://dashboard.refresh"/>
+                        <span text="msg://dashboard.mark" classNames="warehouse-dashboard-mark"/>
+                    </hbox>
+                </hbox>
+
+                <hbox id="dashboardHeroMetrics" classNames="warehouse-dashboard-hero-grid" width="100%" wrap="true">
+                    <vbox id="dashboardInventoryCard" classNames="warehouse-hero-card warehouse-hero-card-teal" width="49%" spacing="false">
+                        <hbox classNames="warehouse-hero-card-top" width="100%" alignItems="CENTER">
+                            <span text="msg://dashboard.inventory" classNames="warehouse-hero-label"/>
+                            <span text="01" classNames="warehouse-hero-icon"/>
+                        </hbox>
+                        <span id="dashboardInventoryCount" text="0" classNames="warehouse-hero-value"/>
+                        <span text="msg://dashboard.inventory.note" classNames="warehouse-hero-note"/>
+                    </vbox>
+                    <vbox id="dashboardPendingCard" classNames="warehouse-hero-card warehouse-hero-card-amber" width="49%" spacing="false">
+                        <hbox classNames="warehouse-hero-card-top" width="100%" alignItems="CENTER">
+                            <span text="msg://dashboard.pending" classNames="warehouse-hero-label"/>
+                            <span text="02" classNames="warehouse-hero-icon"/>
+                        </hbox>
+                        <span id="dashboardPendingCount" text="0" classNames="warehouse-hero-value"/>
+                        <span text="msg://dashboard.pending.note" classNames="warehouse-hero-note"/>
+                    </vbox>
+                </hbox>
+
+                <vbox classNames="warehouse-dashboard-panel warehouse-transaction-summary" width="100%" spacing="false">
+                    <hbox classNames="warehouse-panel-heading" width="100%" alignItems="CENTER">
+                        <vbox spacing="false">
+                            <h3 text="msg://dashboard.operations" classNames="warehouse-panel-title"/>
+                        </vbox>
+                    </hbox>
+                    <hbox id="dashboardTransactionMetrics" classNames="warehouse-dashboard-stat-grid" width="100%" wrap="true">
+                        <vbox id="dashboardImportCard" classNames="warehouse-stat-card" width="32%" spacing="false">
+                            <span text="msg://dashboard.import" classNames="warehouse-stat-label"/>
+                            <span id="dashboardImportCount" text="0" classNames="warehouse-stat-value"/>
+                            <span text="msg://dashboard.import.note" classNames="warehouse-stat-footnote"/>
+                        </vbox>
+                        <vbox id="dashboardExportCard" classNames="warehouse-stat-card" width="32%" spacing="false">
+                            <span text="msg://dashboard.export" classNames="warehouse-stat-label"/>
+                            <span id="dashboardExportCount" text="0" classNames="warehouse-stat-value"/>
+                            <span text="msg://dashboard.export.note" classNames="warehouse-stat-footnote"/>
+                        </vbox>
+                        <vbox id="dashboardTransferCard" classNames="warehouse-stat-card" width="32%" spacing="false">
+                            <span text="msg://dashboard.transfer" classNames="warehouse-stat-label"/>
+                            <span id="dashboardTransferCount" text="0" classNames="warehouse-stat-value"/>
+                            <span text="msg://dashboard.transfer.note" classNames="warehouse-stat-footnote"/>
+                        </vbox>
+                        <vbox id="dashboardAdjustmentCard" classNames="warehouse-stat-card" width="32%" spacing="false">
+                            <span text="msg://dashboard.adjustment" classNames="warehouse-stat-label"/>
+                            <span id="dashboardAdjustmentCount" text="0" classNames="warehouse-stat-value"/>
+                            <span text="msg://dashboard.adjustment.note" classNames="warehouse-stat-footnote"/>
+                        </vbox>
+                        <vbox id="dashboardStocktakeCard" classNames="warehouse-stat-card" width="32%" spacing="false">
+                            <span text="msg://dashboard.stocktake" classNames="warehouse-stat-label"/>
+                            <span id="dashboardStocktakeCount" text="0" classNames="warehouse-stat-value"/>
+                            <span text="msg://dashboard.stocktake.note" classNames="warehouse-stat-footnote"/>
+                        </vbox>
+                        <vbox id="dashboardProductCard" classNames="warehouse-stat-card" width="32%" spacing="false">
+                            <span text="msg://dashboard.products" classNames="warehouse-stat-label"/>
+                            <span id="dashboardProductCount" text="0" classNames="warehouse-stat-value"/>
+                            <span text="msg://dashboard.products.note" classNames="warehouse-stat-footnote"/>
+                        </vbox>
+                        <vbox id="dashboardWarehouseCard" classNames="warehouse-stat-card" width="32%" spacing="false">
+                            <span text="msg://dashboard.warehouse" classNames="warehouse-stat-label"/>
+                            <span id="dashboardWarehouseCount" text="0" classNames="warehouse-stat-value"/>
+                            <span text="msg://dashboard.warehouses.note" classNames="warehouse-stat-footnote"/>
+                        </vbox>
+                    </hbox>
+                </vbox>
+
+                <hbox classNames="warehouse-dashboard-bottom-grid" width="100%" wrap="true">
+                    <vbox classNames="warehouse-dashboard-panel warehouse-quick-access" width="49%" spacing="false">
+                        <h3 text="msg://dashboard.quickAccess" classNames="warehouse-panel-title"/>
+                        <span text="msg://dashboard.quickAccess.note" classNames="warehouse-panel-subtitle"/>
+                        <hbox classNames="warehouse-quick-actions" width="100%" wrap="true">
+                            <button id="openImportButton" text="msg://dashboard.import" themeNames="primary"/>
+                            <button id="openExportButton" text="msg://dashboard.export"/>
+                            <button id="openTransferButton" text="msg://dashboard.transfer.action"/>
+                            <button id="openStocktakeButton" text="msg://dashboard.stocktake.action"/>
+                            <button id="openAdjustmentButton" text="msg://dashboard.adjustment.action"/>
+                        </hbox>
+                    </vbox>
+                    <vbox classNames="warehouse-dashboard-panel warehouse-workflow-panel" width="49%" spacing="false">
+                        <h3 text="msg://dashboard.workflow" classNames="warehouse-panel-title"/>
+                        <span text="msg://dashboard.workflow.note" classNames="warehouse-panel-subtitle"/>
+                        <hbox classNames="warehouse-workflow-strip" width="100%" wrap="true">
+                            <vbox classNames="warehouse-workflow-step" spacing="false">
+                                <span text="01" classNames="warehouse-workflow-number"/>
+                                <span text="msg://dashboard.draft" classNames="warehouse-workflow-label"/>
+                            </vbox>
+                            <span text="›" classNames="warehouse-workflow-arrow"/>
+                            <vbox classNames="warehouse-workflow-step" spacing="false">
+                                <span text="02" classNames="warehouse-workflow-number"/>
+                                <span text="msg://dashboard.pendingApproval" classNames="warehouse-workflow-label"/>
+                            </vbox>
+                            <span text="›" classNames="warehouse-workflow-arrow"/>
+                            <vbox classNames="warehouse-workflow-step" spacing="false">
+                                <span text="03" classNames="warehouse-workflow-number"/>
+                                <span text="msg://dashboard.approved" classNames="warehouse-workflow-label"/>
+                            </vbox>
+                            <span text="›" classNames="warehouse-workflow-arrow"/>
+                            <vbox classNames="warehouse-workflow-step" spacing="false">
+                                <span text="04" classNames="warehouse-workflow-number"/>
+                                <span text="msg://dashboard.posted" classNames="warehouse-workflow-label"/>
+                            </vbox>
+                        </hbox>
+                        <hbox classNames="warehouse-dashboard-report-actions" width="100%" wrap="true">
+                            <button id="openInventoryButton" text="msg://dashboard.viewInventory"/>
+                            <button id="openStockCardButton" text="msg://dashboard.stockCard"/>
+                            <button id="openReportButton" text="msg://dashboard.reports"/>
+                        </hbox>
+                    </vbox>
+                </hbox>
+            </vbox>
+        </initialLayout>
+    </appLayout>
+</mainView>
