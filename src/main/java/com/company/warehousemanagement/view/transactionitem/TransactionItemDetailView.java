@@ -1,6 +1,7 @@
 package com.company.warehousemanagement.view.transactionitem;
 
 import com.company.warehousemanagement.entity.TransactionItem;
+import com.company.warehousemanagement.entity.Product;
 import com.company.warehousemanagement.entity.AdjustmentDirection;
 import com.company.warehousemanagement.entity.WarehouseTransaction;
 import com.company.warehousemanagement.entity.WarehouseTransactionType;
@@ -9,6 +10,7 @@ import com.company.warehousemanagement.service.AvailableStockService;
 import com.company.warehousemanagement.view.main.MainView;
 import com.vaadin.flow.router.Route;
 import io.jmix.flowui.component.textfield.TypedTextField;
+import io.jmix.flowui.component.combobox.EntityComboBox;
 import io.jmix.flowui.model.InstanceContainer;
 import io.jmix.flowui.view.EditedEntityContainer;
 import io.jmix.flowui.view.StandardDetailView;
@@ -36,6 +38,9 @@ public class TransactionItemDetailView extends StandardDetailView<TransactionIte
     @ViewComponent
     private TypedTextField<String> availableStockField;
 
+    @ViewComponent
+    private EntityComboBox<Product> productField;
+
     @Subscribe
     public void onInitEntity(InitEntityEvent<TransactionItem> event) {
         event.getEntity().setQuantity(null);
@@ -43,6 +48,7 @@ public class TransactionItemDetailView extends StandardDetailView<TransactionIte
 
     @Subscribe
     public void onBeforeShow(BeforeShowEvent event) {
+        productField.setItemLabelGenerator(this::productLabel);
         refreshAvailableStock();
     }
 
@@ -84,6 +90,25 @@ public class TransactionItemDetailView extends StandardDetailView<TransactionIte
         BigDecimal available = availableStockService.getAvailableStock(
                 transaction.getSourceWarehouse().getId(), item.getProduct().getId());
         availableStockField.setTypedValue(available.stripTrailingZeros().toPlainString());
+    }
+
+    /**
+     * Product labels are customized only in warehouse operation item selection.
+     * The global Product instance name is intentionally unchanged so that
+     * the Import Receipt screen keeps its existing behavior.
+     */
+    private String productLabel(Product product) {
+        if (product == null) {
+            return "";
+        }
+        String code = product.getCode() == null ? "" : product.getCode().trim();
+        String name = product.getName() == null ? "" : product.getName().trim();
+        String categoryName = product.getCategory() == null
+                || product.getCategory().getName() == null
+                ? "Chưa phân loại"
+                : product.getCategory().getName().trim();
+        String productName = code.isEmpty() ? name : (name.isEmpty() ? code : code + " - " + name);
+        return productName + " | Danh mục: " + categoryName;
     }
 
     private boolean reducesStock(WarehouseTransaction transaction) {

@@ -13,13 +13,28 @@
                     <property name="lineNo"/>
                     <property name="quantity"/>
                     <property name="note"/>
-                    <property name="product" fetchPlan="_instance_name"/>
+                    <property name="product" fetchPlan="_base">
+                        <property name="category" fetchPlan="_instance_name"/>
+                    </property>
                     <property name="unit" fetchPlan="_instance_name"/>
                 </property>
             </fetchPlan>
             <loader id="warehouseTransactionDl"/>
             <collection id="itemsDc" property="items"/>
         </instance>
+
+        <collection id="productsDc" class="com.company.warehousemanagement.entity.Product">
+            <fetchPlan extends="_base">
+                <property name="category" fetchPlan="_instance_name"/>
+            </fetchPlan>
+            <loader id="productsDl" readOnly="true">
+                <query><![CDATA[
+                    select e from Product e
+                    where e.active = true
+                    order by e.name
+                ]]></query>
+            </loader>
+        </collection>
 
         <collection id="warehousesDc"
                     class="com.company.warehousemanagement.entity.Warehouse">
@@ -116,6 +131,7 @@
             <columns resizable="true">
                 <column property="lineNo" header="STT" width="5em"/>
                 <column property="product" header="Sản phẩm" editable="true"/>
+                <column property="product.category.name" header="Danh mục sản phẩm"/>
                 <column property="quantity" header="Số lượng" editable="true"/>
                 <column property="unit" header="Đơn vị tính" editable="true"/>
                 <column property="note" header="Ghi chú" editable="true"/>

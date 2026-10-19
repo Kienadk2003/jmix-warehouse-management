@@ -3,12 +3,37 @@
       title="Phiếu xuất kho"
       focusComponent="form">
     <data>
+        <collection id="warehousesDc" class="com.company.warehousemanagement.entity.Warehouse">
+            <fetchPlan extends="_instance_name"/>
+            <loader id="warehousesDl" readOnly="true">
+                <query><![CDATA[
+                    select e from Warehouse e
+                    where e.active = true
+                    order by e.name
+                ]]></query>
+            </loader>
+        </collection>
+        <collection id="partnersDc" class="com.company.warehousemanagement.entity.Partner">
+            <fetchPlan extends="_base"/>
+            <loader id="partnersDl" readOnly="true">
+                <query><![CDATA[
+                    select e from Partner e
+                    where e.active = true
+                      and e.partnerType in ('CUSTOMER', 'BOTH')
+                    order by e.name
+                ]]></query>
+            </loader>
+        </collection>
         <instance id="warehouseTransactionDc"
                   class="com.company.warehousemanagement.entity.WarehouseTransaction">
             <fetchPlan extends="_base">
                 <property name="sourceWarehouse" fetchPlan="_base"/>
                 <property name="partner" fetchPlan="_base"/>
-                <property name="items" fetchPlan="_base"/>
+                <property name="items" fetchPlan="_base">
+                    <property name="product" fetchPlan="_base">
+                        <property name="category" fetchPlan="_instance_name"/>
+                    </property>
+                </property>
             </fetchPlan>
             <loader id="warehouseTransactionDl"/>
             <collection id="itemsDc" property="items"/>
@@ -24,13 +49,14 @@
         <action id="closeAction" type="detail_close"/>
     </actions>
 
-    <layout>
-        <hbox id="statusBox" width="100%" alignItems="CENTER">
+    <layout classNames="warehouse-page-layout">
+        <h3 text="Thông tin phiếu xuất"/>
+        <hbox id="statusBox" width="100%" alignItems="CENTER" classNames="warehouse-status-bar">
             <span text="Trạng thái:"/>
             <span id="statusLabel" themeNames="badge"/>
         </hbox>
 
-        <formLayout id="form" dataContainer="warehouseTransactionDc">
+        <formLayout id="form" dataContainer="warehouseTransactionDc" classNames="warehouse-form-layout">
             <responsiveSteps>
                 <responsiveStep minWidth="0" columns="1"/>
                 <responsiveStep minWidth="40em" columns="2"/>
@@ -41,27 +67,19 @@
                        label="Số phiếu"
                        readOnly="true"/>
 
-            <entityPicker id="sourceWarehouseField"
-                          property="sourceWarehouse"
-                          label="Kho xuất"
-                          required="true"
-                          requiredMessage="Bạn chưa chọn kho xuất">
-                <actions>
-                    <action id="entityLookupAction" type="entity_lookup"/>
-                    <action id="entityClearAction" type="entity_clear"/>
-                </actions>
-            </entityPicker>
+            <entityComboBox id="sourceWarehouseField"
+                            property="sourceWarehouse"
+                            label="Kho xuất"
+                            itemsContainer="warehousesDc"
+                            required="true"
+                            requiredMessage="Bạn chưa chọn kho xuất"/>
 
-            <entityPicker id="partnerField"
-                          property="partner"
-                          label="Đối tác"
-                          required="true"
-                          requiredMessage="Bạn chưa chọn đối tác">
-                <actions>
-                    <action id="entityLookupAction" type="entity_lookup"/>
-                    <action id="entityClearAction" type="entity_clear"/>
-                </actions>
-            </entityPicker>
+            <entityComboBox id="partnerField"
+                            property="partner"
+                            label="Đối tác"
+                            itemsContainer="partnersDc"
+                            required="true"
+                            requiredMessage="Bạn chưa chọn đối tác"/>
 
             <datePicker id="documentDateField"
                         property="documentDate"
@@ -84,7 +102,7 @@
             <h3 text="Danh sách sản phẩm xuất"/>
         </hbox>
 
-        <hbox id="itemsButtons" classNames="buttons-panel">
+        <hbox id="itemsButtons" classNames="buttons-panel warehouse-toolbar">
             <button id="addItemButton" action="itemsDataGrid.createAction"/>
             <button id="editItemButton" action="itemsDataGrid.editAction"/>
             <button id="removeItemButton" action="itemsDataGrid.removeAction"/>
@@ -93,7 +111,8 @@
         <dataGrid id="itemsDataGrid"
                   dataContainer="itemsDc"
                   width="100%"
-                  minHeight="18em">
+                  minHeight="18em"
+                  classNames="warehouse-data-grid">
             <actions>
                 <action id="createAction" type="list_create">
                     <properties>
@@ -113,13 +132,14 @@
             <columns resizable="true">
                 <column property="lineNo" header="STT"/>
                 <column property="product" header="Sản phẩm"/>
+                <column property="product.category.name" header="Danh mục sản phẩm"/>
                 <column property="quantity" header="Số lượng"/>
                 <column property="unit" header="Đơn vị"/>
                 <column property="note" header="Ghi chú"/>
             </columns>
         </dataGrid>
 
-        <hbox id="detailActions">
+        <hbox id="detailActions" width="100%" wrap="true" classNames="buttons-panel warehouse-detail-actions">
 
             <button id="submitButton"
                     text="Gửi duyệt"

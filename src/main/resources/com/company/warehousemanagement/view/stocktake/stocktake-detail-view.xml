@@ -7,7 +7,9 @@
             <fetchPlan extends="_base">
                 <property name="warehouse" fetchPlan="_instance_name"/>
                 <property name="items" fetchPlan="_base">
-                    <property name="product" fetchPlan="_instance_name"/>
+                    <property name="product" fetchPlan="_base">
+                        <property name="category" fetchPlan="_instance_name"/>
+                    </property>
                 </property>
             </fetchPlan>
             <loader id="stocktakeDl"/>
@@ -53,15 +55,6 @@
             <button id="closeButton" action="closeAction" text="Đóng"/>
         </hbox>
 
-        <hbox width="100%" classNames="warehouse-search-row">
-            <textField id="itemsSearchField"
-                       placeholder="Tìm theo mã hoặc tên sản phẩm..."
-                       clearButtonVisible="true"
-                       valueChangeMode="LAZY"
-                       width="100%"
-                       classNames="warehouse-search-field"/>
-        </hbox>
-
         <dataGrid id="itemsDataGrid"
                   dataContainer="itemsDc"
                   width="100%"
@@ -72,6 +65,7 @@
             <columns>
                 <column property="product.code" header="Mã sản phẩm"/>
                 <column property="product.name" header="Sản phẩm"/>
+                <column property="product.category.name" header="Danh mục sản phẩm"/>
                 <column property="bookQuantity" header="Tồn theo sổ"/>
                 <column property="countedQuantity" header="Số lượng thực tế" editable="true"/>
                 <column property="varianceQuantity" header="Chênh lệch"/>

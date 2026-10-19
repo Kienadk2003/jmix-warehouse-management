@@ -1,9 +1,34 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <view xmlns="http://jmix.io/schema/flowui/view" title="Dòng sản phẩm xuất" focusComponent="form">
     <data>
+        <collection id="productsDc" class="com.company.warehousemanagement.entity.Product">
+            <fetchPlan extends="_base">
+                <property name="baseUnit" fetchPlan="_instance_name"/>
+                <property name="category" fetchPlan="_instance_name"/>
+            </fetchPlan>
+            <loader id="productsDl" readOnly="true">
+                <query><![CDATA[
+                    select e from Product e
+                    where e.active = true
+                    order by e.name
+                ]]></query>
+            </loader>
+        </collection>
+        <collection id="unitsDc" class="com.company.warehousemanagement.entity.Unit">
+            <fetchPlan extends="_instance_name"/>
+            <loader id="unitsDl" readOnly="true">
+                <query><![CDATA[
+                    select e from Unit e
+                    where e.active = true
+                    order by e.name
+                ]]></query>
+            </loader>
+        </collection>
         <instance id="transactionItemDc" class="com.company.warehousemanagement.entity.TransactionItem">
             <fetchPlan extends="_base">
-                <property name="product" fetchPlan="_base"/>
+                <property name="product" fetchPlan="_base">
+                    <property name="category" fetchPlan="_instance_name"/>
+                </property>
                 <property name="unit" fetchPlan="_base"/>
             </fetchPlan>
             <loader id="transactionItemDl"/>
@@ -26,12 +51,9 @@
                 <responsiveStep minWidth="30em" columns="2"/>
             </responsiveSteps>
 
-            <entityPicker id="productField" property="product" label="Sản phẩm" required="true" requiredMessage="Bạn chưa chọn sản phẩm">
-                <actions>
-                    <action id="entityLookupAction" type="entity_lookup"/>
-                    <action id="entityClearAction" type="entity_clear"/>
-                </actions>
-            </entityPicker>
+            <entityComboBox id="productField" property="product" label="Sản phẩm"
+                            itemsContainer="productsDc" required="true"
+                            requiredMessage="Bạn chưa chọn sản phẩm"/>
 
             <bigDecimalField id="quantityField" property="quantity" label="Số lượng" required="true" requiredMessage="Số lượng không được để trống">
                 <validators>
@@ -42,12 +64,9 @@
 
             <textField id="availableStockField" label="Tồn hiện tại" readOnly="true"/>
 
-            <entityPicker id="unitField" property="unit" label="Đơn vị tính" required="true" requiredMessage="Bạn chưa chọn đơn vị tính">
-                <actions>
-                    <action id="entityLookupAction" type="entity_lookup"/>
-                    <action id="entityClearAction" type="entity_clear"/>
-                </actions>
-            </entityPicker>
+            <entityComboBox id="unitField" property="unit" label="Đơn vị tính"
+                            itemsContainer="unitsDc" required="true"
+                            requiredMessage="Bạn chưa chọn đơn vị tính"/>
 
             <textArea id="noteField" property="note" label="Ghi chú" maxLength="1000" minRows="2" maxRows="4" width="100%" colspan="2"/>
         </formLayout>
