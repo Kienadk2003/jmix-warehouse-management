@@ -14,7 +14,7 @@ import java.util.*;
 /** Imports CSV and XLSX master-data files. Headers are case-insensitive; first row is the header. */
 @Component
 public class MasterDataImportService {
-    public enum DuplicateMode { SKIP, UPDATE }
+    public enum DuplicateMode { SKIP, UPDATE, REPLACE_ALL }
     public record RowError(int row, String message) {}
     public record ImportResult(int created, int updated, int skipped, List<RowError> errors) {}
     private final DataManager dataManager;
@@ -63,8 +63,39 @@ public class MasterDataImportService {
     private String v(Map<String,String> m,String key) { return m.getOrDefault(key.toLowerCase(Locale.ROOT).replace(" ","").replace("_", ""), "").trim(); }
     private boolean active(Map<String,String> m) { String a=v(m,"active"); if(a.isBlank()) return true; if(List.of("true","1","yes","y","active","hoạt động").contains(a.toLowerCase(Locale.ROOT))) return true; if(List.of("false","0","no","n","inactive","ngừng hoạt động").contains(a.toLowerCase(Locale.ROOT))) return false; throw new IllegalArgumentException("active phải là true/false, 1/0, yes/no"); }
     private void required(String value,String field) { if(value==null||value.isBlank()) throw new IllegalArgumentException("Thiếu trường bắt buộc: "+field); }
+    private String normalizeType(String type) {
+        return type == null ? "" : type.toLowerCase(Locale.ROOT).replace("-", "").replace("_", "").trim();
+    }
+
+    /** Reject a file created for another master-data screen before changing any data. */
+    private void validateFileType(String type, List<Map<String,String>> rows) {
+        if (rows == null || rows.isEmpty()) throw new IllegalArgumentException("File không có dòng dữ liệu.");
+        Set<String> headers = new HashSet<>(rows.get(0).keySet());
+        headers.remove("__row");
+        String normalized = normalizeType(type);
+        Set<String> requiredHeaders = switch (normalized) {
+            case "productcategory", "productcategorys", "category", "categories" -> Set.of("code", "name", "description");
+            case "unit", "units" -> Set.of("code", "name", "decimalscale");
+            case "product", "products" -> Set.of("code", "name", "categorycode", "baseunitcode");
+            case "warehouse", "warehouses" -> Set.of("code", "name", "address");
+            case "partner", "partners" -> Set.of("code", "name", "partnertype");
+            default -> throw new IllegalArgumentException("Loại master data không được hỗ trợ: " + type);
+        };
+        if (!headers.containsAll(requiredHeaders)) {
+            Set<String> missing = new TreeSet<>(requiredHeaders);
+            missing.removeAll(headers);
+            throw new IllegalArgumentException("File không đúng mẫu của " + type + ". Thiếu cột nhận diện: " + String.join(", ", missing));
+        }
+    }
+
     @Transactional
     public ImportResult importRows(String type,List<Map<String,String>> rows,DuplicateMode mode) {
+        validateFileType(type, rows);
+        if (mode == DuplicateMode.REPLACE_ALL) {
+            // Delete and re-import inside this transaction. Any row error or FK constraint
+            // failure aborts the operation, so Spring rolls the deletion back as well.
+            clearType(type);
+        }
         int created=0,updated=0,skipped=0; List<RowError> errors=new ArrayList<>(); int i=0;
         for(Map<String,String> m:rows) { i++; int row; try { row=Integer.parseInt(m.getOrDefault("__row",String.valueOf(i+1))); } catch(Exception e){row=i+1;}
             try {
@@ -79,6 +110,26 @@ public class MasterDataImportService {
                 }
             } catch(Exception ex) { errors.add(new RowError(row, ex.getMessage()==null?ex.getClass().getSimpleName():ex.getMessage())); }
         }
+        if (mode == DuplicateMode.REPLACE_ALL && !errors.isEmpty()) {
+            RowError first = errors.get(0);
+            throw new IllegalArgumentException("Không thể thay thế toàn bộ dữ liệu. Dòng " + first.row() + ": " + first.message() + ". Toàn bộ thao tác đã bị hủy; dữ liệu cũ được giữ nguyên.");
+        }
         return new ImportResult(created,updated,skipped,List.copyOf(errors));
+    }
+
+    private void clearType(String type) {
+        switch (normalizeType(type)) {
+            case "productcategory", "productcategorys", "category", "categories" ->
+                    dataManager.load(ProductCategory.class).all().list().forEach(dataManager::remove);
+            case "unit", "units" ->
+                    dataManager.load(Unit.class).all().list().forEach(dataManager::remove);
+            case "product", "products" ->
+                    dataManager.load(Product.class).all().list().forEach(dataManager::remove);
+            case "warehouse", "warehouses" ->
+                    dataManager.load(Warehouse.class).all().list().forEach(dataManager::remove);
+            case "partner", "partners" ->
+                    dataManager.load(Partner.class).all().list().forEach(dataManager::remove);
+            default -> throw new IllegalArgumentException("Loại master data không được hỗ trợ: " + type);
+        }
     }
 }
