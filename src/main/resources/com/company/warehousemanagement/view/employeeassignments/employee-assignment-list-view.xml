@@ -12,15 +12,20 @@
             </fetchPlan>
             <loader id="userWarehousesDl" readOnly="true">
                 <query>
-                    <![CDATA[select e from UserWarehouse e]]>
+                    <![CDATA[select e from UserWarehouse e
+                    where (:searchTerm is null or trim(:searchTerm) = ''
+                        or lower(coalesce(e.user.username, '')) like concat('%', lower(:searchTerm), '%')
+                        or lower(coalesce(e.user.firstName, '')) like concat('%', lower(:searchTerm), '%')
+                        or lower(coalesce(e.user.lastName, '')) like concat('%', lower(:searchTerm), '%')
+                        or lower(coalesce(e.warehouse.code, '')) like concat('%', lower(:searchTerm), '%')
+                        or lower(coalesce(e.warehouse.name, '')) like concat('%', lower(:searchTerm), '%'))]]>
                 </query>
             </loader>
         </collection>
     </data>
     <facets>
-        <dataLoadCoordinator auto="true"/>
+        <dataLoadCoordinator auto="false"/>
         <urlQueryParameters>
-            <genericFilter component="genericFilter"/>
             <pagination component="pagination"/>
         </urlQueryParameters>
     </facets>
@@ -28,16 +33,13 @@
         <action id="selectAction" type="lookup_select"/>
         <action id="discardAction" type="lookup_discard"/>
     </actions>
-    <layout>
-        <genericFilter id="genericFilter"
-                       dataLoader="userWarehousesDl">
-            <properties include=".*"/>
-        </genericFilter>
-        <hbox id="buttonsPanel" wrap="true" width="100%">
+    <layout classNames="warehouse-page-layout">
+<hbox id="buttonsPanel" wrap="true" width="100%" classNames="warehouse-toolbar">
             <startSlot>
-                <button id="createButton" action="userWarehousesDataGrid.createAction"/>
-                <button id="editButton" action="userWarehousesDataGrid.editAction"/>
-                <button id="removeButton" action="userWarehousesDataGrid.removeAction"/>
+                <textField id="searchField" placeholder="msg://searchPlaceholder" clearButtonVisible="true" valueChangeMode="LAZY" width="22em" classNames="warehouse-search-field"></textField>
+                <button id="createButton" action="userWarehousesDataGrid.createAction" text="Tạo mới" themeNames="primary" icon="vaadin:plus"/>
+                <button id="editButton" action="userWarehousesDataGrid.editAction" text="Sửa" icon="vaadin:pencil"/>
+                <button id="removeButton" action="userWarehousesDataGrid.removeAction" text="Xóa" themeNames="error" icon="vaadin:trash"/>
             </startSlot>
             <endSlot>
                 <simplePagination id="pagination" dataLoader="userWarehousesDl"/>
@@ -47,21 +49,22 @@
                   width="100%"
                   minHeight="20em"
                   dataContainer="userWarehousesDc"
-                  columnReorderingAllowed="true">
+                  columnReorderingAllowed="true"
+                  classNames="warehouse-data-grid">
             <actions>
                 <action id="createAction" type="list_create"/>
                 <action id="editAction" type="list_edit"/>
                 <action id="removeAction" type="list_remove"/>
             </actions>
             <columns resizable="true">
-                <column property="user"/>
-                <column property="warehouse"/>
-                <column property="productCategories"/>
+                <column property="user" header="Nhân viên"/>
+                <column property="warehouse" header="Kho"/>
+                <column property="productCategories" header="Danh mục sản phẩm" sortable="false"/>
             </columns>
         </dataGrid>
         <hbox id="lookupActions" visible="false">
-            <button id="selectButton" action="selectAction"/>
-            <button id="discardButton" action="discardAction"/>
+            <button id="selectButton" action="selectAction" text="Chọn"/>
+            <button id="discardButton" action="discardAction" text="Đóng"/>
         </hbox>
     </layout>
 </view>

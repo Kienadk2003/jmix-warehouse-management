@@ -1,6 +1,8 @@
 package com.company.warehousemanagement.view.stocktake;
 
 import com.company.warehousemanagement.entity.Stocktake;
+import com.vaadin.flow.component.textfield.TextField;
+import io.jmix.flowui.model.CollectionLoader;
 import com.company.warehousemanagement.security.WarehouseAuthorizationService;
 import com.company.warehousemanagement.security.WarehousePermissions;
 import io.jmix.flowui.kit.component.button.JmixButton;
@@ -27,10 +29,29 @@ public class StocktakeListView extends StandardListView<Stocktake> {
     @ViewComponent
     private JmixButton createButton;
 
+    @ViewComponent
+    private TextField searchField;
+
+    @ViewComponent
+    private CollectionLoader<Stocktake> stocktakesDl;
+
+    private boolean searchListenerRegistered;
+
     @Subscribe
     public void onBeforeShow(BeforeShowEvent event) {
+        if (!searchListenerRegistered) {
+            searchField.addValueChangeListener(valueChangeEvent -> applySearch());
+            searchListenerRegistered = true;
+        }
         createButton.setVisible(
                 authorizationService.isAllowed(WarehousePermissions.COUNT_STOCK)
         );
+        applySearch();
+    }
+
+    private void applySearch() {
+        String term = searchField.getValue() == null ? "" : searchField.getValue().trim();
+        stocktakesDl.setParameter("searchTerm", term.isEmpty() ? null : term);
+        stocktakesDl.load();
     }
 }

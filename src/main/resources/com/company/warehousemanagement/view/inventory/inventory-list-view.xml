@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<view xmlns="http://jmix.io/schema/flowui/view" title="Tồn kho">
+<view xmlns="http://jmix.io/schema/flowui/view" title="msg://inventoryListView.title">
 
     <data readOnly="true">
 
@@ -17,8 +17,12 @@
 
                 <query>
                     <![CDATA[
-                        select e
-                        from Inventory e
+                        select e from Inventory e
+                        where (:searchTerm is null or trim(:searchTerm) = ''
+                            or lower(coalesce(e.warehouse.name, '')) like concat('%', lower(:searchTerm), '%')
+                            or lower(coalesce(e.warehouse.code, '')) like concat('%', lower(:searchTerm), '%')
+                            or lower(coalesce(e.product.name, '')) like concat('%', lower(:searchTerm), '%')
+                            or lower(coalesce(e.product.code, '')) like concat('%', lower(:searchTerm), '%'))
                         order by e.warehouse.id, e.product.id
                     ]]>
                 </query>
@@ -31,25 +35,19 @@
 
     <facets>
 
-        <dataLoadCoordinator auto="true"/>
+        <dataLoadCoordinator auto="false"/>
 
     </facets>
 
-    <layout padding="true" classNames="warehouse-page-layout">
-
-        <genericFilter id="genericFilter" dataLoader="inventoryDl" classNames="warehouse-filter">
-
-            <properties include=".*"/>
-
-        </genericFilter>
-
-
-        <hbox id="buttonsPanel" classNames="buttons-panel warehouse-toolbar">
-            <button id="refreshButton" action="inventoryDataGrid.refresh" text="Làm mới"/>
+    <layout classNames="warehouse-page-layout">
+<hbox id="buttonsPanel" classNames="buttons-panel warehouse-toolbar" wrap="true">
+            <textField id="searchField" placeholder="msg://searchPlaceholder" clearButtonVisible="true" valueChangeMode="LAZY" width="22em" classNames="warehouse-search-field"></textField>
+            <button id="refreshButton" action="inventoryDataGrid.refresh" icon="vaadin:refresh" text="msg://refreshButton.text"/>
         </hbox>
 
 
-        <dataGrid id="inventoryDataGrid" dataContainer="inventoryDc" width="100%" minHeight="20em" classNames="warehouse-data-grid">
+        <dataGrid id="inventoryDataGrid" dataContainer="inventoryDc" width="100%" minHeight="16em" classNames="warehouse-data-grid"
+                  emptyStateText="msg://inventoryDataGrid.emptyState">
 
             <actions>
                 <action id="refresh" type="list_refresh"/>
@@ -57,15 +55,15 @@
 
             <columns>
 
-                <column property="warehouse" header="Warehouse"/>
+                <column property="warehouse" header="msg://column.warehouse"/>
 
-                <column property="product" header="Product"/>
+                <column property="product" header="msg://column.product"/>
 
-                <column property="quantity" header="On Hand" textAlign="END"/>
+                <column property="quantity" header="msg://column.quantity" textAlign="END"/>
 
-                <column property="reservedQuantity" header="Reserved" textAlign="END"/>
+                <column property="reservedQuantity" header="msg://column.reservedQuantity" textAlign="END"/>
 
-                <column property="updatedAt" header="Updated At"/>
+                <column property="updatedAt" header="msg://column.updatedAt"/>
 
             </columns>
 

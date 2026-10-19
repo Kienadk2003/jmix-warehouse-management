@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="msg://importExportView.title"
+      focusComponent="receiptsDataGrid">
+    <data>
+        <collection id="receiptsDc" class="com.company.warehousemanagement.entity.WarehouseTransaction">
+            <fetchPlan extends="_base">
+                <property name="destinationWarehouse" fetchPlan="_base"/>
+                <property name="partner" fetchPlan="_base"/>
+            </fetchPlan>
+            <loader id="receiptsDl" readOnly="true">
+                <query><![CDATA[
+                    select e from WarehouseTransaction e
+                    where e.type = 'IMPORT'
+                      and (:importSearchTerm is null or trim(:importSearchTerm) = ''
+                           or lower(coalesce(e.documentNo, '')) like concat('%', lower(:importSearchTerm), '%')
+                           or lower(coalesce(e.destinationWarehouse.name, '')) like concat('%', lower(:importSearchTerm), '%')
+                           or lower(coalesce(e.partner.name, '')) like concat('%', lower(:importSearchTerm), '%'))
+                    order by e.documentDate desc, e.documentNo desc
+                ]]></query>
+            </loader>
+        </collection>
+        <collection id="exportsDc" class="com.company.warehousemanagement.entity.WarehouseTransaction">
+            <fetchPlan extends="_base">
+                <property name="sourceWarehouse" fetchPlan="_base"/>
+                <property name="partner" fetchPlan="_base"/>
+            </fetchPlan>
+            <loader id="exportsDl" readOnly="true">
+                <query><![CDATA[
+                    select e from WarehouseTransaction e
+                    where e.type = 'EXPORT'
+                      and (:exportSearchTerm is null or trim(:exportSearchTerm) = ''
+                           or lower(coalesce(e.documentNo, '')) like concat('%', lower(:exportSearchTerm), '%')
+                           or lower(coalesce(e.sourceWarehouse.name, '')) like concat('%', lower(:exportSearchTerm), '%')
+                           or lower(coalesce(e.partner.name, '')) like concat('%', lower(:exportSearchTerm), '%'))
+                    order by e.documentDate desc, e.documentNo desc
+                ]]></query>
+            </loader>
+        </collection>
+    </data>
+    <facets>
+        <dataLoadCoordinator auto="false"/>
+    </facets>
+    <layout classNames="warehouse-page-layout">
+        <tabSheet id="transactionTabs" width="100%">
+            <tab id="importTab" label="msg://tab.import">
+                <vbox width="100%">
+<hbox id="importButtonsPanel" width="100%" wrap="true" classNames="warehouse-toolbar">
+                        <startSlot>
+                            <textField id="importSearchField" placeholder="msg://searchImportPlaceholder" clearButtonVisible="true" valueChangeMode="LAZY" width="22em" classNames="warehouse-search-field"></textField>
+                            <button id="createImportButton" icon="vaadin:plus" text="msg://button.createImport" themeNames="primary"/>
+                            <button id="openImportButton" icon="vaadin:eye" text="msg://button.details"/>
+                            <button id="refreshImportButton" icon="vaadin:refresh" text="msg://button.refresh"/>
+                        </startSlot>
+                        <endSlot>
+                            <simplePagination id="receiptsPagination" dataLoader="receiptsDl"/>
+                        </endSlot>
+                    </hbox>
+                    <dataGrid id="receiptsDataGrid" emptyStateText="msg://receiptsDataGrid.emptyState" width="100%" minHeight="16em"
+                              dataContainer="receiptsDc" columnReorderingAllowed="true"
+                              classNames="warehouse-data-grid">
+                        <columns resizable="true">
+                            <column property="documentNo" header="msg://column.documentNo"/>
+                            <column property="documentDate" header="msg://column.documentDate"/>
+                            <column property="destinationWarehouse" header="msg://column.destinationWarehouse"/>
+                            <column property="partner" header="msg://column.supplier"/>
+                            <column property="status" header="msg://column.status"/>
+                            <column property="postedBy" header="msg://column.postedBy"/>
+                            <column property="postedAt" header="msg://column.postedAt"/>
+                        </columns>
+                    </dataGrid>
+                </vbox>
+            </tab>
+            <tab id="exportTab" label="msg://tab.export">
+                <vbox width="100%">
+<hbox id="exportButtonsPanel" width="100%" wrap="true" classNames="warehouse-toolbar">
+                        <startSlot>
+                            <textField id="exportSearchField" placeholder="msg://searchExportPlaceholder" clearButtonVisible="true" valueChangeMode="LAZY" width="22em" classNames="warehouse-search-field"></textField>
+                            <button id="createExportButton" action="exportsDataGrid.createAction"
+                                    icon="vaadin:plus" text="msg://button.createExport" themeNames="primary"/>
+                            <button id="editExportButton" action="exportsDataGrid.editAction" icon="vaadin:pencil" text="msg://button.edit"/>
+                            <button id="readExportButton" action="exportsDataGrid.readAction" icon="vaadin:eye" text="msg://button.details"/>
+                            <button id="refreshExportButton" action="exportsDataGrid.refreshAction" icon="vaadin:refresh" text="msg://button.refresh"/>
+                        </startSlot>
+                        <endSlot>
+                            <simplePagination id="exportsPagination" dataLoader="exportsDl"/>
+                        </endSlot>
+                    </hbox>
+                    <dataGrid id="exportsDataGrid" emptyStateText="msg://exportsDataGrid.emptyState" width="100%" minHeight="16em"
+                              dataContainer="exportsDc" columnReorderingAllowed="true"
+                              classNames="warehouse-data-grid">
+                        <actions>
+                            <action id="createAction" type="list_create">
+                                <properties>
+                                    <property name="viewId" value="WarehouseTransaction.exportDetail"/>
+                                </properties>
+                            </action>
+                            <action id="editAction" type="list_edit">
+                                <properties>
+                                    <property name="viewId" value="WarehouseTransaction.exportDetail"/>
+                                </properties>
+                            </action>
+                            <action id="readAction" type="list_read">
+                                <properties>
+                                    <property name="viewId" value="WarehouseTransaction.exportDetail"/>
+                                </properties>
+                            </action>
+                            <action id="refreshAction" type="list_refresh"/>
+                        </actions>
+                        <columns resizable="true">
+                            <column property="documentNo" header="msg://column.documentNo" sortable="true"/>
+                            <column property="sourceWarehouse" header="msg://column.sourceWarehouse" sortable="true"/>
+                            <column property="partner" header="msg://column.partner" sortable="true"/>
+                            <column property="documentDate" header="msg://column.documentDate" sortable="true"/>
+                            <column property="status" header="msg://column.status" sortable="true"/>
+                        </columns>
+                    </dataGrid>
+                </vbox>
+            </tab>
+        </tabSheet>
+    </layout>
+</view>

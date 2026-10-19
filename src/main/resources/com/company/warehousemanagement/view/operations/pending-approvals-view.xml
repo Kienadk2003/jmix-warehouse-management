@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="msg://pendingApprovalsView.title">
+    <layout classNames="warehouse-page-layout">
+        <span id="pendingDescription" text="msg://pendingApprovalsView.description" classNames="warehouse-page-description"/>
+        <hbox id="toolbar" width="100%" wrap="true" classNames="warehouse-toolbar">
+            <startSlot>
+                <textField id="searchField" placeholder="msg://searchPlaceholder" clearButtonVisible="true"
+                           valueChangeMode="LAZY" width="22em" classNames="warehouse-search-field"></textField>
+                <button id="openSelectedButton" text="msg://button.openSelected" icon="vaadin:external-link" themeNames="primary"/>
+                <button id="refreshButton" text="msg://button.refresh" icon="vaadin:refresh"/>
+            </startSlot>
+        </hbox>
+        <vbox id="pendingApprovalsGridHost" width="100%" padding="false" spacing="false"/>
+        <vbox id="pendingEmptyState" visible="false" width="100%" classNames="warehouse-empty-card" alignItems="CENTER" padding="false" spacing="false">
+            <icon icon="vaadin:clipboard-check" classNames="warehouse-empty-card-icon"/>
+            <span id="pendingEmptyTitle" text="msg://emptyState.title" classNames="warehouse-empty-card-title"/>
+            <span id="pendingEmptyHint" text="msg://emptyState.hint" classNames="warehouse-empty-card-hint"/>
+        </vbox>
+    </layout>
+</view>

@@ -39,6 +39,10 @@ public interface WarehouseManagerRole extends ViewerRole {
             "WarehouseTransaction.transferDetail",
             "WarehouseTransaction.adjustmentList",
             "WarehouseTransaction.adjustmentDetail",
+            // Combined operational views added to the sidebar
+            "WarehouseTransaction.importExportList",
+            "WarehouseTransaction.pendingApprovals",
+            "WarehouseTransaction.stocktakeAdjustmentList",
             "Stocktake.list",
             "Stocktake.detail",
             "User.list",
@@ -49,6 +53,12 @@ public interface WarehouseManagerRole extends ViewerRole {
     void managerViews();
 
     @MenuPolicy(menuIds = {
+            // Nghiệp vụ kho
+            "WarehouseTransaction.importExportList",
+            "WarehouseTransaction.pendingApprovals",
+            "WarehouseTransaction.transferList",
+            "WarehouseTransaction.stocktakeAdjustmentList",
+            // Menu quản trị được phép cho Manager
             "Stocktake.list",
             "User.list",
             "UserWarehouse.list"
@@ -61,7 +71,8 @@ public interface WarehouseManagerRole extends ViewerRole {
             WarehousePermissions.APPROVE,
             WarehousePermissions.REJECT,
             WarehousePermissions.APPROVE_STOCKTAKE,
-            WarehousePermissions.REJECT_STOCKTAKE
+            WarehousePermissions.REJECT_STOCKTAKE,
+            WarehousePermissions.VIEW_EMAIL_INBOX
     })
     void managerOperations();
 

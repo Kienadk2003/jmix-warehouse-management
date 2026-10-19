@@ -1,6 +1,8 @@
 package com.company.warehousemanagement.view.adjustment;
 
 import com.company.warehousemanagement.entity.WarehouseTransaction;
+import com.vaadin.flow.component.textfield.TextField;
+import io.jmix.flowui.model.CollectionLoader;
 import com.company.warehousemanagement.security.WarehouseAuthorizationService;
 import com.company.warehousemanagement.security.WarehousePermissions;
 import io.jmix.flowui.kit.component.button.JmixButton;
@@ -40,10 +42,29 @@ public class AdjustmentListView
     @ViewComponent
     private JmixButton createButton;
 
+    @ViewComponent
+    private TextField searchField;
+
+    @ViewComponent
+    private CollectionLoader<WarehouseTransaction> adjustmentsDl;
+
+    private boolean searchListenerRegistered;
+
     @Subscribe
     public void onBeforeShow(BeforeShowEvent event) {
+        if (!searchListenerRegistered) {
+            searchField.addValueChangeListener(valueChangeEvent -> applySearch());
+            searchListenerRegistered = true;
+        }
         createButton.setVisible(
                 authorizationService.isAllowed(WarehousePermissions.EDIT_DRAFT)
         );
+        applySearch();
+    }
+
+    private void applySearch() {
+        String term = searchField.getValue() == null ? "" : searchField.getValue().trim();
+        adjustmentsDl.setParameter("searchTerm", term.isEmpty() ? null : term);
+        adjustmentsDl.load();
     }
 }

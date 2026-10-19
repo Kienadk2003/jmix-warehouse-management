@@ -78,7 +78,7 @@ public class StocktakeService {
         Map<UUID, SnapshotLine> linesByProduct = new HashMap<>();
         for (Inventory inventory : dataManager.load(Inventory.class)
                 .query("select e from Inventory e where e.warehouse.id = ?1", warehouseId)
-                .fetchPlan(fp -> fp.add("product", FetchPlan.BASE))
+                .fetchPlan(fp -> fp.add("quantity").add("product", FetchPlan.BASE))
                 .list()) {
             Product product = inventory.getProduct();
             linesByProduct.put(product.getId(), new SnapshotLine(
@@ -142,7 +142,7 @@ public class StocktakeService {
         }
 
         stocktake.setStatus(StocktakeStatus.PENDING_APPROVAL);
-        return dataManager.save(stocktake);
+        return unconstrainedDataManager.save(stocktake);
     }
 
     @Transactional
@@ -242,7 +242,7 @@ public class StocktakeService {
 
         stocktake.setStatus(StocktakeStatus.APPROVED);
         stocktake.setApprovedAt(approvedAt);
-        return dataManager.save(stocktake);
+        return unconstrainedDataManager.save(stocktake);
     }
 
     /**
@@ -266,7 +266,7 @@ public class StocktakeService {
 
         loadAccessibleWarehouse(stocktake.getWarehouse().getId());
         stocktake.setStatus(StocktakeStatus.REJECTED);
-        return dataManager.save(stocktake);
+        return unconstrainedDataManager.save(stocktake);
     }
 
     /**

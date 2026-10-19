@@ -18,6 +18,10 @@
                         select e
                         from WarehouseTransaction e
                         where e.type = 'ADJUSTMENT'
+                          and (:searchTerm is null or trim(:searchTerm) = ''
+                               or lower(coalesce(e.documentNo, '')) like concat('%', lower(:searchTerm), '%')
+                               or lower(coalesce(e.sourceWarehouse.name, '')) like concat('%', lower(:searchTerm), '%')
+                               or lower(coalesce(e.reason, '')) like concat('%', lower(:searchTerm), '%'))
                         order by e.documentDate desc
                     ]]>
                 </query>
@@ -29,26 +33,21 @@
     </data>
 
     <facets>
-        <dataLoadCoordinator auto="true"/>
+        <dataLoadCoordinator auto="false"/>
     </facets>
 
     <layout padding="true" classNames="warehouse-page-layout">
+<hbox id="buttonsPanel" width="100%" wrap="true" classNames="buttons-panel warehouse-toolbar">
 
-        <genericFilter id="genericFilter" dataLoader="adjustmentsDl" classNames="warehouse-filter">
+            <textField id="searchField" placeholder="msg://searchPlaceholder" clearButtonVisible="true" valueChangeMode="LAZY" width="22em" classNames="warehouse-search-field"></textField>
 
-            <properties include=".*"/>
+            <button id="createButton" action="adjustmentsDataGrid.create" themeNames="primary" icon="vaadin:plus" text="Tạo mới"/>
 
-        </genericFilter>
+            <button id="editButton" action="adjustmentsDataGrid.edit" icon="vaadin:pencil" text="Sửa"/>
 
-        <hbox id="buttonsPanel" classNames="buttons-panel warehouse-toolbar">
+            <button id="readButton" action="adjustmentsDataGrid.read" icon="vaadin:eye" text="Xem chi tiết"/>
 
-            <button id="createButton" action="adjustmentsDataGrid.create" themeNames="primary" text="Tạo mới"/>
-
-            <button id="editButton" action="adjustmentsDataGrid.edit" text="Chỉnh sửa"/>
-
-            <button id="readButton" action="adjustmentsDataGrid.read" text="Xem chi tiết"/>
-
-            <button id="refreshButton" action="adjustmentsDataGrid.refresh" text="Làm mới"/>
+            <button id="refreshButton" action="adjustmentsDataGrid.refresh" icon="vaadin:refresh" text="Làm mới"/>
 
         </hbox>
 

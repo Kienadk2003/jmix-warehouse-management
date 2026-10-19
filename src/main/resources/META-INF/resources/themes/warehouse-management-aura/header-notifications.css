@@ -1,0 +1,305 @@
+/* =====================================================================================
+   KhoFlow header: website notifications (bell) + email inbox (envelope)
+   Uses the same palette as the rest of the theme (see --wm-* in warehouse-management.css).
+   ===================================================================================== */
+
+/* ---- Placement ------------------------------------------------------------------------
+   The icons sit together immediately before the authenticated user menu. */
+.warehouse-main-header .warehouse-header-actions {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+    gap: 10px;
+    margin-inline-start: auto;
+    margin-inline-end: 10px;
+}
+
+/* ---- Icon button (42px hit area, 21px icon) --------------------------------------- */
+.warehouse-header-icon {
+    position: relative;
+    display: inline-flex;
+    flex: 0 0 auto;
+    width: 42px;
+    height: 42px;
+}
+.warehouse-header-icon-button {
+    box-sizing: border-box;
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    margin: 0;
+    padding: 0;
+    border: 1px solid #cfe2e2;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #087f78;
+    box-shadow: 0 2px 6px rgba(20, 75, 80, .05);
+    cursor: pointer;
+    transition: background-color 120ms ease, border-color 120ms ease, transform 80ms ease;
+}
+.warehouse-header-icon-button vaadin-icon {
+    width: 21px;
+    height: 21px;
+}
+.warehouse-header-icon-button:hover {
+    background: #eaf7f6;
+    border-color: #87c9c3;
+}
+.warehouse-header-icon-button:active {
+    background: #d6efec;
+    border-color: #5fb8b1;
+    transform: scale(.96);
+}
+.warehouse-header-icon-button:focus-visible {
+    outline: 2px solid var(--wm-primary, #007a75);
+    outline-offset: 2px;
+}
+
+/* ---- Unread badge --------------------------------------------------------------------- */
+.warehouse-header-badge {
+    position: absolute;
+    top: -6px;
+    inset-inline-end: -6px;
+    box-sizing: border-box;
+    min-width: 19px;
+    height: 19px;
+    padding: 0 5px;
+    border: 2px solid #ffffff;
+    border-radius: 10px;
+    background: #d92d20;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 15px;
+    text-align: center;
+    pointer-events: none;
+}
+
+/* ---- Popover shell -------------------------------------------------------------------- */
+vaadin-popover-overlay:has(.khoflow-popover-content)::part(content) {
+    padding: 0;
+}
+vaadin-popover-overlay:has(.khoflow-popover-content)::part(overlay) {
+    border: 1px solid var(--wm-border, #dce7e8);
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(20, 55, 60, .16);
+    overflow: hidden;
+}
+
+.khoflow-panel {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: 100%;
+    max-height: min(520px, calc(100vh - 96px));
+    color: var(--wm-text, #18333a);
+    background: #ffffff;
+}
+.khoflow-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--wm-border-soft, #e8eeee);
+    flex: 0 0 auto;
+}
+.khoflow-panel-heading {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.khoflow-panel-title {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -.01em;
+}
+.khoflow-panel-subtitle {
+    font-size: 12px;
+    color: var(--wm-muted, #708187);
+}
+.khoflow-panel-action {
+    flex: 0 0 auto;
+    color: var(--wm-primary, #007a75);
+    font-weight: 650;
+}
+.khoflow-panel-view {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+.khoflow-panel-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.khoflow-panel-footer {
+    display: flex;
+    justify-content: center;
+    flex: 0 0 auto;
+}
+.khoflow-panel-footer:empty { display: none; }
+.khoflow-panel-search {
+    padding: 8px 14px;
+    flex: 0 0 auto;
+}
+
+/* ---- States (empty / loading / error / not configured) --------------------------- */
+.khoflow-panel-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 32px 22px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--wm-muted, #708187);
+}
+.khoflow-panel-state-headline {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--wm-text, #18333a);
+}
+.khoflow-panel-state-error { color: #b42318; }
+
+/* ---- Website notification row ----------------------------------------------------- */
+.khoflow-notice,
+.khoflow-mail {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--wm-border-soft, #e8eeee);
+    cursor: pointer;
+    transition: background-color 100ms ease;
+}
+.khoflow-notice:hover,
+.khoflow-mail:hover { background: #f3faf9; }
+.khoflow-notice:focus-visible,
+.khoflow-mail:focus-visible {
+    outline: 2px solid var(--wm-primary, #007a75);
+    outline-offset: -2px;
+    background: #f3faf9;
+}
+.khoflow-notice-unread,
+.khoflow-mail-unread { background: #eef8f7; }
+
+.khoflow-notice-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+}
+.khoflow-notice-icon vaadin-icon { width: 17px; height: 17px; }
+.khoflow-notice-icon-pending { background: var(--wm-amber-soft, #fff1d6); color: var(--wm-amber, #d99100); }
+.khoflow-notice-icon-ok      { background: var(--wm-primary-soft, #dff3f0); color: var(--wm-primary, #007a75); }
+.khoflow-notice-icon-bad     { background: #fde8e6; color: #b42318; }
+.khoflow-notice-icon-info    { background: #e6f2f7; color: var(--wm-blue, #3d9cb5); }
+
+.khoflow-notice-text,
+.khoflow-mail-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.khoflow-notice-title { font-size: 13px; font-weight: 650; }
+.khoflow-notice-unread .khoflow-notice-title { font-weight: 750; }
+.khoflow-notice-body {
+    font-size: 12px;
+    line-height: 1.4;
+    color: #43606a;
+    overflow-wrap: anywhere;
+}
+.khoflow-notice-time { font-size: 11px; color: var(--wm-muted, #708187); }
+
+.khoflow-unread-dot {
+    flex: 0 0 auto;
+    width: 8px;
+    height: 8px;
+    margin-top: 6px;
+    border-radius: 50%;
+    background: var(--wm-primary, #007a75);
+}
+
+/* ---- Email row --------------------------------------------------------------------- */
+.khoflow-mail-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+}
+.khoflow-mail-sender,
+.khoflow-mail-subject,
+.khoflow-mail-preview {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.khoflow-mail-sender { font-size: 13px; font-weight: 650; min-width: 0; }
+.khoflow-mail-unread .khoflow-mail-sender,
+.khoflow-mail-unread .khoflow-mail-subject { font-weight: 750; }
+.khoflow-mail-time { flex: 0 0 auto; font-size: 11px; color: var(--wm-muted, #708187); }
+.khoflow-mail-subject { font-size: 12.5px; }
+.khoflow-mail-preview { font-size: 12px; color: var(--wm-muted, #708187); }
+.khoflow-mail-clip { width: 12px; height: 12px; margin-inline-start: 6px; vertical-align: -1px; color: var(--wm-muted, #708187); }
+
+/* ---- Email detail ------------------------------------------------------------------ */
+.khoflow-mail-detail {
+    padding: 8px 14px 14px;
+    gap: 6px;
+    overflow-y: auto;
+}
+.khoflow-mail-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 -8px 4px;
+}
+.khoflow-mail-detail-subject { font-size: 15px; font-weight: 700; overflow-wrap: anywhere; }
+.khoflow-mail-detail-meta { font-size: 12px; color: var(--wm-muted, #708187); overflow-wrap: anywhere; }
+.khoflow-mail-detail-body {
+    margin-top: 6px;
+    padding-top: 10px;
+    border-top: 1px solid var(--wm-border-soft, #e8eeee);
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+.khoflow-mail-attachments { display: flex; flex-wrap: wrap; gap: 6px; }
+.khoflow-mail-attachment {
+    padding: 3px 8px;
+    border: 1px solid var(--wm-border, #dce7e8);
+    border-radius: 8px;
+    background: #f6fafa;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+.khoflow-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ---- Small screens: stay inside the viewport, never create a horizontal scrollbar --- */
+@media (max-width: 640px) {
+    .warehouse-main-header .warehouse-header-actions { gap: 6px; margin-inline-end: 6px; }
+    .warehouse-header-icon,
+    .warehouse-header-icon-button { width: 40px; height: 40px; min-width: 40px; }
+    .khoflow-panel { max-height: calc(100vh - 80px); }
+}

@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<view xmlns="http://jmix.io/schema/flowui/view" title="Thẻ kho">
+<view xmlns="http://jmix.io/schema/flowui/view" title="msg://stockCardView.title">
 
     <data>
 
@@ -85,66 +85,70 @@
     </facets>
 
 
-    <layout padding="true" spacing="true" classNames="warehouse-page-layout">
+    <layout spacing="true" classNames="warehouse-page-layout">
+
+        <!-- FILTER: one card = form + action buttons -->
+        <vbox id="filterCard" classNames="warehouse-card" width="100%" padding="false" spacing="false">
+
+            <h3 text="msg://filterCard.title" classNames="warehouse-card-title"/>
+
+            <formLayout id="filterForm" classNames="warehouse-card-form">
+                <responsiveSteps>
+                    <responsiveStep minWidth="0" columns="1"/>
+                    <responsiveStep minWidth="38em" columns="2"/>
+                </responsiveSteps>
+
+                <entityComboBox id="warehouseField" label="msg://field.warehouse" metaClass="Warehouse" itemsContainer="warehousesDc"
+                                required="true" requiredMessage="msg://requiredMessage"/>
+
+                <entityComboBox id="productField" label="msg://field.product" metaClass="Product" itemsContainer="productsDc"
+                                required="true" requiredMessage="msg://requiredMessage"/>
+
+                <datePicker id="fromDateField" label="msg://field.fromDate" datatype="localDate"
+                            required="true" requiredMessage="msg://requiredMessage"/>
+
+                <datePicker id="toDateField" label="msg://field.toDate" datatype="localDate"
+                            required="true" requiredMessage="msg://requiredMessage"/>
+            </formLayout>
+
+            <hbox id="filterButtons" classNames="warehouse-card-actions" padding="false">
+                <button id="searchButton" text="msg://searchButton.text" icon="vaadin:search" themeNames="primary"/>
+            </hbox>
+        </vbox>
 
 
-        <!-- =========================
-             FILTER
-             ========================= -->
+        <!-- SUMMARY: values are filled by the search, nothing is pre-filled -->
+        <formLayout id="summaryForm" classNames="warehouse-summary-form">
+            <responsiveSteps>
+                <responsiveStep minWidth="0" columns="1"/>
+                <responsiveStep minWidth="38em" columns="3"/>
+            </responsiveSteps>
 
-        <formLayout id="filterForm" classNames="warehouse-form-layout">
+            <textField id="openingStockField" label="msg://summary.opening" placeholder="—" readOnly="true" classNames="warehouse-summary-field"/>
 
-            <entityComboBox id="warehouseField" label="Kho" metaClass="Warehouse" itemsContainer="warehousesDc" required="true"/>
+            <textField id="closingStockField" label="msg://summary.closing" placeholder="—" readOnly="true" classNames="warehouse-summary-field"/>
 
-            <entityComboBox id="productField" label="Sản phẩm" metaClass="Product" itemsContainer="productsDc" required="true"/>
-
-            <datePicker id="fromDateField" label="Từ ngày" datatype="localDate" required="true"/>
-
-            <datePicker id="toDateField" label="Đến ngày" datatype="localDate" required="true"/>
+            <textField id="currentInventoryField" label="msg://summary.current" placeholder="—" readOnly="true" classNames="warehouse-summary-field"/>
         </formLayout>
 
 
-        <hbox id="filterButtons" classNames="buttons-panel warehouse-toolbar">
-
-            <button id="searchButton" text="Search"/>
-
-        </hbox>
-
-
-        <!-- =========================
-             SUMMARY
-             ========================= -->
-
-        <formLayout id="summaryForm" classNames="warehouse-form-layout">
-
-            <textField id="openingStockField" label="Tồn đầu kỳ" readOnly="true"/>
-
-            <textField id="closingStockField" label="Tồn cuối kỳ" readOnly="true"/>
-
-            <textField id="currentInventoryField" label="Tồn hiện tại" readOnly="true"/>
-
-        </formLayout>
-
-
-        <!-- =========================
-             STOCK CARD
-             ========================= -->
-
-        <dataGrid id="stockCardDataGrid" dataContainer="stockCardDc" width="100%" minHeight="25em" classNames="warehouse-data-grid">
+        <!-- STOCK CARD HISTORY -->
+        <dataGrid id="stockCardDataGrid" dataContainer="stockCardDc" width="100%" minHeight="16em" classNames="warehouse-data-grid"
+                  emptyStateText="msg://stockCardDataGrid.emptyState">
 
             <columns>
 
-                <column property="movementTime" header="Thời gian phát sinh"/>
+                <column property="movementTime" header="msg://column.movementTime"/>
 
-                <column property="documentNo" header="Số phiếu"/>
+                <column property="documentNo" header="msg://column.documentNo"/>
 
-                <column property="transactionType" header="Loại phiếu"/>
+                <column property="transactionType" header="msg://column.transactionType"/>
 
-                <column property="movementType" header="Loại biến động"/>
+                <column property="movementType" header="msg://column.movementType"/>
 
-                <column property="signedQuantity" header="Số lượng" textAlign="END"/>
+                <column property="signedQuantity" header="msg://column.quantity" textAlign="END"/>
 
-                <column property="runningBalance" header="Tồn sau giao dịch" textAlign="END"/>
+                <column property="runningBalance" header="msg://column.runningBalance" textAlign="END"/>
 
             </columns>
 

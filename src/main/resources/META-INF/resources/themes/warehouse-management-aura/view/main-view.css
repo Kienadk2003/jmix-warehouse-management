@@ -272,3 +272,34 @@ vaadin-app-layout.jmix-main-view-app-layout[has-drawer][drawer-opened]:not([over
     margin-inline-start: auto;
     margin-inline-end: var(--vaadin-padding-m);
 }
+
+
+/* V10: compact toolbar and SVG menu icons */
+.warehouse-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+}
+.warehouse-toolbar [slot="start"] {
+    display: flex;
+    align-items: center;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    min-width: 0;
+}
+.warehouse-toolbar [slot="end"] {
+    display: flex;
+    align-items: center;
+    margin-inline-start: auto;
+}
+.warehouse-search-field {
+    flex: 0 1 22rem;
+    min-width: 13rem;
+    max-width: 100%;
+}
+.warehouse-search-field::part(input-field) {
+    border-radius: 10px;
+}

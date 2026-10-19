@@ -16,6 +16,9 @@ public final class WarehousePermissions {
 
     public static final String VIEW_DOCUMENTS = "warehouse.document.view";
 
+    /** Read the shared incoming mailbox shown behind the envelope icon in the header. */
+    public static final String VIEW_EMAIL_INBOX = "warehouse.emailInbox.view";
+
     private WarehousePermissions() {
     }
 }

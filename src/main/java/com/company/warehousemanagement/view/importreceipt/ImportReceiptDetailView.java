@@ -15,6 +15,7 @@ import com.company.warehousemanagement.service.WarehouseTransactionEmailService;
 import com.company.warehousemanagement.security.WarehouseAuthorizationService;
 import com.company.warehousemanagement.security.WarehousePermissions;
 import com.company.warehousemanagement.view.main.MainView;
+import com.company.warehousemanagement.view.operations.ImportExportListView;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -24,6 +25,7 @@ import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
+import io.jmix.core.Messages;
 import io.jmix.core.DataManager;
 import io.jmix.core.FetchPlan;
 import io.jmix.flowui.Notifications;
@@ -50,6 +52,9 @@ import java.util.UUID;
 @ViewDescriptor(path = "import-receipt-detail-view.xml")
 public class ImportReceiptDetailView extends StandardView
         implements BeforeEnterObserver, AfterNavigationObserver {
+
+    @Autowired
+    private Messages messages;
 
     @Autowired
     private com.company.warehousemanagement.view.document.TransactionDocumentsPanel documentsPanel;
@@ -176,7 +181,7 @@ public class ImportReceiptDetailView extends StandardView
             receiptId = UUID.fromString(idValue);
         } catch (IllegalArgumentException exception) {
             invalidRoute = true;
-            event.forwardTo(ImportReceiptListView.class);
+            event.forwardTo(ImportExportListView.class);
         }
     }
 
@@ -371,7 +376,7 @@ public class ImportReceiptDetailView extends StandardView
 
     @Subscribe("backButton")
     public void onBackButtonClick(ClickEvent<JmixButton> event) {
-        getUI().ifPresent(ui -> ui.navigate(ImportReceiptListView.class));
+        getUI().ifPresent(ui -> ui.navigate(ImportExportListView.class));
     }
 
     private void initializeNewReceipt() {
@@ -397,7 +402,7 @@ public class ImportReceiptDetailView extends StandardView
 
         if (receipt == null) {
             notifications.show("Không tìm thấy phiếu nhập");
-            getUI().ifPresent(ui -> ui.navigate(ImportReceiptListView.class));
+            getUI().ifPresent(ui -> ui.navigate(ImportExportListView.class));
             return;
         }
 
@@ -406,7 +411,7 @@ public class ImportReceiptDetailView extends StandardView
         warehouseField.setValue(findWarehouse(receipt.getDestinationWarehouse().getId()));
         partnerField.setValue(findPartner(receipt.getPartner().getId()));
         reasonField.setValue(receipt.getReason() == null ? "" : receipt.getReason());
-        statusField.setValue(receipt.getStatus().getId());
+        statusField.setValue(receipt.getStatus() == null ? "—" : messages.getMessage("com.company.warehousemanagement.entity/WarehouseTransactionStatus." + receipt.getStatus().name()));
 
         createReceiptButton.setVisible(false);
         itemsPanel.setVisible(true);

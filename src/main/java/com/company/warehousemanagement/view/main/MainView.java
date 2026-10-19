@@ -1,6 +1,7 @@
 package com.company.warehousemanagement.view.main;
 
 import com.company.warehousemanagement.entity.User;
+import com.company.warehousemanagement.ui.header.HeaderActionsFactory;
 import com.google.common.base.Strings;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
@@ -9,6 +10,7 @@ import com.vaadin.flow.component.avatar.AvatarVariant;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import io.jmix.core.DataManager;
 import io.jmix.core.Messages;
@@ -41,6 +43,12 @@ public class MainView extends StandardMainView {
     private CurrentUserSubstitution currentUserSubstitution;
     @Autowired
     private DataManager dataManager;
+    @Autowired
+    private HeaderActionsFactory headerActionsFactory;
+
+    // Inject the existing user menu so header actions can be placed directly beside it.
+    @ViewComponent
+    private Component userMenu;
 
     @ViewComponent
     private Span dashboardInventoryCount;
@@ -60,6 +68,26 @@ public class MainView extends StandardMainView {
     private Span dashboardProductCount;
     @ViewComponent
     private Span dashboardWarehouseCount;
+
+    // Clickable dashboard metric cards
+    @ViewComponent
+    private VerticalLayout dashboardInventoryCard;
+    @ViewComponent
+    private VerticalLayout dashboardPendingCard;
+    @ViewComponent
+    private VerticalLayout dashboardImportCard;
+    @ViewComponent
+    private VerticalLayout dashboardExportCard;
+    @ViewComponent
+    private VerticalLayout dashboardTransferCard;
+    @ViewComponent
+    private VerticalLayout dashboardAdjustmentCard;
+    @ViewComponent
+    private VerticalLayout dashboardStocktakeCard;
+    @ViewComponent
+    private VerticalLayout dashboardProductCard;
+    @ViewComponent
+    private VerticalLayout dashboardWarehouseCard;
 
     @ViewComponent
     private Button refreshDashboardButton;
@@ -83,12 +111,27 @@ public class MainView extends StandardMainView {
     @Subscribe
     public void onInit(InitEvent event) {
         refreshDashboardCounts();
+        // Keep mail and notification icons immediately beside the authenticated user menu.
+        headerActionsFactory.install(userMenu);
         refreshDashboardButton.addClickListener(click -> refreshDashboardCounts());
-        openImportButton.addClickListener(click -> navigateTo("import-receipts"));
-        openExportButton.addClickListener(click -> navigateTo("export-issues"));
+
+        // Make each dashboard metric card open its corresponding page.
+        makeCardClickable(dashboardInventoryCard, "inventory", "Mở trang tồn kho");
+        makeCardClickable(dashboardPendingCard, "warehouse-operations/pending-approvals", "Mở danh sách chờ duyệt");
+        makeCardClickable(dashboardImportCard, "warehouse-operations/import-export", "Mở màn hình nhập - xuất kho");
+        makeCardClickable(dashboardExportCard, "warehouse-operations/import-export", "Mở màn hình nhập - xuất kho");
+        makeCardClickable(dashboardTransferCard, "transfers", "Mở danh sách chuyển kho");
+        makeCardClickable(dashboardAdjustmentCard, "warehouse-operations/stocktake-adjustment", "Mở kiểm kê và điều chỉnh tồn");
+        makeCardClickable(dashboardStocktakeCard, "warehouse-operations/stocktake-adjustment", "Mở kiểm kê và điều chỉnh tồn");
+        makeCardClickable(dashboardProductCard, "products", "Mở danh sách sản phẩm");
+        makeCardClickable(dashboardWarehouseCard, "warehouses", "Mở danh sách kho");
+
+        // Quick-access actions use the consolidated pages where applicable.
+        openImportButton.addClickListener(click -> navigateTo("warehouse-operations/import-export"));
+        openExportButton.addClickListener(click -> navigateTo("warehouse-operations/import-export"));
         openTransferButton.addClickListener(click -> navigateTo("transfers"));
-        openStocktakeButton.addClickListener(click -> navigateTo("stocktakes"));
-        openAdjustmentButton.addClickListener(click -> navigateTo("adjustments"));
+        openStocktakeButton.addClickListener(click -> navigateTo("warehouse-operations/stocktake-adjustment"));
+        openAdjustmentButton.addClickListener(click -> navigateTo("warehouse-operations/stocktake-adjustment"));
         openInventoryButton.addClickListener(click -> navigateTo("inventory"));
         openStockCardButton.addClickListener(click -> navigateTo("stock-card"));
         openReportButton.addClickListener(click -> navigateTo("warehouse-reports"));
@@ -156,6 +199,17 @@ public class MainView extends StandardMainView {
         // Entity loads enforce row-level scope; scalar aggregate queries do not enforce it reliably.
         return dataManager.load(type).query(query.replace("select count(e)", "select e"))
                 .fetchPlanProperties("id").list().size();
+    }
+
+    private void makeCardClickable(VerticalLayout card, String route, String tooltip) {
+        if (card == null) {
+            return;
+        }
+        card.getStyle().set("cursor", "pointer");
+        card.getStyle().set("transition", "transform 140ms ease, box-shadow 140ms ease");
+        card.getElement().setAttribute("title", tooltip);
+        card.addClassName("warehouse-dashboard-clickable-card");
+        card.addClickListener(event -> navigateTo(route));
     }
 
     private void navigateTo(String route) {

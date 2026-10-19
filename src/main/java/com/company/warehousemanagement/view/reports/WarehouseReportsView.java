@@ -8,6 +8,8 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.*;
 import com.vaadin.flow.component.tabs.TabSheet;
@@ -34,7 +36,14 @@ public class WarehouseReportsView extends StandardView {
 
     @Subscribe
     public void onInit(InitEvent event) {
-        content.add(new H2("Tổng quan & báo cáo kho"), new Span("Chọn khoảng ngày, kho và mã sản phẩm để xem cùng một phạm vi dữ liệu."));
+        content.addClassName("warehouse-reports-page");
+        H2 pageTitle = new H2("Tổng quan & báo cáo kho");
+        pageTitle.addClassName("warehouse-reports-title");
+        Span pageSubtitle = new Span("Theo dõi nhập, xuất, chuyển kho, kiểm kê và tồn kho trong một màn hình.");
+        pageSubtitle.addClassName("warehouse-reports-subtitle");
+        Div heading = new Div(pageTitle, pageSubtitle);
+        heading.addClassName("warehouse-reports-heading");
+        content.add(heading);
         var today = reports.today();
         from.setId("fromDate");
         to.setId("toDate");
@@ -47,12 +56,18 @@ public class WarehouseReportsView extends StandardView {
         product.setPlaceholder("Nhập chính xác mã sản phẩm");
         product.setClearButtonVisible(true);
         product.setMaxLength(50);
-        HorizontalLayout filters = new HorizontalLayout(from, to, warehouse, product, new Button("Xem báo cáo", e -> refresh()));
+        Button runReport = new Button("Xem báo cáo", new Icon(VaadinIcon.FILTER), e -> refresh());
+        runReport.addThemeName("primary");
+        runReport.addClassName("warehouse-report-submit");
+        HorizontalLayout filters = new HorizontalLayout(from, to, warehouse, product, runReport);
+        filters.addClassName("warehouse-report-filters");
         filters.setWidthFull();
         filters.setWrap(true);
         filters.setAlignItems(FlexComponent.Alignment.END);
         results.setPadding(false);
+        results.setSpacing(true);
         results.setWidthFull();
+        results.addClassName("warehouse-report-results");
         content.add(filters, results);
         refresh();
     }
@@ -68,8 +83,12 @@ public class WarehouseReportsView extends StandardView {
                     card("Phiếu chờ duyệt trong kỳ", snapshot.pending()));
             cards.setWidthFull();
             cards.setWrap(true);
-            results.add(cards, new Span("Phiếu lọc theo ngày chứng từ; kiểm kho theo ngày chốt số liệu (hoặc ngày tạo khi chưa chốt). Tồn kho tính theo thời điểm ghi sổ, đến hết ngày cuối kỳ. Số lượng được xem riêng theo đơn vị tính."));
+            cards.addClassName("warehouse-report-kpis");
+            Span note = new Span("Phiếu được lọc theo ngày chứng từ; kiểm kho theo ngày chốt số liệu (hoặc ngày tạo khi chưa chốt). Tồn kho tính đến hết ngày cuối kỳ.");
+            note.addClassName("warehouse-report-note");
+            results.add(cards, note);
             TabSheet tabs = new TabSheet();
+            tabs.addClassName("warehouse-report-tabs");
             tabs.setWidthFull();
             tabs.add("Phiếu & trạng thái", summary(snapshot));
             for (var type : WarehouseTransactionType.values()) tabs.add(typeName(type), transactionLines(snapshot, type));
@@ -78,14 +97,23 @@ public class WarehouseReportsView extends StandardView {
             results.add(tabs);
         } catch (IllegalArgumentException ex) {
             results.removeAll();
-            Notification.show(ex.getMessage());
+            Div error = new Div(new Icon(VaadinIcon.WARNING), new Span(ex.getMessage()));
+            error.addClassName("warehouse-report-error");
+            results.add(error);
         }
     }
 
     private VerticalLayout card(String label, long value) {
-        VerticalLayout card = new VerticalLayout(new Span(label), new H2(Long.toString(value)));
-        card.addClassName("warehouse-dashboard-panel");
-        card.setWidth("240px");
+        Icon icon = new Icon(label.startsWith("Phiếu nhập") ? VaadinIcon.DOWNLOAD :
+                label.startsWith("Phiếu xuất") ? VaadinIcon.UPLOAD : VaadinIcon.CLOCK);
+        icon.addClassName("warehouse-report-kpi-icon");
+        Span caption = new Span(label);
+        caption.addClassName("warehouse-report-kpi-label");
+        H2 number = new H2(Long.toString(value));
+        number.addClassName("warehouse-report-kpi-value");
+        VerticalLayout card = new VerticalLayout(new Div(icon), caption, number);
+        card.addClassName("warehouse-report-kpi-card");
+        card.setWidth("100%");
         return card;
     }
 
@@ -104,6 +132,7 @@ public class WarehouseReportsView extends StandardView {
             if (count > 0) rows.add(new StatusRow("Kiểm kho", status.getId(), count));
         }
         statuses.setItems(rows);
+        statuses.setEmptyStateComponent(emptyState("Chưa có dữ liệu thống kê", "Các trạng thái phiếu sẽ xuất hiện tại đây khi có dữ liệu trong kỳ."));
         Grid<WarehouseTransaction> documents = grid();
         documents.addComponentColumn(t -> new Button(t.getDocumentNo(), e -> getUI().ifPresent(ui -> ui.navigate(route(t))))).setHeader("Mở phiếu");
         documents.addColumn(WarehouseTransaction::getDocumentDate).setHeader("Ngày chứng từ");
@@ -112,11 +141,13 @@ public class WarehouseReportsView extends StandardView {
         documents.addColumn(t -> warehouseName(t.getSourceWarehouse())).setHeader("Kho xuất");
         documents.addColumn(t -> warehouseName(t.getDestinationWarehouse())).setHeader("Kho nhận");
         documents.setItems(snapshot.transactions());
+        documents.setEmptyStateComponent(emptyState("Không có dữ liệu!", "Không tìm thấy phiếu nghiệp vụ trong khoảng thời gian đã chọn."));
         Grid<Stocktake> stocktakes = grid();
         stocktakes.addComponentColumn(s -> new Button(s.getDocumentNo(), e -> getUI().ifPresent(ui -> ui.navigate("stocktakes/" + s.getId())))).setHeader("Phiếu kiểm kho");
         stocktakes.addColumn(s -> warehouseName(s.getWarehouse())).setHeader("Kho");
         stocktakes.addColumn(s -> statusName(s.getStatus().getId())).setHeader("Trạng thái");
         stocktakes.setItems(snapshot.stocktakes());
+        stocktakes.setEmptyStateComponent(emptyState("Không có dữ liệu!", "Chưa có phiếu kiểm kho trong khoảng thời gian đã chọn."));
         return section(new Span(snapshot.transactions().size() + " phiếu nghiệp vụ • " + snapshot.stocktakes().size() + " phiếu kiểm kho"), new H3("Thống kê theo trạng thái"), statuses, new H3("Danh sách phiếu"), documents, stocktakes);
     }
 
@@ -133,6 +164,7 @@ public class WarehouseReportsView extends StandardView {
         grid.addColumn(i -> i.getUnit().getName()).setHeader("Đơn vị");
         var rows = snapshot.lines().stream().filter(i -> i.getTransaction().getType() == type).toList();
         grid.setItems(rows);
+        grid.setEmptyStateComponent(emptyState("Không có dữ liệu!", "Không có dòng hàng phù hợp với bộ lọc hiện tại."));
         return section(new Span(rows.size() + " dòng hàng • bao gồm mọi trạng thái; chỉ phiếu đã ghi sổ ảnh hưởng tồn kho."), grid);
     }
 
@@ -147,6 +179,7 @@ public class WarehouseReportsView extends StandardView {
         grid.addColumn(i -> i.getCountedQuantity() == null ? "Chưa kiểm" : i.getCountedQuantity().toPlainString()).setHeader("Thực đếm");
         grid.addColumn(StocktakeItem::getVarianceQuantity).setHeader("Chênh lệch");
         grid.setItems(snapshot.counts());
+        grid.setEmptyStateComponent(emptyState("Không có dữ liệu!", "Chưa có dữ liệu kiểm kho phù hợp."));
         return section(new Span(snapshot.counts().size() + " dòng kiểm kho"), grid);
     }
 
@@ -163,19 +196,39 @@ public class WarehouseReportsView extends StandardView {
         grid.addColumn(InventoryReportService.InventoryReportRow::adjustmentOut).setHeader("Điều chỉnh giảm");
         grid.addColumn(InventoryReportService.InventoryReportRow::closing).setHeader("Cuối kỳ");
         grid.setItems(snapshot.inventory());
+        grid.setEmptyStateComponent(emptyState("Không có dữ liệu!", "Không có dữ liệu tồn kho cho phạm vi đã chọn."));
         return section(new Span(snapshot.inventory().size() + " cặp kho–sản phẩm • Vào/ra kho gồm chuyển kho và bút toán đảo."), grid);
     }
 
     private <T> Grid<T> grid() {
         Grid<T> grid = new Grid<>();
         grid.setWidthFull();
+        grid.setMinHeight("260px");
         grid.setHeight("360px");
+        grid.addClassName("warehouse-data-grid");
         grid.setColumnReorderingAllowed(true);
         return grid;
     }
+    private Div emptyState(String title, String description) {
+        // Small, CSS-drawn document stack; no fake business data is inserted.
+        Div illustration = new Div();
+        illustration.addClassName("warehouse-empty-illustration");
+        illustration.getElement().setAttribute("role", "img");
+        illustration.getElement().setAttribute("aria-label", "Minh họa danh sách trống");
+        Span dots = new Span("•••");
+        dots.addClassName("warehouse-empty-dots");
+        illustration.add(dots);
+        Div copy = new Div(new H3(title), new Span(description));
+        copy.addClassName("warehouse-empty-copy");
+        Div empty = new Div(illustration, copy);
+        empty.addClassName("warehouse-empty-state");
+        return empty;
+    }
     private VerticalLayout section(com.vaadin.flow.component.Component... components) {
         VerticalLayout layout = new VerticalLayout(components);
+        layout.addClassName("warehouse-report-section");
         layout.setPadding(false);
+        layout.setSpacing(true);
         layout.setWidthFull();
         return layout;
     }

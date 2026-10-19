@@ -8,15 +8,17 @@ import com.company.warehousemanagement.security.WarehouseAuthorizationService;
 import com.company.warehousemanagement.security.WarehousePermissions;
 import com.company.warehousemanagement.service.AdjustmentIssueService;
 import com.company.warehousemanagement.service.AdjustmentPostingService;
+import com.company.warehousemanagement.service.ReversalService;
 import com.company.warehousemanagement.service.WarehouseTransactionWorkflowService;
 import com.company.warehousemanagement.view.main.MainView;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.router.Route;
+import io.jmix.core.Messages;
 import io.jmix.core.DataManager;
 import io.jmix.core.EntityStates;
 import io.jmix.flowui.component.grid.DataGrid;
@@ -43,6 +45,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class AdjustmentDetailView extends StandardDetailView<WarehouseTransaction> {
 
     @Autowired
+    private Messages messages;
+
+    @Autowired
     private com.company.warehousemanagement.view.document.TransactionDocumentsPanel documentsPanel;
     @ViewComponent
     private com.vaadin.flow.component.orderedlayout.VerticalLayout documentsHost;
@@ -52,6 +57,9 @@ public class AdjustmentDetailView extends StandardDetailView<WarehouseTransactio
 
     @Autowired
     private AdjustmentPostingService adjustmentPostingService;
+
+    @Autowired
+    private ReversalService reversalService;
 
     @Autowired
     private WarehouseTransactionWorkflowService workflowService;
@@ -76,6 +84,12 @@ public class AdjustmentDetailView extends StandardDetailView<WarehouseTransactio
 
     @ViewComponent
     private JmixButton postButton;
+
+    @ViewComponent
+    private JmixButton saveDraftButton;
+
+    @ViewComponent
+    private JmixButton reverseButton;
 
     @ViewComponent
     private JmixButton addItemButton;
@@ -125,7 +139,7 @@ public class AdjustmentDetailView extends StandardDetailView<WarehouseTransactio
     public void onAfterSave(AfterSaveEvent event) {
         refreshActions();
         if (!workflowActionInProgress) {
-            Notification.show("Ä�Ã£ lÆ°u phiáº¿u Ä‘iá»�u chá»‰nh", 2500, Position.TOP_END);
+            Notification.show("Đã lưu phiếu điều chỉnh", 2500, Position.TOP_END);
         }
     }
 
@@ -133,11 +147,11 @@ public class AdjustmentDetailView extends StandardDetailView<WarehouseTransactio
     public void onSubmitButtonClick(ClickEvent<JmixButton> event) {
         WarehouseTransaction current = getEditedEntity();
         if (current == null || current.getId() == null || entityStates.isNew(current)) {
-            showError("HÃ£y lÆ°u phiáº¿u Ä‘iá»�u chá»‰nh trÆ°á»›c khi gá»­i duyá»‡t");
+            showError("Hãy lưu phiếu điều chỉnh trước khi gửi duyệt");
             return;
         }
         if (current.getStatus() != WarehouseTransactionStatus.DRAFT) {
-            showError("Chá»‰ phiáº¿u DRAFT má»›i Ä‘Æ°á»£c gá»­i duyá»‡t");
+            showError("Chỉ phiếu DRAFT mới được gửi duyệt");
             return;
         }
 
@@ -161,14 +175,16 @@ public class AdjustmentDetailView extends StandardDetailView<WarehouseTransactio
         if (current == null || current.getId() == null) {
             workflowActionInProgress = false;
             refreshActions();
-            showError("KhÃ´ng tÃ¬m tháº¥y phiáº¿u Ä‘iá»�u chá»‰nh Ä‘Ã£ lÆ°u");
+            showError("Không tìm thấy phiếu điều chỉnh đã lưu");
             return;
         }
 
         try {
             WarehouseTransaction submitted = workflowService.submit(current.getId());
             current.setStatus(submitted.getStatus());
-            Notification.show("Ä�Ã£ gá»­i phiáº¿u Ä‘iá»�u chá»‰nh Ä‘á»ƒ chá»� duyá»‡t", 3000, Position.TOP_END);
+            refreshActions();
+            clearChanges();
+            Notification.show("Đã gửi phiếu điều chỉnh để chờ duyệt", 3000, Position.TOP_END);
         } catch (WarehouseBusinessException exception) {
             showError(exception.getMessage());
         } finally {
@@ -181,11 +197,11 @@ public class AdjustmentDetailView extends StandardDetailView<WarehouseTransactio
     public void onApproveButtonClick(ClickEvent<JmixButton> event) {
         WarehouseTransaction current = getEditedEntity();
         if (current == null || current.getId() == null) {
-            showError("KhÃ´ng tÃ¬m tháº¥y phiáº¿u Ä‘iá»�u chá»‰nh");
+            showError("Không tìm thấy phiếu điều chỉnh");
             return;
         }
         if (current.getStatus() != WarehouseTransactionStatus.PENDING_APPROVAL) {
-            showError("Chá»‰ phiáº¿u Ä‘ang chá»� duyá»‡t má»›i Ä‘Æ°á»£c duyá»‡t");
+            showError("Chỉ phiếu đang chờ duyệt mới được duyệt");
             return;
         }
 
@@ -193,8 +209,12 @@ public class AdjustmentDetailView extends StandardDetailView<WarehouseTransactio
             WarehouseTransaction approved = workflowService.approve(current.getId());
             current.setStatus(approved.getStatus());
             refreshActions();
-            Notification.show("Ä�Ã£ duyá»‡t phiáº¿u Ä‘iá»�u chá»‰nh. CÃ³ thá»ƒ ghi sá»• Ä‘á»ƒ cáº­p nháº­t tá»“n.",
-                    3000, Position.TOP_END);
+            clearChanges();
+            Notification.show(
+                    "Đã duyệt phiếu điều chỉnh. Có thể ghi sổ để cập nhật tồn.",
+                    3000,
+                    Position.TOP_END
+            );
         } catch (WarehouseBusinessException exception) {
             showError(exception.getMessage());
         }
@@ -204,42 +224,42 @@ public class AdjustmentDetailView extends StandardDetailView<WarehouseTransactio
     public void onRejectButtonClick(ClickEvent<JmixButton> event) {
         WarehouseTransaction current = getEditedEntity();
         if (current == null || current.getId() == null) {
-            showError("KhÃ´ng tÃ¬m tháº¥y phiáº¿u Ä‘iá»�u chá»‰nh");
+            showError("Không tìm thấy phiếu điều chỉnh");
             return;
         }
         if (current.getStatus() != WarehouseTransactionStatus.PENDING_APPROVAL) {
-            showError("Chá»‰ phiáº¿u Ä‘ang chá»� duyá»‡t má»›i Ä‘Æ°á»£c tá»« chá»‘i");
+            showError("Chỉ phiếu đang chờ duyệt mới được từ chối");
             return;
         }
 
         Dialog dialog = new Dialog();
-        dialog.setHeaderTitle("Tá»« chá»‘i phiáº¿u Ä‘iá»�u chá»‰nh");
+        dialog.setHeaderTitle("Từ chối phiếu điều chỉnh");
         dialog.setWidth("450px");
 
-        TextArea reasonField = new TextArea("LÃ½ do tá»« chá»‘i");
+        TextArea reasonField = new TextArea("Lý do từ chối");
         reasonField.setWidthFull();
         reasonField.setRequired(true);
         reasonField.setMaxLength(1000);
-        reasonField.setPlaceholder("Nháº­p lÃ½ do tá»« chá»‘i...");
+        reasonField.setPlaceholder("Nhập lý do từ chối...");
 
-        Button cancelButton = new Button("Há»§y", e -> dialog.close());
-        Button confirmButton = new Button("XÃ¡c nháº­n tá»« chá»‘i");
+        Button cancelButton = new Button("Hủy", e -> dialog.close());
+        Button confirmButton = new Button("Xác nhận từ chối");
         confirmButton.addClickListener(e -> {
             String reason = reasonField.getValue();
             if (reason == null || reason.isBlank()) {
-                showError("Vui lÃ²ng nháº­p lÃ½ do tá»« chá»‘i.");
+                showError("Vui lòng nhập lý do từ chối.");
                 return;
             }
 
             confirmButton.setEnabled(false);
             try {
-                WarehouseTransaction rejected =
-                        workflowService.reject(current.getId(), reason);
+                WarehouseTransaction rejected = workflowService.reject(current.getId(), reason);
                 current.setReason(rejected.getReason());
                 current.setStatus(rejected.getStatus());
                 dialog.close();
                 refreshActions();
-                Notification.show("Ä�Ã£ tá»« chá»‘i phiáº¿u Ä‘iá»�u chá»‰nh", 3000, Position.TOP_END);
+                clearChanges();
+                Notification.show("Đã từ chối phiếu điều chỉnh", 3000, Position.TOP_END);
             } catch (WarehouseBusinessException exception) {
                 confirmButton.setEnabled(true);
                 showError(exception.getMessage());
@@ -255,11 +275,11 @@ public class AdjustmentDetailView extends StandardDetailView<WarehouseTransactio
     public void onPostButtonClick(ClickEvent<JmixButton> event) {
         WarehouseTransaction current = getEditedEntity();
         if (current == null || current.getId() == null || entityStates.isNew(current)) {
-            showError("Phiáº¿u Ä‘iá»�u chá»‰nh chÆ°a Ä‘Æ°á»£c lÆ°u");
+            showError("Phiếu điều chỉnh chưa được lưu");
             return;
         }
         if (current.getStatus() != WarehouseTransactionStatus.APPROVED) {
-            showError("Chá»‰ phiáº¿u APPROVED má»›i Ä‘Æ°á»£c ghi sá»•");
+            showError("Chỉ phiếu APPROVED mới được ghi sổ");
             return;
         }
 
@@ -270,10 +290,52 @@ public class AdjustmentDetailView extends StandardDetailView<WarehouseTransactio
             current.setPostedAt(posted.getPostedAt());
             current.setPostedBy(posted.getPostedBy());
             refreshActions();
-            Notification.show("Ä�Ã£ ghi sá»• Ä‘iá»�u chá»‰nh tá»“n kho", 3000, Position.TOP_END);
+            // POST đã lưu ở service; reset trạng thái dirty của detail view để Đóng không hỏi lưu.
+            clearChanges();
+            Notification.show("Đã ghi sổ điều chỉnh tồn kho", 3000, Position.TOP_END);
         } catch (WarehouseBusinessException exception) {
             postButton.setEnabled(true);
             showError(exception.getMessage());
+        }
+    }
+
+    @Subscribe(id = "reverseButton", subject = "clickListener")
+    public void onReverseButtonClick(ClickEvent<JmixButton> event) {
+        WarehouseTransaction current = getEditedEntity();
+        if (current == null || current.getId() == null || entityStates.isNew(current)) {
+            showError("Phiếu điều chỉnh chưa được lưu");
+            return;
+        }
+        if (current.getStatus() != WarehouseTransactionStatus.POSTED) {
+            showError("Chỉ phiếu POSTED mới được phép đảo phiếu");
+            return;
+        }
+        if (current.getReversalOf() != null) {
+            showError("Phiếu đảo không thể tiếp tục đảo lần nữa");
+            return;
+        }
+        if (!authorizationService.isAllowed(WarehousePermissions.REVERSE)) {
+            showError("Bạn không có quyền đảo phiếu");
+            return;
+        }
+
+        reverseButton.setEnabled(false);
+        try {
+            WarehouseTransaction reversal = reversalService.reverse(current.getId());
+            current.setStatus(WarehouseTransactionStatus.REVERSED);
+            refreshActions();
+            clearChanges();
+            Notification.show(
+                    "Đã đảo phiếu điều chỉnh. Phiếu đảo: " + reversal.getDocumentNo(),
+                    4500,
+                    Position.TOP_END
+            );
+        } catch (WarehouseBusinessException exception) {
+            reverseButton.setEnabled(true);
+            showError(exception.getMessage());
+        } catch (Exception exception) {
+            reverseButton.setEnabled(true);
+            showError("Không thể đảo phiếu điều chỉnh. Hãy kiểm tra log ứng dụng.");
         }
     }
 
@@ -281,7 +343,7 @@ public class AdjustmentDetailView extends StandardDetailView<WarehouseTransactio
     public void onAddItemButtonClick(ClickEvent<JmixButton> event) {
         WarehouseTransaction transaction = getEditedEntity();
         if (transaction == null || transaction.getStatus() != WarehouseTransactionStatus.DRAFT) {
-            showError("Chá»‰ cÃ³ thá»ƒ thÃªm dÃ²ng khi phiáº¿u cÃ²n á»Ÿ tráº¡ng thÃ¡i DRAFT");
+            showError("Chỉ có thể thêm dòng khi phiếu còn ở trạng thái DRAFT");
             return;
         }
 
@@ -298,7 +360,7 @@ public class AdjustmentDetailView extends StandardDetailView<WarehouseTransactio
     public void onEditItemButtonClick(ClickEvent<JmixButton> event) {
         TransactionItem selectedItem = itemsDataGrid.getSingleSelectedItem();
         if (selectedItem == null) {
-            showError("Vui lÃ²ng chá»�n má»™t dÃ²ng item");
+            showError("Vui lòng chọn một dòng item");
             return;
         }
         if (itemsDataGrid.getEditor().isOpen()) {
@@ -311,7 +373,7 @@ public class AdjustmentDetailView extends StandardDetailView<WarehouseTransactio
     public void onRemoveItemButtonClick(ClickEvent<JmixButton> event) {
         TransactionItem selectedItem = itemsDataGrid.getSingleSelectedItem();
         if (selectedItem == null) {
-            showError("Vui lÃ²ng chá»�n má»™t dÃ²ng item");
+            showError("Vui lòng chọn một dòng item");
             return;
         }
         if (itemsDataGrid.getEditor().isOpen()) {
@@ -346,9 +408,15 @@ public class AdjustmentDetailView extends StandardDetailView<WarehouseTransactio
         boolean canApprove = pending && authorizationService.isAllowed(WarehousePermissions.APPROVE);
         boolean canReject = pending && authorizationService.isAllowed(WarehousePermissions.REJECT);
         boolean canPost = approved && authorizationService.isAllowed(WarehousePermissions.POST);
+        boolean canReverse = saved
+                && status == WarehouseTransactionStatus.POSTED
+                && transaction.getReversalOf() == null
+                && authorizationService.isAllowed(WarehousePermissions.REVERSE);
 
         setReadOnly(!editable);
         itemsDataGrid.setEnabled(editable);
+        saveDraftButton.setVisible(editable);
+        saveDraftButton.setEnabled(editable);
         addItemButton.setVisible(editable);
         editItemButton.setVisible(editable);
         removeItemButton.setVisible(editable);
@@ -361,15 +429,18 @@ public class AdjustmentDetailView extends StandardDetailView<WarehouseTransactio
         rejectButton.setEnabled(saved && canReject);
         postButton.setVisible(saved && canPost);
         postButton.setEnabled(saved && canPost);
+        reverseButton.setVisible(canReverse);
+        reverseButton.setEnabled(canReverse);
 
         updateStatusField(transaction);
     }
 
     private void updateStatusField(WarehouseTransaction transaction) {
         if (transaction.getStatus() == null) {
-            statusField.setTypedValue("-");
+            statusField.setTypedValue("—");
         } else {
-            statusField.setTypedValue(transaction.getStatus().getId());
+            statusField.setTypedValue(messages.getMessage(
+                    "com.company.warehousemanagement.entity/WarehouseTransactionStatus." + transaction.getStatus().name()));
         }
     }
 

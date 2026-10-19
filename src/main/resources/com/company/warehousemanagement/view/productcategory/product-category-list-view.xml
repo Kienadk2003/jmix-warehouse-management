@@ -5,15 +5,16 @@
             <fetchPlan extends="_base"/>
             <loader id="productCategoriesDl" readOnly="true">
                 <query>
-                    <![CDATA[select e from ProductCategory e]]>
+                    <![CDATA[
+                    select e from ProductCategory e where (:searchTerm is null or trim(:searchTerm) = '' or (lower(coalesce(e.code, '')) like concat('%', lower(:searchTerm), '%') OR lower(coalesce(e.name, '')) like concat('%', lower(:searchTerm), '%')))
+                ]]>
                 </query>
             </loader>
         </collection>
     </data>
     <facets>
-        <dataLoadCoordinator auto="true"/>
+        <dataLoadCoordinator auto="false"/>
         <urlQueryParameters>
-            <genericFilter component="genericFilter"/>
             <pagination component="pagination"/>
         </urlQueryParameters>
     </facets>
@@ -22,15 +23,13 @@
         <action id="discardAction" type="lookup_discard"/>
     </actions>
     <layout classNames="warehouse-page-layout">
-        <genericFilter id="genericFilter" dataLoader="productCategoriesDl" classNames="warehouse-filter">
-            <properties include=".*"/>
-        </genericFilter>
-        <hbox id="buttonsPanel" wrap="true" width="100%" classNames="warehouse-toolbar">
+<hbox id="buttonsPanel" wrap="true" width="100%" classNames="warehouse-toolbar">
             <startSlot>
-                <button id="createButton" action="productCategoriesDataGrid.createAction" themeNames="primary" text="Tạo mới"/>
-                <button id="editButton" action="productCategoriesDataGrid.editAction" text="Chỉnh sửa"/>
-                <button id="readButton" action="productCategoriesDataGrid.readAction" text="Xem chi tiết"/>
-                <button id="removeButton" action="productCategoriesDataGrid.removeAction" themeNames="error" text="Xóa"/>
+                <textField id="searchField" placeholder="msg://searchPlaceholder" clearButtonVisible="true" valueChangeMode="LAZY" width="22em" classNames="warehouse-search-field"></textField>
+                <button id="createButton" action="productCategoriesDataGrid.createAction" themeNames="primary" icon="vaadin:plus" text="Tạo mới"/>
+                <button id="editButton" action="productCategoriesDataGrid.editAction" icon="vaadin:pencil" text="Sửa"/>
+                <button id="readButton" action="productCategoriesDataGrid.readAction" icon="vaadin:eye" text="Xem chi tiết"/>
+                <button id="removeButton" action="productCategoriesDataGrid.removeAction" themeNames="error" icon="vaadin:trash" text="Xóa"/>
             </startSlot>
             <endSlot>
                 <simplePagination id="pagination" dataLoader="productCategoriesDl"/>

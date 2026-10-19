@@ -44,6 +44,8 @@ dependencies {
     implementation 'io.jmix.datatools:jmix-datatools-flowui-starter'
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    // IMAP access for the header email inbox (jakarta.mail). SMTP sending already uses it.
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'com.vaadin:vaadin-dev'
 
     runtimeOnly 'org.hsqldb:hsqldb'

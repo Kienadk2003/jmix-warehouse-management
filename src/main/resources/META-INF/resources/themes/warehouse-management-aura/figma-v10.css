@@ -1,0 +1,186 @@
+/* ==========================================================================
+   v10 - Figma alignment layer (loaded last). Presentation only.
+   Palette: primary #087F78, hover #066B65, background #F3F6F8,
+            surface #FFFFFF, text #243746, muted #667985.
+   ========================================================================== */
+:root, :host {
+  --wm-primary: #087f78;
+  --wm-primary-dark: #066b65;
+  --wm-primary-soft: #e3f4f2;
+  --wm-background: #f3f6f8;
+  --wm-page-bg: #f3f6f8;
+  --wm-surface: #ffffff;
+  --wm-text: #243746;
+  --wm-muted: #667985;
+  --wm-border: #e1e8ec;
+  --wm-border-soft: #edf1f4;
+  --aura-app-background: #f3f6f8;
+  --vaadin-primary-color: #087f78;
+}
+html, body, vaadin-app-layout.warehouse-app-layout::part(content) { background: var(--wm-background); }
+
+/* ---- Sidebar: group headings, mint active item ---- */
+.warehouse-sidebar { width: 100%; }
+.warehouse-navigation vaadin-side-nav-item::part(item) { min-height: 38px; border-radius: 8px; color: var(--wm-text); font-weight: 500; }
+.warehouse-navigation vaadin-side-nav-item[active]::part(item),
+.warehouse-navigation vaadin-side-nav-item[current]::part(item) { background: #dff2ef; color: var(--wm-primary); font-weight: 650; }
+.warehouse-navigation vaadin-side-nav-item::part(item) { justify-content: flex-start; text-align: start; }
+.warehouse-navigation vaadin-side-nav-item::part(content) { flex: 1 1 auto; min-width: 0; text-align: start; white-space: normal; overflow: visible; text-overflow: clip; }
+.warehouse-navigation vaadin-side-nav-item:not([path])::part(item) { color: var(--wm-text); font-weight: 600; }
+.warehouse-navigation vaadin-side-nav-item::part(item):hover { background: #edf6f5; }
+.warehouse-navigation vaadin-side-nav-item vaadin-side-nav-item::part(item) { font-size: 13px; padding-inline-start: 14px; }
+.warehouse-brand-link { color: var(--wm-primary) !important; }
+
+/* ---- Header ---- */
+.warehouse-main-header { background: #fff; border-bottom: 1px solid var(--wm-border); }
+.warehouse-current-view-title { color: var(--wm-text); }
+
+/* ---- List pages: default Jmix filter on top, action buttons in one tidy row ---- */
+.warehouse-page-layout { align-items: stretch; }
+jmix-generic-filter, .warehouse-filter {
+  display: block !important; width: 100%; box-sizing: border-box; margin: 0;
+  padding: 10px 14px !important; background: #fff !important;
+  border: 1px solid var(--wm-border) !important; border-radius: 10px !important; box-shadow: none !important;
+}
+/* search icon in front of the filter title; every default filter control stays visible */
+jmix-generic-filter vaadin-details::part(summary),
+jmix-generic-filter [part~="summary"] {
+  padding-inline-start: 26px; font-size: 13px; font-weight: 650; color: var(--wm-text);
+  background: no-repeat left 2px center / 18px 18px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23667985' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-4-4'/%3E%3C/svg%3E");
+}
+jmix-generic-filter vaadin-text-field, jmix-generic-filter vaadin-combo-box, jmix-generic-filter vaadin-select,
+jmix-generic-filter vaadin-date-picker, jmix-generic-filter vaadin-number-field { min-width: 0; max-width: 100%; }
+jmix-generic-filter vaadin-button { flex: 0 0 auto; }
+
+.warehouse-toolbar {
+  display: flex !important; flex-wrap: wrap; align-items: center !important;
+  justify-content: flex-start !important; gap: 8px !important;
+  width: 100%; box-sizing: border-box; min-height: 0 !important;
+  padding: 2px 0 !important; background: transparent !important; border: 0 !important; box-shadow: none !important;
+}
+.warehouse-toolbar > [slot="start"], .warehouse-toolbar > [slot="end"] { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.warehouse-toolbar > [slot="end"] { margin-inline-start: auto; }
+.warehouse-toolbar vaadin-button { flex: 0 0 auto; width: auto; margin: 0; border-radius: 8px; font-weight: 600; font-size: 13px; }
+.warehouse-toolbar vaadin-button::part(button), .warehouse-toolbar vaadin-button { min-height: 36px; }
+.warehouse-toolbar vaadin-button[theme~="primary"] { background: var(--wm-primary); color: #fff; box-shadow: none; }
+.warehouse-toolbar vaadin-button[theme~="primary"]:hover { background: var(--wm-primary-dark); }
+.warehouse-toolbar vaadin-button:not([theme~="primary"]):not([theme~="error"]) { background: #fff; border: 1px solid var(--wm-border); color: var(--wm-text); }
+.warehouse-toolbar vaadin-button[theme~="error"] { background: #fff; color: #d64545; border: 1px solid #f0c4c4; box-shadow: none; }
+.warehouse-toolbar vaadin-button[theme~="error"]:hover { background: #fdf1f1; }
+.warehouse-toolbar vaadin-button[disabled] { opacity: .55; }
+jmix-simple-pagination { margin-inline-start: auto; }
+
+/* ---- Tables ---- */
+.warehouse-data-grid { border: 1px solid var(--wm-border); border-radius: 10px; background: #fff; box-shadow: none; }
+.warehouse-data-grid::part(header-cell) { background: #f7f9fa; color: var(--wm-text); font-size: 12px; font-weight: 650; border-bottom: 1px solid var(--wm-border); }
+.warehouse-data-grid::part(body-cell) { font-size: 12px; color: var(--wm-text); border-bottom: 1px solid var(--wm-border-soft); }
+.warehouse-data-grid::part(row):hover [part~="body-cell"] { background: #f4faf9; }
+.warehouse-data-grid::part(selected-row-cell) { background: #e8f5f3; }
+
+/* ---- Status badges (rendered by GridBadgeDecorator) ---- */
+.wm-badge { display: inline-block; padding: 2px 10px; border-radius: 6px; font-size: 11px; font-weight: 650; line-height: 18px; white-space: nowrap; }
+.wm-badge-ok   { background: #dff3e8; color: #17803d; }
+.wm-badge-warn { background: #fdecd3; color: #c2670a; }
+.wm-badge-bad  { background: #fbe1e1; color: #c53030; }
+.wm-badge-info { background: #e1eef9; color: #2563a6; }
+.wm-badge-off  { background: #eceff2; color: #667985; }
+
+/* ---- Login: split card, teal banner left, clean form right ---- */
+.warehouse-login-page { min-height: 100vh; box-sizing: border-box; padding: 24px;
+  background: radial-gradient(1100px 520px at 12% -10%, #dcefed 0, transparent 60%), radial-gradient(900px 480px at 100% 110%, #e3eef7 0, transparent 55%), var(--wm-background); }
+.warehouse-login-card { width: min(940px, 100%); min-height: 540px; border-radius: 20px; overflow: hidden; background: #fff;
+  box-shadow: 0 24px 60px rgba(36, 55, 70, .16), 0 2px 6px rgba(36, 55, 70, .06); }
+.warehouse-login-banner { position: relative; flex: 1 1 46%; padding: 48px 36px; box-sizing: border-box; color: #fff; text-align: center; overflow: hidden;
+  background: linear-gradient(155deg, #0a8d85 0%, #087f78 45%, #05605b 100%); }
+.warehouse-login-banner::before, .warehouse-login-banner::after { content: ""; position: absolute; border-radius: 50%; background: rgba(255,255,255,.07); pointer-events: none; }
+.warehouse-login-banner::before { width: 320px; height: 320px; top: -120px; right: -110px; }
+.warehouse-login-banner::after { width: 260px; height: 260px; bottom: -110px; left: -90px; }
+.warehouse-login-banner > * { position: relative; z-index: 1; }
+.warehouse-login-banner-logo { width: 76px; height: 76px; padding: 14px; box-sizing: border-box; object-fit: contain; border-radius: 20px; margin-bottom: 22px;
+  background: rgba(255,255,255,.16); box-shadow: inset 0 0 0 1px rgba(255,255,255,.22); filter: brightness(0) invert(1); }
+.warehouse-login-banner-title { margin: 0 0 14px; font-size: 26px; font-weight: 750; letter-spacing: -.02em; color: #fff; }
+.warehouse-login-banner-text { display: block; font-size: 14px; line-height: 1.75; color: rgba(255,255,255,.88); }
+
+.warehouse-login-form-pane { flex: 1 1 54%; min-width: 0; padding: 48px 52px; box-sizing: border-box; background: #fff; }
+.warehouse-login-title { margin: 0 0 6px; font-size: 26px; font-weight: 750; letter-spacing: -.02em; color: var(--wm-text); }
+.warehouse-login-subtitle { display: block; margin: 0 0 26px; font-size: 14px; color: var(--wm-muted); }
+
+/* the Vaadin form already draws its own box: flatten it so only our card remains */
+.jmix-login-main-layout .warehouse-login-card jmix-login-form { width: 100%; --vaadin-login-form-background: transparent; --vaadin-login-form-border-radius: 0; }
+.jmix-login-main-layout .warehouse-login-card jmix-login-form::part(form) { width: 100%; max-width: none; padding: 0; border: 0; border-radius: 0; box-shadow: none; background: transparent; }
+.jmix-login-main-layout .warehouse-login-card jmix-login-form::part(form-title) { display: none; }
+.warehouse-login-form vaadin-text-field, .warehouse-login-form vaadin-password-field { width: 100%; }
+.warehouse-login-form::part(input-field), .warehouse-login-form vaadin-text-field::part(input-field), .warehouse-login-form vaadin-password-field::part(input-field) { min-height: 44px; border-radius: 10px; }
+.warehouse-login-form vaadin-select, .warehouse-login-form vaadin-combo-box { min-width: 150px; }
+.warehouse-login-form vaadin-select::part(input-field), .warehouse-login-form vaadin-combo-box::part(input-field) { min-height: 36px; font-size: 13px; }
+.warehouse-login-form vaadin-button[theme~="primary"], .warehouse-login-form::part(submit) { min-height: 44px; border-radius: 10px; background: var(--wm-primary); color: #fff; font-size: 14px; font-weight: 650; box-shadow: none; }
+.warehouse-login-form vaadin-button[theme~="primary"]:hover { background: var(--wm-primary-dark); }
+@media (max-width: 760px) {
+  .warehouse-login-card { flex-direction: column; min-height: 0; }
+  .warehouse-login-banner { padding: 28px 20px; }
+  .warehouse-login-banner-logo { width: 56px; height: 56px; margin-bottom: 12px; }
+  .warehouse-login-form-pane { padding: 28px 22px; }
+}
+
+
+/* ---- One look for every list page: grids and tabs inside page layouts ---- */
+.warehouse-page-layout vaadin-grid { border: 1px solid var(--wm-border); border-radius: 10px; background: #fff; box-shadow: none; width: 100%; min-width: 0; }
+.warehouse-page-layout vaadin-grid::part(header-cell) { background: #f7f9fa; color: var(--wm-text); font-size: 12px; font-weight: 650; border-bottom: 1px solid var(--wm-border); }
+.warehouse-page-layout vaadin-grid::part(body-cell) { font-size: 12px; color: var(--wm-text); border-bottom: 1px solid var(--wm-border-soft); }
+.warehouse-page-layout vaadin-tabsheet { width: 100%; min-width: 0; }
+.warehouse-page-layout vaadin-tabsheet > vaadin-tabs { margin-bottom: 10px; box-shadow: inset 0 -1px 0 var(--wm-border); }
+.warehouse-page-layout vaadin-tabsheet vaadin-tab { min-height: 40px; padding: 0 18px; font-size: 13px; font-weight: 600; color: var(--wm-muted); }
+.warehouse-page-layout vaadin-tabsheet vaadin-tab:hover { color: var(--wm-primary); }
+.warehouse-page-layout vaadin-tabsheet vaadin-tab[selected] { color: var(--wm-primary); }
+.warehouse-page-layout vaadin-tabsheet vaadin-tab[selected]::before { background: var(--wm-primary); }
+.warehouse-page-layout vaadin-tabsheet vaadin-vertical-layout { padding: 0; gap: 12px; }
+
+/* ==========================================================================
+   v14 - shared design tokens and components (cards, summary, empty state)
+   ========================================================================== */
+:root, :host {
+  --wm-control-h: 36px;
+  --wm-radius-sm: 8px;
+  --wm-radius-md: 12px;
+  --wm-gap: 12px;
+  --wm-ok: #17803d;   --wm-ok-bg: #dff3e8;
+  --wm-warn: #c2670a; --wm-warn-bg: #fdecd3;
+  --wm-bad: #c53030;  --wm-bad-bg: #fbe1e1;
+}
+
+/* Page description sits above the toolbar */
+.warehouse-page-description { display: block; margin: 0; color: var(--wm-muted); font-size: 13px; line-height: 1.5; }
+
+/* Card: used by the stock-card search form */
+.warehouse-card { box-sizing: border-box; width: 100%; padding: 18px 20px; background: var(--wm-surface); border: 1px solid var(--wm-border); border-radius: var(--wm-radius-md); }
+.warehouse-card-title { margin: 0 0 14px; font-size: 15px; font-weight: 700; color: var(--wm-text); }
+.warehouse-card-form { width: 100%; padding: 0; border: 0; background: transparent; box-shadow: none; }
+.warehouse-card-actions { margin-top: 14px; gap: 8px; }
+.warehouse-card-actions vaadin-button { min-height: var(--wm-control-h); border-radius: var(--wm-radius-sm); font-weight: 600; }
+
+/* Summary row (opening / closing / current): label above, value below */
+.warehouse-summary-form { width: 100%; padding: 0; border: 0; background: transparent; box-shadow: none; }
+.warehouse-summary-field { --vaadin-input-field-background: #fff; --vaadin-input-field-border-color: var(--wm-border); --vaadin-input-field-border-radius: var(--wm-radius-sm); }
+.warehouse-summary-field::part(input-field) { min-height: 44px; background: #fff; }
+.warehouse-summary-field::part(value) { font-size: 18px; font-weight: 700; color: var(--wm-primary); text-align: end; }
+
+/* Empty state card shown by views that build their own grid */
+.warehouse-empty-card { box-sizing: border-box; padding: 44px 20px; gap: 6px; background: var(--wm-surface); border: 1px dashed var(--wm-border); border-radius: var(--wm-radius-md); text-align: center; }
+.warehouse-empty-card-title { font-size: 15px; font-weight: 650; color: var(--wm-text); }
+.warehouse-empty-card-hint { font-size: 13px; color: var(--wm-muted); }
+
+/* Required marker: clear red asterisk on all form labels */
+vaadin-combo-box[required]::part(required-indicator), vaadin-date-picker[required]::part(required-indicator),
+vaadin-text-field[required]::part(required-indicator) { color: var(--wm-bad); }
+
+/* Sidebar: no horizontal scrollbar inside the drawer, labels are truncated instead */
+.warehouse-sidebar, .warehouse-navigation { min-width: 0; overflow-x: hidden; scrollbar-width: thin; }
+.warehouse-navigation jmix-list-menu, .warehouse-navigation vaadin-side-nav-item { min-width: 0; max-width: 100%; }
+
+/* Header: everything vertically centred, language + account grouped on the right */
+.warehouse-main-header { display: flex; align-items: center; }
+.warehouse-main-header vaadin-drawer-toggle { align-self: center; }
+
+/* Page content never forces a horizontal scrollbar on the whole page */
+.warehouse-page-layout { min-width: 0; max-width: 100%; box-sizing: border-box; }
+.warehouse-page-layout > * { min-width: 0; max-width: 100%; }

@@ -18,7 +18,6 @@
     <facets>
         <dataLoadCoordinator auto="true"/>
         <urlQueryParameters>
-            <genericFilter component="genericFilter"/>
             <pagination component="pagination"/>
         </urlQueryParameters>
     </facets>
@@ -26,12 +25,11 @@
         <genericFilter id="genericFilter" dataLoader="receiptsDl" classNames="warehouse-filter">
             <properties include=".*"/>
         </genericFilter>
-
         <hbox id="buttonsPanel" width="100%" wrap="true" classNames="warehouse-toolbar">
             <startSlot>
-                <button id="createButton" text="Tạo phiếu nhập" themeNames="primary"/>
-                <button id="openButton" text="Xem chi tiết"/>
-                <button id="refreshButton" text="Làm mới"/>
+                <button id="createButton" icon="vaadin:plus" text="Tạo phiếu nhập" themeNames="primary"/>
+                <button id="openButton" icon="vaadin:eye" text="Xem chi tiết"/>
+                <button id="refreshButton" icon="vaadin:refresh" text="Làm mới"/>
             </startSlot>
             <endSlot>
                 <simplePagination id="pagination" dataLoader="receiptsDl"/>

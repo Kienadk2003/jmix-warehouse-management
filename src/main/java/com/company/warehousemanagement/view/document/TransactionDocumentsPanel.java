@@ -15,18 +15,22 @@ import com.vaadin.flow.server.streams.DownloadResponse;
 import io.jmix.core.EntityStates;
 import io.jmix.flowui.download.Downloader;
 import org.springframework.stereotype.Component;
-import java.io.*;
+
+import java.io.ByteArrayInputStream;
 
 /** Creates a separate component for every view; no per-user state is kept in the singleton. */
 @Component
 public class TransactionDocumentsPanel {
+
     private final TransactionDocumentService service;
     private final WarehouseAuthorizationService authorization;
     private final EntityStates states;
     private final Downloader downloader;
 
-    public TransactionDocumentsPanel(TransactionDocumentService service, WarehouseAuthorizationService authorization,
-            EntityStates states, Downloader downloader) {
+    public TransactionDocumentsPanel(TransactionDocumentService service,
+                                     WarehouseAuthorizationService authorization,
+                                     EntityStates states,
+                                     Downloader downloader) {
         this.service = service;
         this.authorization = authorization;
         this.states = states;
@@ -37,14 +41,17 @@ public class TransactionDocumentsPanel {
         host.removeAll();
         host.setPadding(false);
         host.add(new H3("Chứng từ đính kèm"));
+
         if (!authorization.isAllowed(WarehousePermissions.VIEW_DOCUMENTS)) {
             host.add(new Span("Bạn không có quyền xem chứng từ."));
             return;
         }
+
         if (transaction == null || states.isNew(transaction)) {
             host.add(new Span("Lưu phiếu nháp trước khi thêm chứng từ."));
             return;
         }
+
         var id = transaction.getId();
         Grid<TransactionDocument> grid = new Grid<>();
         grid.setWidthFull();
@@ -67,28 +74,38 @@ public class TransactionDocumentsPanel {
                                 event.getResponse().setHeader("X-Content-Type-Options", "nosniff");
                                 return new DownloadResponse(new ByteArrayInputStream(file.bytes()), file.fileName(),
                                         file.contentType(), file.bytes().length);
-                            } catch (RuntimeException exception) { return DownloadResponse.error(403); }
+                            } catch (RuntimeException exception) {
+                                return DownloadResponse.error(403);
+                            }
                         }).inline());
                         frame.setSizeFull();
                         frame.setTitle(d.getFileName());
                         dialog.add(frame);
                         dialog.getFooter().add(new Button("Đóng", click -> dialog.close()));
                         dialog.open();
-                    } catch (RuntimeException ex) { Notification.show(ex.getMessage()); }
+                    } catch (RuntimeException ex) {
+                        Notification.show(ex.getMessage());
+                    }
                 }),
                 new Button("Tải xuống", e -> {
                     try {
                         var file = service.download(d.getId());
                         downloader.download(file.bytes(), file.fileName());
-                    } catch (RuntimeException ex) { Notification.show(ex.getMessage()); }
+                    } catch (RuntimeException ex) {
+                        Notification.show(ex.getMessage());
+                    }
                 }))).setHeader("Thao tác").setFlexGrow(2);
+
         var documents = service.list(id);
         grid.setItems(documents);
-        Span count = new Span(documents.isEmpty() ? "Chưa có chứng từ." : documents.size() + " chứng từ");
+        Span count = new Span(documents.isEmpty()
+                ? "Chưa có chứng từ."
+                : documents.size() + " chứng từ");
         host.add(count, grid);
+
         if (transaction.getStatus() == WarehouseTransactionStatus.DRAFT
                 && authorization.isAllowed(WarehousePermissions.EDIT_DRAFT)) {
-            // The handler bounds the stream on the server, including requests bypassing the UI limit.
+            // Server-side handler enforces the file-size limit even if the UI limit is bypassed.
             Upload upload = new Upload((com.vaadin.flow.server.streams.UploadHandler) event -> {
                 try (var input = event.getInputStream()) {
                     service.upload(id, event.getFileName(), input);

@@ -20,7 +20,6 @@
     <facets>
         <dataLoadCoordinator auto="true"/>
         <urlQueryParameters>
-            <genericFilter component="genericFilter"/>
             <pagination component="pagination"/>
         </urlQueryParameters>
     </facets>
@@ -32,12 +31,11 @@
         <genericFilter id="genericFilter" dataLoader="exportIssuesDl" classNames="warehouse-filter">
             <properties include=".*"/>
         </genericFilter>
-
         <hbox id="buttonsPanel" wrap="true" width="100%" classNames="warehouse-toolbar">
             <startSlot>
-                <button id="createButton" action="exportIssuesDataGrid.createAction" text="Tạo mới" themeNames="primary"/>
-                <button id="editButton" action="exportIssuesDataGrid.editAction" text="Chỉnh sửa"/>
-                <button id="readButton" action="exportIssuesDataGrid.readAction" text="Xem chi tiết"/>
+                <button id="createButton" action="exportIssuesDataGrid.createAction" icon="vaadin:plus" text="Tạo mới" themeNames="primary"/>
+                <button id="editButton" action="exportIssuesDataGrid.editAction" icon="vaadin:pencil" text="Sửa"/>
+                <button id="readButton" action="exportIssuesDataGrid.readAction" icon="vaadin:eye" text="Xem chi tiết"/>
             </startSlot>
             <endSlot>
                 <simplePagination id="pagination" dataLoader="exportIssuesDl"/>

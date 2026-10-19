@@ -10,11 +10,16 @@
 
             <loader id="userWarehousesDl" readOnly="true">
                 <query>
-                    
-                        select e
-                        from UserWarehouse e
-                        order by e.user.username, e.warehouse.code
-                    
+                    <![CDATA[
+                    select e from UserWarehouse e
+                    where (:searchTerm is null or trim(:searchTerm) = ''
+                        or lower(coalesce(e.user.username, '')) like concat('%', lower(:searchTerm), '%')
+                        or lower(coalesce(e.user.firstName, '')) like concat('%', lower(:searchTerm), '%')
+                        or lower(coalesce(e.user.lastName, '')) like concat('%', lower(:searchTerm), '%')
+                        or lower(coalesce(e.warehouse.code, '')) like concat('%', lower(:searchTerm), '%')
+                        or lower(coalesce(e.warehouse.name, '')) like concat('%', lower(:searchTerm), '%'))
+                    order by e.user.username, e.warehouse.code
+                    ]]>
                 </query>
             </loader>
         </collection>
@@ -26,23 +31,23 @@
     </actions>
 
     <facets>
-        <dataLoadCoordinator auto="true"/>
+        <dataLoadCoordinator auto="false"/>
         <urlQueryParameters>
             <pagination component="pagination"/>
         </urlQueryParameters>
     </facets>
 
     <layout classNames="warehouse-page-layout">
-
-        <hbox id="buttonsPanel" width="100%" wrap="true" classNames="warehouse-toolbar">
+<hbox id="buttonsPanel" width="100%" wrap="true" classNames="warehouse-toolbar">
 
             <startSlot>
+                <textField id="searchField" placeholder="msg://searchPlaceholder" clearButtonVisible="true" valueChangeMode="LAZY" width="22em" classNames="warehouse-search-field"></textField>
 
-                <button id="createButton" action="userWarehousesDataGrid.createAction" text="Tạo mới" themeNames="primary"/>
+                <button id="createButton" action="userWarehousesDataGrid.createAction" icon="vaadin:plus" text="Tạo mới" themeNames="primary"/>
 
-                <button id="editButton" action="userWarehousesDataGrid.editAction" text="Chỉnh sửa"/>
+                <button id="editButton" action="userWarehousesDataGrid.editAction" icon="vaadin:pencil" text="Sửa"/>
 
-                <button id="removeButton" action="userWarehousesDataGrid.removeAction" text="Xóa" themeNames="error"/>
+                <button id="removeButton" action="userWarehousesDataGrid.removeAction" icon="vaadin:trash" text="Xóa" themeNames="error"/>
 
             </startSlot>
 

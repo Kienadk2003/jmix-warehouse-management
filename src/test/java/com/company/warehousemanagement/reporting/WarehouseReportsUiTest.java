@@ -7,6 +7,9 @@ import com.company.warehousemanagement.view.export.ExportDetailView;
 import com.company.warehousemanagement.view.transfer.TransferDetailView;
 import com.company.warehousemanagement.view.adjustment.AdjustmentDetailView;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.jmix.flowui.ViewNavigators;
 import io.jmix.flowui.testassist.*;
@@ -16,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
+import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @UiTest
@@ -28,12 +32,17 @@ class WarehouseReportsUiTest {
         navigators.view(UiTestUtils.getCurrentView(), WarehouseReportsView.class).navigate();
         assertThat((Object) UiTestUtils.getCurrentView()).isInstanceOf(WarehouseReportsView.class);
         VerticalLayout content = UiTestUtils.getComponent(UiTestUtils.getCurrentView(), "content");
-        assertThat(content.getComponentCount()).isGreaterThan(3);
+        assertThat(descendants(content).anyMatch(TabSheet.class::isInstance)).isTrue();
+        assertThat(descendants(content).anyMatch(Grid.class::isInstance)).isTrue();
         DatePicker from = UiTestUtils.getComponent(UiTestUtils.getCurrentView(), "fromDate");
         DatePicker to = UiTestUtils.getComponent(UiTestUtils.getCurrentView(), "toDate");
         LocalDate today = LocalDate.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
         assertThat(from.getValue()).isEqualTo(today.withDayOfMonth(1));
         assertThat(to.getValue()).isEqualTo(today.with(TemporalAdjusters.lastDayOfMonth()));
+    }
+
+    private static Stream<Component> descendants(Component component) {
+        return component.getChildren().flatMap(child -> Stream.concat(Stream.of(child), descendants(child)));
     }
 
     @Test void draftEditorsIncludeDocumentsPanel() {

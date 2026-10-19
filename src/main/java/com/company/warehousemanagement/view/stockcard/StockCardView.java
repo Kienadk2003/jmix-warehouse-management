@@ -80,9 +80,6 @@ public class StockCardView extends StandardView {
 
         toDateField.setTypedValue(today);
 
-        openingStockField.setTypedValue("0");
-        closingStockField.setTypedValue("0");
-        currentInventoryField.setTypedValue("0");
     }
 
     @Subscribe(
