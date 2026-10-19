@@ -10,6 +10,7 @@ import com.company.warehousemanagement.service.AdjustmentIssueService;
 import com.company.warehousemanagement.service.AdjustmentPostingService;
 import com.company.warehousemanagement.service.AvailableStockService;
 import com.company.warehousemanagement.service.ReversalService;
+import com.company.warehousemanagement.service.TransactionItemMergeSupport;
 import com.company.warehousemanagement.service.WarehouseTransactionWorkflowService;
 import com.company.warehousemanagement.view.main.MainView;
 import com.vaadin.flow.component.ClickEvent;
@@ -26,18 +27,24 @@ import io.jmix.flowui.component.grid.DataGrid;
 import io.jmix.flowui.component.grid.editor.DataGridEditor;
 import io.jmix.flowui.component.textfield.TypedTextField;
 import io.jmix.flowui.kit.component.button.JmixButton;
+import io.jmix.flowui.model.CollectionContainer;
 import io.jmix.flowui.model.CollectionPropertyContainer;
+import io.jmix.flowui.model.DataContext;
+import io.jmix.flowui.model.InstanceContainer;
 import io.jmix.flowui.view.EditedEntityContainer;
 import io.jmix.flowui.view.StandardDetailView;
 import io.jmix.flowui.view.StandardDetailView.AfterSaveEvent;
 import io.jmix.flowui.view.StandardDetailView.InitEntityEvent;
 import io.jmix.flowui.view.StandardDetailView.ValidationEvent;
 import io.jmix.flowui.view.Subscribe;
+import io.jmix.flowui.view.Target;
 import io.jmix.flowui.view.View.BeforeShowEvent;
 import io.jmix.flowui.view.ViewComponent;
 import io.jmix.flowui.view.ViewController;
 import io.jmix.flowui.view.ViewDescriptor;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.ArrayList;
 
 @Route(value = "adjustments/:id", layout = MainView.class)
 @ViewController(id = "WarehouseTransaction.adjustmentDetail")
@@ -111,7 +118,12 @@ public class AdjustmentDetailView extends StandardDetailView<WarehouseTransactio
     private CollectionPropertyContainer<TransactionItem> itemsDc;
 
     @ViewComponent
+    private DataContext dataContext;
+
+    @ViewComponent
     private TypedTextField<String> statusField;
+
+    private boolean mergingDuplicateItems;
 
     private boolean workflowActionInProgress;
 
@@ -133,6 +145,7 @@ public class AdjustmentDetailView extends StandardDetailView<WarehouseTransactio
             return;
         }
 
+        mergeDuplicateItems(false);
         try {
             adjustmentIssueService.validateDraft(transaction);
         } catch (WarehouseBusinessException exception) {
@@ -341,6 +354,42 @@ public class AdjustmentDetailView extends StandardDetailView<WarehouseTransactio
         } catch (Exception exception) {
             reverseButton.setEnabled(true);
             showError("Không thể đảo phiếu điều chỉnh. Hãy kiểm tra log ứng dụng.");
+        }
+    }
+
+    @Subscribe(id = "itemsDc", target = Target.DATA_CONTAINER)
+    public void onItemsDcCollectionChange(
+            CollectionContainer.CollectionChangeEvent<TransactionItem> event) {
+        mergeDuplicateItems(true);
+    }
+
+    @Subscribe(id = "itemsDc", target = Target.DATA_CONTAINER)
+    public void onItemsDcItemPropertyChange(
+            InstanceContainer.ItemPropertyChangeEvent<TransactionItem> event) {
+        mergeDuplicateItems(true);
+    }
+
+    private void mergeDuplicateItems(boolean notifyUser) {
+        if (mergingDuplicateItems) {
+            return;
+        }
+        mergingDuplicateItems = true;
+        try {
+            var itemsBeforeMerge = new ArrayList<>(itemsDc.getItems());
+            boolean merged = TransactionItemMergeSupport.mergeDuplicateProducts(
+                    itemsDc.getMutableItems());
+            if (merged) {
+                itemsBeforeMerge.stream()
+                        .filter(item -> !itemsDc.getItems().contains(item))
+                        .forEach(dataContext::remove);
+            }
+            if (merged && notifyUser) {
+                Notification.show(
+                        "Sản phẩm đã có trong phiếu; số lượng đã được cộng dồn",
+                        3000, Position.TOP_END);
+            }
+        } finally {
+            mergingDuplicateItems = false;
         }
     }
 

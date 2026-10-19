@@ -2,14 +2,16 @@ package com.company.warehousemanagement.service;
 
 import com.company.warehousemanagement.entity.TransactionItem;
 
-import java.util.HashMap;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 /**
- * Normalizes transaction lines so each product appears only once.
+ * Normalizes transaction lines so an identical product in the same unit appears once.
+ * Different units are deliberately not merged: this project does not implement unit conversion.
  */
 public final class TransactionItemMergeSupport {
 
@@ -22,35 +24,40 @@ public final class TransactionItemMergeSupport {
             return false;
         }
 
-        Map<UUID, TransactionItem> firstItemByProduct = new HashMap<>();
+        Map<ProductUnitKey, TransactionItem> firstItemByProductAndUnit = new HashMap<>();
         List<Integer> duplicateIndexes = new ArrayList<>();
         boolean merged = false;
 
         for (int index = 0; index < items.size(); index++) {
             TransactionItem item = items.get(index);
-            if (item == null || item.getProduct() == null || item.getProduct().getId() == null) {
+            if (item == null || item.getProduct() == null || item.getProduct().getId() == null
+                    || item.getUnit() == null || item.getUnit().getId() == null
+                    || item.getQuantity() == null || item.getQuantity().signum() <= 0) {
                 continue;
             }
 
-            TransactionItem existing = firstItemByProduct.putIfAbsent(item.getProduct().getId(), item);
+            ProductUnitKey key = new ProductUnitKey(
+                    item.getProduct().getId(), item.getUnit().getId());
+            TransactionItem existing = firstItemByProductAndUnit.putIfAbsent(key, item);
             if (existing == null) {
                 continue;
             }
 
-            if (existing.getQuantity() != null && item.getQuantity() != null) {
-                existing.setQuantity(existing.getQuantity().add(item.getQuantity()));
-                if ((existing.getNote() == null || existing.getNote().isBlank())
-                        && item.getNote() != null && !item.getNote().isBlank()) {
-                    existing.setNote(item.getNote());
-                }
-                duplicateIndexes.add(index);
-                merged = true;
+            BigDecimal existingQuantity = existing.getQuantity();
+            if (existingQuantity == null || existingQuantity.signum() <= 0) {
+                continue;
             }
+
+            existing.setQuantity(existingQuantity.add(item.getQuantity()));
+            if ((existing.getNote() == null || existing.getNote().isBlank())
+                    && item.getNote() != null && !item.getNote().isBlank()) {
+                existing.setNote(item.getNote());
+            }
+            duplicateIndexes.add(index);
+            merged = true;
         }
 
-        // Jmix uses ObservableList here. Its iterator intentionally does not
-        // support remove(). Removing by descending index also avoids calling
-        // equals() on newly created Jmix entities that do not have an ID yet.
+        // Jmix uses ObservableList here; remove from highest index to lowest.
         for (int index = duplicateIndexes.size() - 1; index >= 0; index--) {
             items.remove((int) duplicateIndexes.get(index));
         }
@@ -69,5 +76,8 @@ public final class TransactionItemMergeSupport {
                 item.setLineNo(lineNo++);
             }
         }
+    }
+
+    private record ProductUnitKey(UUID productId, UUID unitId) {
     }
 }

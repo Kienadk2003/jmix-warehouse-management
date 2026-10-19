@@ -53,8 +53,22 @@
             <button id="closeButton" action="closeAction" text="Đóng"/>
         </hbox>
 
-        <dataGrid id="itemsDataGrid" dataContainer="itemsDc" width="100%" minHeight="20em"
-                  editorBuffered="true" classNames="warehouse-data-grid">
+        <hbox width="100%" classNames="warehouse-search-row">
+            <textField id="itemsSearchField"
+                       placeholder="Tìm theo mã hoặc tên sản phẩm..."
+                       clearButtonVisible="true"
+                       valueChangeMode="LAZY"
+                       width="100%"
+                       classNames="warehouse-search-field"/>
+        </hbox>
+
+        <dataGrid id="itemsDataGrid"
+                  dataContainer="itemsDc"
+                  width="100%"
+                  height="400px"
+                  minHeight="0"
+                  editorBuffered="true"
+                  classNames="warehouse-data-grid">
             <columns>
                 <column property="product.code" header="Mã sản phẩm"/>
                 <column property="product.name" header="Sản phẩm"/>

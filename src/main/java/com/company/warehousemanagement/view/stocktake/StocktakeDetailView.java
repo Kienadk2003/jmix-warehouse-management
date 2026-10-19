@@ -33,7 +33,10 @@ import io.jmix.flowui.view.ViewController;
 import io.jmix.flowui.view.ViewDescriptor;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.text.Normalizer;
 import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Locale;
 
 @Route(value = "stocktakes/:id", layout = MainView.class)
 @ViewController(id = "Stocktake.detail")
@@ -61,6 +64,11 @@ public class StocktakeDetailView extends StandardDetailView<Stocktake> {
 
     @ViewComponent
     private DataGrid<StocktakeItem> itemsDataGrid;
+
+    @ViewComponent
+    private TextField itemsSearchField;
+
+    private boolean itemsSearchListenerRegistered;
 
     @ViewComponent
     private EntityComboBox<Warehouse> warehouseField;
@@ -93,6 +101,11 @@ public class StocktakeDetailView extends StandardDetailView<Stocktake> {
 
     @Subscribe
     public void onBeforeShow(BeforeShowEvent event) {
+        if (!itemsSearchListenerRegistered) {
+            itemsSearchField.addValueChangeListener(valueChangeEvent -> applyItemsSearch());
+            itemsSearchListenerRegistered = true;
+        }
+        applyItemsSearch();
         refreshActions();
     }
 
@@ -126,7 +139,7 @@ public class StocktakeDetailView extends StandardDetailView<Stocktake> {
             showError("Hãy chọn kho cần kiểm kê.");
             return;
         }
-        if (!itemsDc.getItems().isEmpty()) {
+        if (stocktake.getItems() != null && !stocktake.getItems().isEmpty()) {
             showError("Phiếu đã có snapshot; không thể tạo lại snapshot.");
             return;
         }
@@ -143,6 +156,7 @@ public class StocktakeDetailView extends StandardDetailView<Stocktake> {
 
             stocktake.setSnapshotAt(OffsetDateTime.now());
             stocktake.setStatus(StocktakeStatus.COUNTING);
+            applyItemsSearch();
             updateStatus(stocktake);
             refreshActions();
 
@@ -249,7 +263,7 @@ public class StocktakeDetailView extends StandardDetailView<Stocktake> {
         boolean draft = stocktake.getStatus() == StocktakeStatus.DRAFT;
         boolean counting = stocktake.getStatus() == StocktakeStatus.COUNTING;
         boolean pending = stocktake.getStatus() == StocktakeStatus.PENDING_APPROVAL;
-        boolean hasItems = !itemsDc.getItems().isEmpty();
+        boolean hasItems = stocktake.getItems() != null && !stocktake.getItems().isEmpty();
 
         boolean canCount = hasPermission(WarehousePermissions.COUNT_STOCK);
         boolean canApprove = hasPermission(WarehousePermissions.APPROVE_STOCKTAKE);
@@ -265,6 +279,56 @@ public class StocktakeDetailView extends StandardDetailView<Stocktake> {
         saveButton.setVisible((draft || counting) && canCount);
 
         updateStatus(stocktake);
+    }
+
+
+    /**
+     * Filters the grid display only. The full collection on Stocktake remains intact,
+     * so hiding rows while searching does not remove them from the stocktake being saved.
+     */
+    private void applyItemsSearch() {
+        Stocktake stocktake = getEditedEntity();
+        if (stocktake == null) {
+            return;
+        }
+
+        List<StocktakeItem> allItems = stocktake.getItems() == null
+                ? List.of()
+                : stocktake.getItems();
+
+        String value = itemsSearchField.getValue();
+        String query = value == null ? "" : normalizeForSearch(value.trim());
+
+        if (query.isEmpty()) {
+            itemsDc.setDisconnectedItems(allItems);
+            return;
+        }
+
+        List<StocktakeItem> filteredItems = allItems.stream()
+                .filter(item -> {
+                    if (item.getProduct() == null) {
+                        return false;
+                    }
+                    String code = item.getProduct().getCode();
+                    String name = item.getProduct().getName();
+                    return containsIgnoreCase(code, query) || containsIgnoreCase(name, query);
+                })
+                .toList();
+
+        itemsDc.setDisconnectedItems(filteredItems);
+    }
+
+    private boolean containsIgnoreCase(String value, String query) {
+        return value != null && normalizeForSearch(value).contains(query);
+    }
+
+    /** Makes Vietnamese searches work both with and without diacritics. */
+    private String normalizeForSearch(String value) {
+        return Normalizer.normalize(value, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}+", "")
+                .replace('đ', 'd')
+                .replace('Đ', 'D')
+                .toLowerCase(Locale.ROOT);
     }
 
     private boolean hasPermission(String permission) {

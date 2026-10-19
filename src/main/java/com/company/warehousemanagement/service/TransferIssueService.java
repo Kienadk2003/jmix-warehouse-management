@@ -188,6 +188,9 @@ public class TransferIssueService {
         /*
          * Phải có ít nhất một item.
          */
+        // Normalize duplicate product+unit rows before validating totals and stock.
+        TransactionItemMergeUtils.mergeDuplicateProducts(transaction);
+
         if (transaction.getItems() == null
                 || transaction.getItems().isEmpty()) {
 
@@ -251,9 +254,6 @@ public class TransferIssueService {
                     item.getQuantity(),
                     item.getLineNo()
             );
-            availableStockService.validateAvailableStock(
-                    loadedSourceWarehouse.getId(), productId, item.getQuantity());
-
             Unit unit = item.getUnit();
 
             if (unit == null
@@ -265,7 +265,7 @@ public class TransferIssueService {
                 );
             }
 
-            dataManager.load(Unit.class)
+            Unit loadedUnit = dataManager.load(Unit.class)
                     .id(unit.getId())
                     .optional()
                     .orElseThrow(() ->
@@ -274,6 +274,11 @@ public class TransferIssueService {
                                             + ": không tìm thấy đơn vị tính"
                             )
                     );
+            ProductUnitQuantityValidator.validate(
+                    dataManager, loadedProduct, loadedUnit,
+                    item.getQuantity(), item.getLineNo());
+            availableStockService.validateAvailableStock(
+                    loadedSourceWarehouse.getId(), productId, item.getQuantity());
         }
     }
 

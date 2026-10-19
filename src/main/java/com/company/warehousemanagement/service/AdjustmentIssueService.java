@@ -165,6 +165,9 @@ public class AdjustmentIssueService {
          * =========================
          */
 
+        // Normalize duplicate product+unit rows before validating totals and stock.
+        TransactionItemMergeUtils.mergeDuplicateProducts(transaction);
+
         if (transaction.getItems() == null
                 || transaction.getItems().isEmpty()) {
 
@@ -250,16 +253,11 @@ public class AdjustmentIssueService {
                 );
             }
 
-            if (transaction.getAdjustmentDirection() == AdjustmentDirection.OUT) {
-                availableStockService.validateAvailableStock(
-                        warehouse.getId(), productId, quantity);
-            }
-
             /*
              * UNIT
              */
 
-            if (item.getUnit() == null) {
+            if (item.getUnit() == null || item.getUnit().getId() == null) {
 
                 throw new WarehouseBusinessException(
                         "Unit không được để trống"
@@ -273,6 +271,14 @@ public class AdjustmentIssueService {
                             new WarehouseBusinessException(
                                     "Không tìm thấy Unit"
                             ));
+
+            ProductUnitQuantityValidator.validate(
+                    dataManager, product, item.getUnit(), quantity, item.getLineNo());
+
+            if (transaction.getAdjustmentDirection() == AdjustmentDirection.OUT) {
+                availableStockService.validateAvailableStock(
+                        warehouse.getId(), productId, quantity);
+            }
         }
     }
 

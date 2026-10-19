@@ -114,6 +114,9 @@ public class ExportIssueService {
             throw new WarehouseBusinessException("Lý do không được dài quá " + MAX_REASON_LENGTH + " ký tự");
         }
 
+        // Normalize duplicate product+unit rows before validating totals and stock.
+        TransactionItemMergeUtils.mergeDuplicateProducts(transaction);
+
         if (transaction.getItems() == null || transaction.getItems().isEmpty()) {
             throw new WarehouseBusinessException("Phiếu xuất phải có ít nhất 1 dòng sản phẩm");
         }
@@ -152,8 +155,6 @@ public class ExportIssueService {
 
             BigDecimal quantity = item.getQuantity();
             validateQuantity(quantity, item.getLineNo());
-            availableStockService.validateAvailableStock(
-                    loadedWarehouse.getId(), productId, quantity);
 
             Unit unit = item.getUnit();
             if (unit == null) {
@@ -162,11 +163,15 @@ public class ExportIssueService {
             if (unit.getId() == null) {
                 throw new WarehouseBusinessException("Dòng " + item.getLineNo() + ": đơn vị tính không hợp lệ");
             }
-            dataManager.load(Unit.class)
+            Unit loadedUnit = dataManager.load(Unit.class)
                     .id(unit.getId())
                     .optional()
                     .orElseThrow(() -> new WarehouseBusinessException(
                             "Dòng " + item.getLineNo() + ": không tìm thấy đơn vị tính"));
+            ProductUnitQuantityValidator.validate(
+                    dataManager, loadedProduct, loadedUnit, quantity, item.getLineNo());
+            availableStockService.validateAvailableStock(
+                    loadedWarehouse.getId(), productId, quantity);
         }
     }
 
