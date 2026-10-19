@@ -1,0 +1,3 @@
+code,name,decimalScale,active
+PCS,Piece,0,true
+KG,Kilogram,3,true
