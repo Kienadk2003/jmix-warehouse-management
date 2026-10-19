@@ -24,7 +24,7 @@
     <menu id="reports" title="msg://com.company.warehousemanagement.menu.reports" icon="vaadin:chart">
         <item view="Warehouse.reports" title="msg://com.company.warehousemanagement.menu.warehouseReports" icon="vaadin:chart-line"/>
         <item view="Inventory.stockCard" title="msg://com.company.warehousemanagement.menu.stockCard" icon="vaadin:book"/>
-        <item view="Inventory.report" title="msg://com.company.warehousemanagement.menu.inventoryReport" icon="vaadin:bar-chart"/>
+<!--        <item view="Inventory.report" title="msg://com.company.warehousemanagement.menu.inventoryReport" icon="vaadin:bar-chart"/>-->
     </menu>
 
     <menu id="people" title="msg://com.company.warehousemanagement.menu.people" opened="false" icon="vaadin:users">

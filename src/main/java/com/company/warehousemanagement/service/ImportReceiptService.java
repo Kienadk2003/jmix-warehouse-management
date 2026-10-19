@@ -123,8 +123,8 @@ public class ImportReceiptService {
 
     @Transactional(readOnly = true)
     public List<TransactionItem> getItems(UUID receiptId) {
-        // Kiá»ƒm tra quyá»�n READ vÃ  Warehouse Scope trÃªn phiáº¿u cha trÆ°á»›c khi
-        // dÃ¹ng loader ná»™i bá»™ Ä‘á»ƒ láº¥y cÃ¡c dÃ²ng hÃ ng cá»§a chÃ­nh phiáº¿u Ä‘Ã³.
+        // Kiểm tra quyền READ và phạm vi kho trên phiếu cha trước khi
+        // dùng loader nội bộ để lấy các dòng hàng của chính phiếu đó.
         loadImportReceipt(receiptId);
         return loadItems(receiptId);
     }
@@ -133,7 +133,7 @@ public class ImportReceiptService {
     public TransactionItem updateItem(UpdateImportReceiptItemCommand command) {
         requireEditDraft();
         if (command == null || command.getItemId() == null) {
-            throw new WarehouseBusinessException("Báº¡n chÆ°a chá»�n dÃ²ng hÃ ng cáº§n sá»­a");
+            throw new WarehouseBusinessException("Bạn chưa chọn dòng hàng cần sửa");
         }
 
         TransactionItem item = loadItem(command.getItemId());
@@ -152,7 +152,7 @@ public class ImportReceiptService {
     public void removeItem(UUID itemId) {
         requireEditDraft();
         if (itemId == null) {
-            throw new WarehouseBusinessException("Báº¡n chÆ°a chá»�n dÃ²ng hÃ ng cáº§n xÃ³a");
+            throw new WarehouseBusinessException("Bạn chưa chọn dòng hàng cần xóa");
         }
 
         TransactionItem item = loadItem(itemId);
@@ -169,14 +169,14 @@ public class ImportReceiptService {
         ensureDraft(receipt);
         validateReceiptItems(loadItems(receipt.getId()));
 
-        // Kiá»ƒm tra quyá»�n SUBMIT vÃ  chuyá»ƒn:
+        // Kiểm tra quyền SUBMIT và chuyển:
         // DRAFT -> PENDING_APPROVAL
         return workflowService.submit(receiptId);
     }
 
     /**
-     * TÆ°Æ¡ng thÃ­ch táº¡m thá»�i vá»›i mÃ n hÃ¬nh cÅ© Ä‘ang gá»�i confirm().
-     * Sau nÃ y sáº½ Ä‘á»•i nÃºt trÃªn giao diá»‡n thÃ nh Gá»­i duyá»‡t.
+     * Tương thích tạm thời với màn hình cũ đang gọi confirm().
+     * Sau này sẽ đổi nút trên giao diện thành Gửi duyệt.
      */
     @Transactional
     @Deprecated
@@ -193,13 +193,13 @@ public class ImportReceiptService {
     public WarehouseTransaction approve(UUID receiptId) {
         authorizationService.require(
                 WarehousePermissions.APPROVE,
-                "Báº¡n khÃ´ng cÃ³ quyá»�n duyá»‡t phiáº¿u nháº­p"
+                "Bạn không có quyền duyệt phiếu nhập"
         );
 
         WarehouseTransaction receipt = loadImportReceiptForUpdate(receiptId);
         if (receipt.getStatus() != WarehouseTransactionStatus.PENDING_APPROVAL) {
             throw new WarehouseBusinessException(
-                    "Chá»‰ phiáº¿u nháº­p Ä‘ang chá»� duyá»‡t má»›i Ä‘Æ°á»£c duyá»‡t"
+                    "Chỉ phiếu nhập đang chờ duyệt mới được duyệt"
             );
         }
 
@@ -217,13 +217,13 @@ public class ImportReceiptService {
     public WarehouseTransaction reject(UUID receiptId) {
         authorizationService.require(
                 WarehousePermissions.REJECT,
-                "Báº¡n khÃ´ng cÃ³ quyá»�n tá»« chá»‘i phiáº¿u nháº­p"
+                "Bạn không có quyền từ chối phiếu nhập"
         );
 
         WarehouseTransaction receipt = loadImportReceiptForUpdate(receiptId);
         if (receipt.getStatus() != WarehouseTransactionStatus.PENDING_APPROVAL) {
             throw new WarehouseBusinessException(
-                    "Chá»‰ phiáº¿u nháº­p Ä‘ang chá»� duyá»‡t má»›i Ä‘Æ°á»£c tá»« chá»‘i"
+                    "Chỉ phiếu nhập đang chờ duyệt mới được từ chối"
             );
         }
 
@@ -235,19 +235,19 @@ public class ImportReceiptService {
     public WarehouseTransaction post(UUID receiptId) {
         authorizationService.require(
                 WarehousePermissions.POST,
-                "Báº¡n khÃ´ng cÃ³ quyá»�n nháº­p kho"
+                "Bạn không có quyền nhập kho"
         );
         WarehouseTransaction receipt = loadImportReceiptForUpdate(receiptId);
 
         if (receipt.getStatus() != WarehouseTransactionStatus.APPROVED) {
             if (receipt.getStatus() == WarehouseTransactionStatus.POSTED) {
                 throw new WarehouseBusinessException(
-                        "Phiáº¿u nháº­p Ä‘Ã£ Ä‘Æ°á»£c nháº­p kho, khÃ´ng thá»ƒ nháº­p kho láº§n ná»¯a"
+                        "Phiếu nhập đã được nhập kho, không thể nhập kho lần nữa"
                 );
             }
 
             throw new WarehouseBusinessException(
-                    "Chá»‰ Ä‘Æ°á»£c nháº­p kho vá»›i phiáº¿u Ä‘Ã£ Ä‘Æ°á»£c Manager duyá»‡t"
+                    "Chỉ được nhập kho với phiếu đã được quản lý duyệt"
             );
         }
 
@@ -256,13 +256,13 @@ public class ImportReceiptService {
 
         if (receipt.getDestinationWarehouse() == null
                 || receipt.getDestinationWarehouse().getId() == null) {
-            throw new WarehouseBusinessException("Phiáº¿u nháº­p chÆ°a cÃ³ kho nháº­n");
+            throw new WarehouseBusinessException("Phiếu nhập chưa có kho nhận");
         }
 
-        // KhÃ³a kho nháº­n Ä‘á»ƒ tuáº§n tá»± hÃ³a cÃ¡c láº§n POST IMPORT cÃ¹ng kho,
-        // Ä‘áº·c biá»‡t khi Inventory cá»§a má»™t sáº£n pháº©m chÆ°a tá»“n táº¡i.
-        // Má»�i posting handler khÃ¡c cáº§n dÃ¹ng cÃ¹ng quy Æ°á»›c khÃ³a náº¿u muá»‘n
-        // báº£o Ä‘áº£m Ä‘á»“ng bá»™ toÃ n há»‡ thá»‘ng khi táº¡o Inventory láº§n Ä‘áº§u.
+        // Khóa kho nhận để tuần tự hóa các lần POST IMPORT cùng kho,
+        // đặc biệt khi Inventory của một sản phẩm chưa tồn tại.
+        // Mọi posting handler khác cần dùng cùng quy ước khóa nếu muốn
+        // bảo đảm đồng bộ toàn hệ thống khi tạo Inventory lần đầu.
         Warehouse destinationWarehouse = loadActiveWarehouseForPosting(
                 receipt.getDestinationWarehouse().getId()
         );
@@ -312,14 +312,14 @@ public class ImportReceiptService {
     public WarehouseTransaction cancel(UUID receiptId) {
         authorizationService.require(
                 WarehousePermissions.CANCEL,
-                "Báº¡n khÃ´ng cÃ³ quyá»�n há»§y phiáº¿u nháº­p"
+                "Bạn không có quyền hủy phiếu nhập"
         );
         WarehouseTransaction receipt = loadImportReceipt(receiptId);
 
         if (receipt.getStatus() != WarehouseTransactionStatus.DRAFT
                 && receipt.getStatus() != WarehouseTransactionStatus.CONFIRMED) {
             throw new WarehouseBusinessException(
-                    "Chá»‰ Ä‘Æ°á»£c há»§y phiáº¿u nhÃ¡p hoáº·c phiáº¿u Ä‘Ã£ xÃ¡c nháº­n"
+                    "Chỉ được hủy phiếu nháp hoặc phiếu đã xác nhận"
             );
         }
 
@@ -329,25 +329,25 @@ public class ImportReceiptService {
 
     private void validateCreateCommand(CreateImportReceiptCommand command) {
         if (command == null) {
-            throw new WarehouseBusinessException("Dá»¯ liá»‡u táº¡o phiáº¿u khÃ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng");
+            throw new WarehouseBusinessException("Dữ liệu tạo phiếu không được để trống");
         }
         if (command.getWarehouseId() == null) {
-            throw new WarehouseBusinessException("Báº¡n chÆ°a chá»�n kho nháº­n");
+            throw new WarehouseBusinessException("Bạn chưa chọn kho nhận");
         }
         if (command.getPartnerId() == null) {
-            throw new WarehouseBusinessException("Báº¡n chÆ°a chá»�n nhÃ  cung cáº¥p");
+            throw new WarehouseBusinessException("Bạn chưa chọn nhà cung cấp");
         }
     }
 
     private void validateAddItemCommand(AddImportReceiptItemCommand command) {
         if (command == null) {
-            throw new WarehouseBusinessException("Dá»¯ liá»‡u dÃ²ng hÃ ng khÃ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng");
+            throw new WarehouseBusinessException("Dữ liệu dòng hàng không được để trống");
         }
         if (command.getReceiptId() == null) {
-            throw new WarehouseBusinessException("Báº¡n chÆ°a chá»�n phiáº¿u nháº­p");
+            throw new WarehouseBusinessException("Bạn chưa chọn phiếu nhập");
         }
         if (command.getProductId() == null) {
-            throw new WarehouseBusinessException("Báº¡n chÆ°a chá»�n sáº£n pháº©m");
+            throw new WarehouseBusinessException("Bạn chưa chọn sản phẩm");
         }
     }
 
@@ -360,7 +360,7 @@ public class ImportReceiptService {
 
     private void validateReceiptItems(List<TransactionItem> items) {
         if (items == null || items.isEmpty()) {
-            throw new WarehouseBusinessException("Phiáº¿u nháº­p pháº£i cÃ³ Ã­t nháº¥t má»™t sáº£n pháº©m");
+            throw new WarehouseBusinessException("Phiếu nhập phải có ít nhất một sản phẩm");
         }
 
         Set<UUID> productIds = new HashSet<>();
@@ -368,12 +368,12 @@ public class ImportReceiptService {
             if (item == null || item.getProduct() == null
                     || item.getProduct().getId() == null) {
                 throw new WarehouseBusinessException(
-                        "Phiáº¿u cÃ³ dÃ²ng hÃ ng chÆ°a chá»�n sáº£n pháº©m"
+                        "Phiếu có dòng hàng chưa chọn sản phẩm"
                 );
             }
             if (item.getQuantity() == null || item.getQuantity().signum() <= 0) {
                 throw new WarehouseBusinessException(
-                        "Phiáº¿u cÃ³ dÃ²ng hÃ ng vá»›i sá»‘ lÆ°á»£ng khÃ´ng há»£p lá»‡"
+                        "Phiếu có dòng hàng với số lượng không hợp lệ"
                 );
             }
             Product validatedProduct = loadActiveProduct(item.getProduct().getId());
@@ -382,7 +382,7 @@ public class ImportReceiptService {
                     item.getQuantity(), item.getLineNo());
             if (!productIds.add(item.getProduct().getId())) {
                 throw new WarehouseBusinessException(
-                        "Phiáº¿u nháº­p cÃ³ sáº£n pháº©m bá»‹ trÃ¹ng; hÃ£y gá»™p thÃ nh má»™t dÃ²ng hÃ ng"
+                        "Phiếu nhập có sản phẩm bị trùng; hãy gộp thành một dòng hàng"
                 );
             }
         }
@@ -390,25 +390,25 @@ public class ImportReceiptService {
 
     private WarehouseTransaction loadImportReceipt(UUID receiptId) {
         if (receiptId == null) {
-            throw new WarehouseBusinessException("Báº¡n chÆ°a chá»�n phiáº¿u nháº­p");
+            throw new WarehouseBusinessException("Bạn chưa chọn phiếu nhập");
         }
 
         WarehouseTransaction receipt = dataManager.load(WarehouseTransaction.class)
                 .id(receiptId)
                 .optional()
                 .orElseThrow(() -> new WarehouseBusinessException(
-                        "KhÃ´ng tÃ¬m tháº¥y phiáº¿u nháº­p"
+                        "Không tìm thấy phiếu nhập"
                 ));
 
         if (receipt.getType() != WarehouseTransactionType.IMPORT) {
-            throw new WarehouseBusinessException("Chá»©ng tá»« khÃ´ng pháº£i phiáº¿u nháº­p kho");
+            throw new WarehouseBusinessException("Chứng từ không phải phiếu nhập kho");
         }
         return receipt;
     }
 
     private WarehouseTransaction loadImportReceiptForUpdate(UUID receiptId) {
         if (receiptId == null) {
-            throw new WarehouseBusinessException("Báº¡n chÆ°a chá»�n phiáº¿u nháº­p");
+            throw new WarehouseBusinessException("Bạn chưa chọn phiếu nhập");
         }
 
         List<WarehouseTransaction> receipts = dataManager
@@ -419,12 +419,12 @@ public class ImportReceiptService {
                 .list();
 
         if (receipts.isEmpty()) {
-            throw new WarehouseBusinessException("KhÃ´ng tÃ¬m tháº¥y phiáº¿u nháº­p");
+            throw new WarehouseBusinessException("Không tìm thấy phiếu nhập");
         }
 
         WarehouseTransaction receipt = receipts.get(0);
         if (receipt.getType() != WarehouseTransactionType.IMPORT) {
-            throw new WarehouseBusinessException("Chá»©ng tá»« khÃ´ng pháº£i phiáº¿u nháº­p kho");
+            throw new WarehouseBusinessException("Chứng từ không phải phiếu nhập kho");
         }
         return receipt;
     }
@@ -434,7 +434,7 @@ public class ImportReceiptService {
                 .id(itemId)
                 .optional()
                 .orElseThrow(() -> new WarehouseBusinessException(
-                        "KhÃ´ng tÃ¬m tháº¥y dÃ²ng hÃ ng"
+                        "Không tìm thấy dòng hàng"
                 ));
     }
 
@@ -455,7 +455,7 @@ public class ImportReceiptService {
     private void ensureDraft(WarehouseTransaction receipt) {
         if (receipt.getStatus() != WarehouseTransactionStatus.DRAFT) {
             throw new WarehouseBusinessException(
-                    "Chá»‰ Ä‘Æ°á»£c sá»­a phiáº¿u Ä‘ang á»Ÿ tráº¡ng thÃ¡i nhÃ¡p"
+                    "Chỉ được sửa phiếu đang ở trạng thái nháp"
             );
         }
     }
@@ -468,12 +468,12 @@ public class ImportReceiptService {
                 .list();
 
         if (warehouses.isEmpty()) {
-            throw new WarehouseBusinessException("KhÃ´ng tÃ¬m tháº¥y kho nháº­n");
+            throw new WarehouseBusinessException("Không tìm thấy kho nhận");
         }
 
         Warehouse warehouse = warehouses.get(0);
         if (!Boolean.TRUE.equals(warehouse.getActive())) {
-            throw new WarehouseBusinessException("Kho nháº­n Ä‘ang ngá»«ng hoáº¡t Ä‘á»™ng");
+            throw new WarehouseBusinessException("Kho nhận đang ngừng hoạt động");
         }
         return warehouse;
     }
@@ -483,10 +483,10 @@ public class ImportReceiptService {
                 .id(warehouseId)
                 .optional()
                 .orElseThrow(() -> new WarehouseBusinessException(
-                        "KhÃ´ng tÃ¬m tháº¥y kho nháº­n"
+                        "Không tìm thấy kho nhận"
                 ));
         if (!Boolean.TRUE.equals(warehouse.getActive())) {
-            throw new WarehouseBusinessException("Kho nháº­n Ä‘ang ngá»«ng hoáº¡t Ä‘á»™ng");
+            throw new WarehouseBusinessException("Kho nhận đang ngừng hoạt động");
         }
         return warehouse;
     }
@@ -496,15 +496,15 @@ public class ImportReceiptService {
                 .id(partnerId)
                 .optional()
                 .orElseThrow(() -> new WarehouseBusinessException(
-                        "KhÃ´ng tÃ¬m tháº¥y Ä‘á»‘i tÃ¡c"
+                        "Không tìm thấy đối tác"
                 ));
         if (!Boolean.TRUE.equals(partner.getActive())) {
-            throw new WarehouseBusinessException("Ä�á»‘i tÃ¡c Ä‘ang ngá»«ng hoáº¡t Ä‘á»™ng");
+            throw new WarehouseBusinessException("Đối tác đang ngừng hoạt động");
         }
 
         PartnerType type = partner.getPartnerType();
         if (type != PartnerType.SUPPLIER && type != PartnerType.BOTH) {
-            throw new WarehouseBusinessException("Ä�á»‘i tÃ¡c khÃ´ng pháº£i nhÃ  cung cáº¥p");
+            throw new WarehouseBusinessException("Đối tác không phải nhà cung cấp");
         }
         return partner;
     }
@@ -514,10 +514,10 @@ public class ImportReceiptService {
                 .id(productId)
                 .optional()
                 .orElseThrow(() -> new WarehouseBusinessException(
-                        "KhÃ´ng tÃ¬m tháº¥y sáº£n pháº©m"
+                        "Không tìm thấy sản phẩm"
                 ));
         if (!Boolean.TRUE.equals(product.getActive())) {
-            throw new WarehouseBusinessException("Sáº£n pháº©m Ä‘ang ngá»«ng hoáº¡t Ä‘á»™ng");
+            throw new WarehouseBusinessException("Sản phẩm đang ngừng hoạt động");
         }
         return product;
     }
@@ -539,8 +539,8 @@ public class ImportReceiptService {
 
         if (inventories.size() > 1) {
             throw new WarehouseBusinessException(
-                    "Dá»¯ liá»‡u tá»“n kho khÃ´ng há»£p lá»‡: "
-                            + "má»™t kho/sáº£n pháº©m cÃ³ nhiá»�u dÃ²ng Inventory"
+                    "Dữ liệu tồn kho không hợp lệ: "
+                            + "một kho/sản phẩm có nhiều dòng Inventory"
             );
         }
 
@@ -596,7 +596,7 @@ public class ImportReceiptService {
     private void requireEditDraft() {
         authorizationService.require(
                 WarehousePermissions.EDIT_DRAFT,
-                "Báº¡n khÃ´ng cÃ³ quyá»�n táº¡o hoáº·c sá»­a phiáº¿u nhÃ¡p"
+                "Bạn không có quyền tạo hoặc sửa phiếu nháp"
         );
     }
 }
