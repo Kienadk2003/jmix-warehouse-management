@@ -92,17 +92,22 @@ public class ImportReceiptService {
         Product product = loadActiveProduct(command.getProductId());
         validateQuantity(command.getQuantity(), product);
 
-        boolean duplicated = unconstrainedDataManager.load(TransactionItem.class)
+        TransactionItem existingItem = unconstrainedDataManager.load(TransactionItem.class)
                 .query("select e from TransactionItem e "
                         + "where e.transaction.id = :receiptId "
                         + "and e.product.id = :productId")
                 .parameter("receiptId", receipt.getId())
                 .parameter("productId", product.getId())
                 .optional()
-                .isPresent();
+                .orElse(null);
 
-        if (duplicated) {
-            throw new WarehouseBusinessException("Sáº£n pháº©m Ä‘Ã£ cÃ³ trong phiáº¿u nháº­p");
+        if (existingItem != null) {
+            existingItem.setQuantity(existingItem.getQuantity().add(command.getQuantity()));
+            if ((existingItem.getNote() == null || existingItem.getNote().isBlank())
+                    && command.getNote() != null && !command.getNote().isBlank()) {
+                existingItem.setNote(normalizeText(command.getNote()));
+            }
+            return dataManager.save(existingItem);
         }
 
         TransactionItem item = dataManager.create(TransactionItem.class);

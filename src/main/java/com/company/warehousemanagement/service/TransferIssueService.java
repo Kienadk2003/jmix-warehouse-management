@@ -31,11 +31,14 @@ public class TransferIssueService {
 
     private final DataManager dataManager;
     private final WarehouseAuthorizationService authorizationService;
+    private final AvailableStockService availableStockService;
 
     public TransferIssueService(DataManager dataManager,
-                                WarehouseAuthorizationService authorizationService) {
+                                WarehouseAuthorizationService authorizationService,
+                                AvailableStockService availableStockService) {
         this.dataManager = dataManager;
         this.authorizationService = authorizationService;
+        this.availableStockService = availableStockService;
     }
 
     /**
@@ -248,6 +251,8 @@ public class TransferIssueService {
                     item.getQuantity(),
                     item.getLineNo()
             );
+            availableStockService.validateAvailableStock(
+                    loadedSourceWarehouse.getId(), productId, item.getQuantity());
 
             Unit unit = item.getUnit();
 

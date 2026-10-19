@@ -2,12 +2,15 @@ package com.company.warehousemanagement.view.export;
 
 import com.company.warehousemanagement.entity.WarehouseTransaction;
 import com.company.warehousemanagement.entity.WarehouseTransactionStatus;
+import com.company.warehousemanagement.entity.TransactionItem;
 import com.company.warehousemanagement.exception.WarehouseBusinessException;
 import com.company.warehousemanagement.security.WarehouseAuthorizationService;
 import com.company.warehousemanagement.security.WarehousePermissions;
 import com.company.warehousemanagement.service.ExportIssueService;
+import com.company.warehousemanagement.service.AvailableStockService;
 import com.company.warehousemanagement.service.ExportPostingService;
 import com.company.warehousemanagement.service.ReversalService;
+import com.company.warehousemanagement.service.TransactionItemMergeSupport;
 import com.company.warehousemanagement.service.WarehouseTransactionEmailService;
 import com.company.warehousemanagement.service.WarehouseTransactionWorkflowService;
 import com.company.warehousemanagement.view.main.MainView;
@@ -23,13 +26,19 @@ import com.vaadin.flow.router.Route;
 import io.jmix.core.Messages;
 import io.jmix.core.EntityStates;
 import io.jmix.flowui.component.textfield.TypedTextField;
+import io.jmix.flowui.component.grid.DataGrid;
 import io.jmix.flowui.kit.component.button.JmixButton;
+import io.jmix.flowui.model.CollectionContainer;
+import io.jmix.flowui.model.CollectionPropertyContainer;
+import io.jmix.flowui.model.DataContext;
+import io.jmix.flowui.model.InstanceContainer;
 import io.jmix.flowui.view.EditedEntityContainer;
 import io.jmix.flowui.view.StandardDetailView;
 import io.jmix.flowui.view.StandardDetailView.AfterSaveEvent;
 import io.jmix.flowui.view.StandardDetailView.InitEntityEvent;
 import io.jmix.flowui.view.StandardDetailView.ValidationEvent;
 import io.jmix.flowui.view.Subscribe;
+import io.jmix.flowui.view.Target;
 import io.jmix.flowui.view.View.BeforeShowEvent;
 import io.jmix.flowui.view.ViewComponent;
 import io.jmix.flowui.view.ViewController;
@@ -37,6 +46,8 @@ import io.jmix.flowui.view.ViewDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.ArrayList;
 
 @Route(value = "export-issues/:id", layout = MainView.class)
 @ViewController(id = "WarehouseTransaction.exportDetail")
@@ -51,6 +62,9 @@ public class ExportDetailView extends StandardDetailView<WarehouseTransaction> {
 
     @Autowired
     private ExportIssueService exportIssueService;
+
+    @Autowired
+    private AvailableStockService availableStockService;
 
     @Autowired
     private ExportPostingService exportPostingService;
@@ -109,7 +123,17 @@ public class ExportDetailView extends StandardDetailView<WarehouseTransaction> {
     @ViewComponent
     private JmixButton rejectButton;
 
+    @ViewComponent
+    private DataGrid<TransactionItem> itemsDataGrid;
+
+    @ViewComponent
+    private CollectionPropertyContainer<TransactionItem> itemsDc;
+
+    @ViewComponent
+    private DataContext dataContext;
+
     private boolean workflowActionInProgress;
+    private boolean mergingDuplicateItems;
 
     @Subscribe
     public void onInitEntity(final InitEntityEvent<WarehouseTransaction> event) {
@@ -162,6 +186,7 @@ public class ExportDetailView extends StandardDetailView<WarehouseTransaction> {
         if (transaction == null) {
             return;
         }
+        configureAvailableStockColumn();
         updateActionVisibility(transaction);
     }
 
@@ -172,10 +197,45 @@ public class ExportDetailView extends StandardDetailView<WarehouseTransaction> {
             return;
         }
 
+        mergeDuplicateItems(false);
         try {
             exportIssueService.validateDraft(transaction);
         } catch (WarehouseBusinessException e) {
             event.getErrors().add(e.getMessage());
+        }
+    }
+
+    @Subscribe(id = "itemsDc", target = Target.DATA_CONTAINER)
+    public void onItemsDcCollectionChange(
+            CollectionContainer.CollectionChangeEvent<TransactionItem> event) {
+        mergeDuplicateItems(true);
+    }
+
+    @Subscribe(id = "itemsDc", target = Target.DATA_CONTAINER)
+    public void onItemsDcItemPropertyChange(
+            InstanceContainer.ItemPropertyChangeEvent<TransactionItem> event) {
+        mergeDuplicateItems(true);
+    }
+
+    private void mergeDuplicateItems(boolean notifyUser) {
+        if (mergingDuplicateItems) {
+            return;
+        }
+        mergingDuplicateItems = true;
+        try {
+            var itemsBeforeMerge = new ArrayList<>(itemsDc.getItems());
+            boolean merged = TransactionItemMergeSupport.mergeDuplicateProducts(itemsDc.getMutableItems());
+            if (merged) {
+                itemsBeforeMerge.stream()
+                        .filter(item -> !itemsDc.getItems().contains(item))
+                        .forEach(dataContext::remove);
+            }
+            if (merged && notifyUser) {
+                Notification.show("Sản phẩm đã có trong phiếu; số lượng đã được cộng dồn",
+                        3000, Position.TOP_END);
+            }
+        } finally {
+            mergingDuplicateItems = false;
         }
     }
 
@@ -436,5 +496,24 @@ public class ExportDetailView extends StandardDetailView<WarehouseTransaction> {
     private void updateStatusLabel(WarehouseTransaction transaction) {
         WarehouseTransactionStatus status = transaction.getStatus();
         statusLabel.setText(status == null ? "—" : messages.getMessage("com.company.warehousemanagement.entity/WarehouseTransactionStatus." + status.name()));
+    }
+
+    private void configureAvailableStockColumn() {
+        if (itemsDataGrid.getColumnByKey("availableStock") == null) {
+            itemsDataGrid.addColumn(this::availableStockText)
+                    .setKey("availableStock")
+                    .setHeader("Tồn hiện tại");
+        }
+    }
+
+    private String availableStockText(TransactionItem item) {
+        WarehouseTransaction transaction = getEditedEntity();
+        if (transaction == null || transaction.getSourceWarehouse() == null
+                || item == null || item.getProduct() == null) {
+            return "—";
+        }
+        return availableStockService.getAvailableStock(
+                        transaction.getSourceWarehouse().getId(), item.getProduct().getId())
+                .stripTrailingZeros().toPlainString();
     }
 }

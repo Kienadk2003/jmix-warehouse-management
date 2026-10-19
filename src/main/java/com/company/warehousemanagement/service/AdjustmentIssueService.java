@@ -25,11 +25,14 @@ public class AdjustmentIssueService {
 
     private final DataManager dataManager;
     private final WarehouseAuthorizationService authorizationService;
+    private final AvailableStockService availableStockService;
 
     public AdjustmentIssueService(DataManager dataManager,
-                                  WarehouseAuthorizationService authorizationService) {
+                                  WarehouseAuthorizationService authorizationService,
+                                  AvailableStockService availableStockService) {
         this.dataManager = dataManager;
         this.authorizationService = authorizationService;
+        this.availableStockService = availableStockService;
     }
 
     public void prepareNewDraft(WarehouseTransaction transaction) {
@@ -245,6 +248,11 @@ public class AdjustmentIssueService {
                 throw new WarehouseBusinessException(
                         "Phần nguyên của Quantity không được vượt quá 16 chữ số"
                 );
+            }
+
+            if (transaction.getAdjustmentDirection() == AdjustmentDirection.OUT) {
+                availableStockService.validateAvailableStock(
+                        warehouse.getId(), productId, quantity);
             }
 
             /*

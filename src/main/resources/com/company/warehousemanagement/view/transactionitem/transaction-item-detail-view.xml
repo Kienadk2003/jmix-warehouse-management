@@ -40,6 +40,8 @@
                 </validators>
             </bigDecimalField>
 
+            <textField id="availableStockField" label="Tồn hiện tại" readOnly="true"/>
+
             <entityPicker id="unitField" property="unit" label="Đơn vị tính" required="true" requiredMessage="Bạn chưa chọn đơn vị tính">
                 <actions>
                     <action id="entityLookupAction" type="entity_lookup"/>

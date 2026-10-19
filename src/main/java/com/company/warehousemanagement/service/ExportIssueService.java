@@ -33,11 +33,14 @@ public class ExportIssueService {
 
     private final DataManager dataManager;
     private final WarehouseAuthorizationService authorizationService;
+    private final AvailableStockService availableStockService;
 
     public ExportIssueService(DataManager dataManager,
-                              WarehouseAuthorizationService authorizationService) {
+                              WarehouseAuthorizationService authorizationService,
+                              AvailableStockService availableStockService) {
         this.dataManager = dataManager;
         this.authorizationService = authorizationService;
+        this.availableStockService = availableStockService;
     }
 
     /**
@@ -149,6 +152,8 @@ public class ExportIssueService {
 
             BigDecimal quantity = item.getQuantity();
             validateQuantity(quantity, item.getLineNo());
+            availableStockService.validateAvailableStock(
+                    loadedWarehouse.getId(), productId, quantity);
 
             Unit unit = item.getUnit();
             if (unit == null) {

@@ -8,6 +8,7 @@ import com.company.warehousemanagement.security.WarehouseAuthorizationService;
 import com.company.warehousemanagement.security.WarehousePermissions;
 import com.company.warehousemanagement.service.AdjustmentIssueService;
 import com.company.warehousemanagement.service.AdjustmentPostingService;
+import com.company.warehousemanagement.service.AvailableStockService;
 import com.company.warehousemanagement.service.ReversalService;
 import com.company.warehousemanagement.service.WarehouseTransactionWorkflowService;
 import com.company.warehousemanagement.view.main.MainView;
@@ -54,6 +55,9 @@ public class AdjustmentDetailView extends StandardDetailView<WarehouseTransactio
 
     @Autowired
     private AdjustmentIssueService adjustmentIssueService;
+
+    @Autowired
+    private AvailableStockService availableStockService;
 
     @Autowired
     private AdjustmentPostingService adjustmentPostingService;
@@ -118,6 +122,7 @@ public class AdjustmentDetailView extends StandardDetailView<WarehouseTransactio
 
     @Subscribe
     public void onBeforeShow(BeforeShowEvent event) {
+        configureAvailableStockColumn();
         refreshActions();
     }
 
@@ -446,5 +451,24 @@ public class AdjustmentDetailView extends StandardDetailView<WarehouseTransactio
 
     private void showError(String message) {
         Notification.show(message, 4500, Position.TOP_END);
+    }
+
+    private void configureAvailableStockColumn() {
+        if (itemsDataGrid.getColumnByKey("availableStock") == null) {
+            itemsDataGrid.addColumn(this::availableStockText)
+                    .setKey("availableStock")
+                    .setHeader("Tồn hiện tại");
+        }
+    }
+
+    private String availableStockText(TransactionItem item) {
+        WarehouseTransaction transaction = getEditedEntity();
+        if (transaction == null || transaction.getSourceWarehouse() == null
+                || item == null || item.getProduct() == null) {
+            return "—";
+        }
+        return availableStockService.getAvailableStock(
+                        transaction.getSourceWarehouse().getId(), item.getProduct().getId())
+                .stripTrailingZeros().toPlainString();
     }
 }

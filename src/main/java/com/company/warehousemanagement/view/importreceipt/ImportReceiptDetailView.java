@@ -265,7 +265,7 @@ public class ImportReceiptDetailView extends StandardView
 
         try {
             importReceiptService.addItem(command);
-            notifications.show("Đã thêm sản phẩm vào phiếu");
+            notifications.show("Đã thêm hoặc cộng dồn số lượng sản phẩm vào phiếu");
             clearItemEditor();
             reloadItems();
         } catch (WarehouseBusinessException exception) {
