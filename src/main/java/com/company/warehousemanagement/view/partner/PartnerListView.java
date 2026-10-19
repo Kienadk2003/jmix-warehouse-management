@@ -4,6 +4,9 @@ import com.company.warehousemanagement.entity.Partner;
 import com.company.warehousemanagement.view.main.MainView;
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.button.Button;
+import com.company.warehousemanagement.service.MasterDataImportDialog;
+import org.springframework.beans.factory.annotation.Autowired;
 import com.vaadin.flow.router.Route;
 import io.jmix.core.DataManager;
 import io.jmix.flowui.component.grid.DataGrid;
@@ -25,8 +28,17 @@ public class PartnerListView extends StandardListView<Partner> {
 
     private boolean searchListenerRegistered;
 
+    @ViewComponent
+    private Button importButton;
+
+    @Autowired
+    private MasterDataImportDialog masterDataImportDialog;
+
     @Subscribe
     public void onBeforeShow(BeforeShowEvent event) {
+        if (importButton != null) {
+            importButton.addClickListener(click -> masterDataImportDialog.open("partner", () -> partnersDl.load()));
+        }
         if (!searchListenerRegistered) {
             searchField.addValueChangeListener(valueChangeEvent -> applySearch());
             searchListenerRegistered = true;

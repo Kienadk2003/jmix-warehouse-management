@@ -30,6 +30,7 @@
                 <button id="editButton" action="unitsDataGrid.editAction" icon="vaadin:pencil" text="Sửa"/>
                 <button id="readButton" action="unitsDataGrid.readAction" icon="vaadin:eye" text="Xem chi tiết"/>
                 <button id="removeButton" action="unitsDataGrid.removeAction" themeNames="error" icon="vaadin:trash" text="Xóa"/>
+                <button id="importButton" icon="vaadin:upload" text="Import CSV / Excel"/>
             </startSlot>
             <endSlot>
                 <simplePagination id="pagination" dataLoader="unitsDl"/>

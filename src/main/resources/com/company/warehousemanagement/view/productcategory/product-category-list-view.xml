@@ -30,6 +30,7 @@
                 <button id="editButton" action="productCategoriesDataGrid.editAction" icon="vaadin:pencil" text="Sửa"/>
                 <button id="readButton" action="productCategoriesDataGrid.readAction" icon="vaadin:eye" text="Xem chi tiết"/>
                 <button id="removeButton" action="productCategoriesDataGrid.removeAction" themeNames="error" icon="vaadin:trash" text="Xóa"/>
+                <button id="importButton" icon="vaadin:upload" text="Import CSV / Excel"/>
             </startSlot>
             <endSlot>
                 <simplePagination id="pagination" dataLoader="productCategoriesDl"/>

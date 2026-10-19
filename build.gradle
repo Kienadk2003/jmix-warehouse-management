@@ -47,6 +47,7 @@ dependencies {
     // IMAP access for the header email inbox (jakarta.mail). SMTP sending already uses it.
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'com.vaadin:vaadin-dev'
+    implementation 'org.apache.poi:poi-ooxml:5.4.1'
 
     runtimeOnly 'org.hsqldb:hsqldb'
 
