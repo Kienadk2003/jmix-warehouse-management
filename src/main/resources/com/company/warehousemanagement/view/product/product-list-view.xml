@@ -32,7 +32,7 @@
                 <button id="createButton" action="productsDataGrid.createAction" themeNames="primary" icon="vaadin:plus" text="Tạo mới"/>
                 <button id="editButton" action="productsDataGrid.editAction" icon="vaadin:pencil" text="Sửa"/>
                 <button id="readButton" action="productsDataGrid.readAction" icon="vaadin:eye" text="Xem chi tiết"/>
-                <button id="removeButton" action="productsDataGrid.removeAction" themeNames="error" icon="vaadin:trash" text="Xóa"/>
+                <button id="removeButton" themeNames="error" icon="vaadin:trash" text="Xóa"/>
                 <button id="importButton" icon="vaadin:upload" text="Import CSV / Excel"/>
             </startSlot>
             <endSlot>

@@ -1,6 +1,7 @@
 package com.company.warehousemanagement.service;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
@@ -24,11 +25,23 @@ public class MasterDataImportDialog {
         layout.add(new Paragraph("File phải có dòng tiêu đề ở hàng đầu. Mã trùng sẽ được xử lý theo lựa chọn bên dưới."));
         ComboBox<MasterDataImportService.DuplicateMode> duplicate=new ComboBox<>("Khi mã đã tồn tại");
         duplicate.setItems(MasterDataImportService.DuplicateMode.values());
-        duplicate.setItemLabelGenerator(m->m==MasterDataImportService.DuplicateMode.SKIP?"Bỏ qua bản ghi trùng":"Cập nhật bản ghi hiện có"); duplicate.setValue(MasterDataImportService.DuplicateMode.SKIP); duplicate.setWidthFull();
+        duplicate.setItemLabelGenerator(m -> switch (m) {
+            case SKIP -> "Thêm dữ liệu — bỏ qua mã đã tồn tại";
+            case UPDATE -> "Thêm dữ liệu — cập nhật mã đã tồn tại";
+            case REPLACE_ALL -> "Thay thế toàn bộ dữ liệu danh mục này";
+        });
+        duplicate.setValue(MasterDataImportService.DuplicateMode.SKIP); duplicate.setWidthFull();
+        Checkbox confirmReplace = new Checkbox("Tôi hiểu dữ liệu cũ của danh mục này sẽ bị xóa trước khi nhập file mới.");
+        confirmReplace.setVisible(false);
+        duplicate.addValueChangeListener(event -> confirmReplace.setVisible(event.getValue() == MasterDataImportService.DuplicateMode.REPLACE_ALL));
         MemoryBuffer buffer=new MemoryBuffer(); Upload upload=new Upload(buffer); upload.setAcceptedFileTypes(".csv",".xlsx"); upload.setMaxFiles(1); upload.setMaxFileSize(15*1024*1024); upload.setDropAllowed(true);
         Div result=new Div(); result.setWidthFull();
         upload.addSucceededListener(event->{
             try {
+                if (duplicate.getValue() == MasterDataImportService.DuplicateMode.REPLACE_ALL && !confirmReplace.getValue()) {
+                    Notification.show("Hãy xác nhận thao tác thay thế toàn bộ dữ liệu trước khi tải file.", 5000, Notification.Position.TOP_END).addThemeVariants(NotificationVariant.LUMO_ERROR);
+                    return;
+                }
                 var rows=service.read(buffer.getInputStream(),event.getFileName());
                 var report=service.importRows(type,rows,duplicate.getValue());
                 StringBuilder text=new StringBuilder("Đã tạo: "+report.created()+" | Cập nhật: "+report.updated()+" | Bỏ qua: "+report.skipped()+" | Lỗi: "+report.errors().size());
@@ -38,6 +51,6 @@ public class MasterDataImportDialog {
                 else Notification.show("Import xong nhưng có dòng lỗi. Xem báo cáo trong cửa sổ.",5000,Notification.Position.TOP_END).addThemeVariants(NotificationVariant.LUMO_ERROR);
             } catch(Exception ex){ Notification.show("Không thể import: "+(ex.getMessage()==null?ex.getClass().getSimpleName():ex.getMessage()),6000,Notification.Position.TOP_END).addThemeVariants(NotificationVariant.LUMO_ERROR); }
         });
-        Button close=new Button("Đóng",e->dialog.close()); layout.add(duplicate,upload,result,close); dialog.add(layout); dialog.open();
+        Button close=new Button("Đóng",e->dialog.close()); layout.add(duplicate, confirmReplace, upload, result, close); dialog.add(layout); dialog.open();
     }
 }
